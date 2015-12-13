@@ -11,6 +11,7 @@
 "
 " Debugging mappings example
 " :verbose map <c-j>
+" ~/dotfiles/vimrc
 "
 " Plugin Ideas:
 " better search:
@@ -43,73 +44,76 @@ set nocompatible
 filetype off " required
 
 " Last time it installed into bundle/vundle as well, two clones! issue?
-set runtimepath+=$HOME/.vim/bundle/Vundle.vim
-call vundle#rc('~/.vim/bundle')
+" set runtimepath+=$HOME/.vim/bundle/Vundle.vim
+" call vundle#rc('~/.vim/bundle')
 
-Bundle 'VundleVim/Vundle.vim'
+call plug#begin('~/.vim/plugged')
  
-Bundle 'https://github.com/mhinz/vim-startify'
-Bundle 'https://github.com/mileszs/ack.vim'
-Bundle 'majutsushi/tagbar'
-Bundle 'https://github.com/rhysd/clever-f.vim'
-Bundle 'https://github.com/tomtom/tcomment_vim'
-Bundle 'https://github.com/kien/ctrlp.vim'
-Bundle 'https://github.com/davidhalter/jedi-vim'
-Bundle 'https://github.com/luochen1990/rainbow'
-Bundle 'https://github.com/elzr/vim-json'
-Bundle 'https://github.com/tpope/vim-repeat'
-Bundle 'https://github.com/tpope/vim-sensible'
-Bundle 'https://github.com/tpope/vim-surround'
-Bundle 'https://github.com/tpope/vim-fugitive'
-Bundle 'https://github.com/tpope/vim-dispatch'
-Bundle 'https://github.com/tpope/vim-unimpaired'
-Bundle 'https://github.com/tpope/vim-vinegar'
-Bundle 'https://github.com/tpope/vim-markdown'
-Bundle 'https://github.com/bling/vim-airline'
+Plug 'mhinz/vim-startify'
+Plug 'mileszs/ack.vim'
+Plug 'majutsushi/tagbar'
+Plug 'rhysd/clever-f.vim'
+Plug 'tomtom/tcomment_vim'
+Plug 'kien/ctrlp.vim'
+Plug 'davidhalter/jedi-vim'
+Plug 'luochen1990/rainbow'
+Plug 'elzr/vim-json'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-markdown'
+Plug 'bling/vim-airline'
+Plug 'matze/vim-move'
+Plug 'justinmk/vim-sneak'
 " Bundle 'https://github.com/xolox/vim-easytags'
 " Bundle 'https://github.com/xolox/vim-misc'
 " Bundle 'https://github.com/xolox/vim-shell'
-Bundle 'https://github.com/matze/vim-move'
 " GNU R project
-Bundle 'https://github.com/jcfaria/Vim-R-plugin'
-Bundle 'https://github.com/justinmk/vim-sneak'
-Bundle 'https://github.com/kana/vim-vspec.git'
-Bundle 'https://github.com/vim-scripts/Windows-PowerShell-Syntax-Plugin'
-Bundle 'https://github.com/gerw/vim-latex-suite'
+Plug 'jcfaria/Vim-R-plugin'
+Plug 'kana/vim-vspec'
+Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
+Plug 'gerw/vim-latex-suite'
 " Bundle 'https://github.com/paradigm/TextObjectify'
-Bundle 'https://github.com/justinmk/TextObjectify'
-Bundle 'https://github.com/Shougo/unite.vim'
-Bundle 'https://github.com/SirVer/ultisnips'
-Bundle 'https://github.com/honza/vim-snippets'
-Bundle 'https://github.com/kchmck/vim-coffee-script'
-Bundle 'https://github.com/ervandew/supertab'
+Plug 'justinmk/TextObjectify'
+Plug 'Shougo/unite.vim'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'kchmck/vim-coffee-script'
+Plug 'ervandew/supertab'
 " Bundle 'https://github.com/lukaszkorecki/CoffeeTags'
-Bundle 'https://github.com/thinca/vim-ref'
-Bundle 'https://github.com/Chiel92/vim-autoformat'
-Bundle 'octol/vim-cpp-enhanced-highlight'
-Bundle 'https://github.com/tomtom/quickfixsigns_vim'
-Bundle 'https://github.com/othree/html5.vim'
-Bundle 'https://github.com/gorkunov/smartpairs.vim'
-Bundle 'https://github.com/sukima/xmledit/'
-Bundle 'https://github.com/vim-scripts/restore_view.vim'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'thinca/vim-ref'
+Plug 'Chiel92/vim-autoformat'
+Plug 'tomtom/quickfixsigns_vim'
+Plug 'othree/html5.vim'
+Plug 'gorkunov/smartpairs.vim'
+Plug 'sukima/xmledit/'
+Plug 'vim-scripts/restore_view.vim'
 
 " I forked this! Original repo is not maintained.
-Bundle 'https://github.com/gorodinskiy/vim-coloresque.git'
+" Plug 'gorodinskiy/vim-coloresque.git'
+Plug 'etdev/vim-hexcolor'
 
 " Own Plugins:
-Bundle 'https://github.com/freeo/vim-kalisi'
-Bundle 'https://github.com/freeo/vim-saveunnamed'
-Bundle 'https://github.com/freeo/vim-workbench'
+Plug 'freeo/vim-kalisi'
+Plug 'freeo/vim-saveunnamed'
+Plug 'freeo/vim-workbench'
 
 " Forked: pytest-2 and pytest-3 support
-Bundle 'pytest-vim-compiler'
-Bundle 'https://github.com/freeo/vim-ipython'
-Bundle 'https://github.com/freeo/vim-makegreen'
+Plug 'pytest-vim-compiler'
+Plug 'freeo/vim-ipython'
+Plug 'freeo/vim-makegreen'
 
 " No remote repo, preserve from BundleClean deletion
-Bundle 'python-syntax-master'
-Bundle 'plugin_colors'
+Plug 'python-syntax-master'
+Plug 'plugin_colors'
 " outsourced kalisi colors, which belong to plugins
+
+call plug#end()
 
 " Problem Plugins:
 " Closetag
@@ -337,6 +341,10 @@ catch E197
     " wrong locale error
 endtry
 
+set list
+set listchars=tab:›\ ,trail:\ ,extends:…
+" set listchars=tab:›…,trail:░,extends:
+"░▒▓
 
 "## REMAPPINGS ##########################################################
 
@@ -869,6 +877,8 @@ nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
 " nnoremap <C-S-TAB> :bp<CR>
 
 
+nnoremap <C-TAB> :bn<CR>
+nnoremap <C-S-TAB> :bp<CR>
 " MinTTY sequences, switching windows has to be disabled
 nnoremap [1;5I :bn<CR>
 nnoremap [1;6I :bp<CR>
@@ -1402,7 +1412,7 @@ command! NyanMe call NyanMe()
 
 
 
-let g:startify_bookmarks = ['~/_vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/.vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 let g:startify_session_autoload = 1
 let g:startify_session_persistence = 1
