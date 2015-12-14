@@ -1412,7 +1412,7 @@ command! NyanMe call NyanMe()
 
 
 
-let g:startify_bookmarks = ['~/.vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 let g:startify_session_autoload = 1
 let g:startify_session_persistence = 1
