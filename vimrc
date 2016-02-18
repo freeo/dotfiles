@@ -954,7 +954,7 @@ vmap <C-@> gcc
 let window_mode = 1
 
 "keep left
-map <F3> :call DualwindowSwitch(0)<CR>
+map <F6> :call DualwindowSwitch(0)<CR>
 "keep right
 " map <F4> :call DualwindowSwitch(1)<CR>
 map <F4> :call HalveHorizontally()<CR>
@@ -1759,19 +1759,46 @@ endfunction
 "---------------------
 " the last <CR> is to clear the vim command line from the 'press any key'
 " dialog
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>silent! execute '!start C:/ConEmu/ConEmu.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start ConEmu64.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
+" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>silent! execute '!start ConEmu.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
 
 autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python33/Scripts/ipython3 '.shellescape(@%, 1)<CR>
 
 autocmd! BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
 
 
-if has("win64")
-  autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files (x86)\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
-else 
-  autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
-  " autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+let g:TEST_AHK = 0
+function! GetAHKpath()
+  let a:AHKpaths = [
+      \ "C:/Program Files/AutoHotkey/AutoHotkey.exe", 
+      \ "C:/Program Files (x86)/AutoHotkey/AutoHotkey.exe"
+      \ ]
+  for i in a:AHKpaths
+    " TEST
+    if g:TEST_AHK
+      echo i
+      echo filereadable(i)
+    endif
+    if filereadable(i)
+      let g:AHKpath = i
+    endif
+  endfor
+endfunction
+
+call GetAHKpath()
+
+" TEST
+if g:TEST_AHK
+  echom g:AHKpath
 endif
+autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.g:AHKpath.' '.shellescape(@%,1)<CR>
+
+" if has("win64")
+"   autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files (x86)\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+" else 
+"   autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+"   " autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+" endif
 
 autocmd! Filetype dosbatch nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.shellescape(@%,1)<CR>
 
