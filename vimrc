@@ -326,19 +326,20 @@ set lazyredraw
 
 set showtabline=1
 
-set cryptmethod=blowfish2
+if !has('nvim')
+  set cryptmethod=blowfish2
+endif
 
 set spelllang=de_20,en
-
-
 
 try
     language messages en
     language English_United States
     language messages en_US.UTF-8
     language en_US.UTF-8
-catch E197
-    " wrong locale error
+catch /E197\|E319/
+    " E197 wrong locale error
+    " E319 nvim doesn't have this feature
 endtry
 
 set list
