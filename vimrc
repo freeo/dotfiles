@@ -2144,5 +2144,11 @@ endfunction
 command! Tasklist silent call CollectTasks()
 
 
+function! RegistersCleanUp()
+  let regs='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-"' | let i=0 | while (i<strlen(regs)) | exec 'let @'.regs[i].'=""' | let i=i+1 | endwhile | unlet regs
+endfunction
+
+command! RegClean silent call RegistersCleanUp()
+
 redraw! " for various echom messages
 " End of my epic vimrc!
