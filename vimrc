@@ -107,6 +107,7 @@ Plug 'etdev/vim-hexcolor'
 Plug 'freeo/vim-kalisi'
 Plug 'freeo/vim-saveunnamed'
 Plug 'freeo/vim-workbench'
+Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 
 " Forked: pytest-2 and pytest-3 support
 Plug 'pytest-vim-compiler'
