@@ -21,8 +21,7 @@
 " /test/el
 " new options after /
 " wbelge
-" History of insertions! not yankring, but insertring!
-" Or even better: Repeat ring! '.' is repeat, <leader>. opens repeat ring, 
+" History of insertions! not yankring, but insertring!  Or even better: Repeat ring! '.' is repeat, <leader>. opens repeat ring, 
 " lets you insert again your second insert or even older OR repeat previous
 " actions instead of limiting to the last one!
 "
@@ -67,6 +66,7 @@ Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-markdown'
 Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'matze/vim-move'
 Plug 'justinmk/vim-sneak'
 " Bundle 'https://github.com/xolox/vim-easytags'
@@ -607,7 +607,8 @@ set viewdir=~/.vim/view/
 
 " recommended by restore_vim.vim
 " set viewoptions=cursor,folds,slash,unix
-set viewoptions=folds,slash,unix " removed cursor due to bad implementation
+" set viewoptions=folds,slash,unix " removed cursor due to bad implementation
+set viewoptions=slash,unix " removed cursor due to bad implementation
 
 " FOLDTEXT
 set foldtext=MyFoldText()
@@ -705,11 +706,12 @@ else
     set visualbell
     " ConEmu only! Doesn't work with vanilla powershell.exe
     if $is_powershell 
+        " cursor not working, unreliable, slow
         " $is_powershell is an ENV variable set in the powershell $profile
-        set term=xterm
-        set t_Co=256
-        let &t_AB="\e[48;5;%dm"
-        let &t_AF="\e[38;5;%dm"
+        " set term=xterm
+        " set t_Co=256
+        " let &t_AB="\e[48;5;%dm"
+        " let &t_AF="\e[38;5;%dm"
     else
         colorscheme default
         let g:airline_theme=''
@@ -1760,7 +1762,7 @@ endfunction
 "---------------------
 " the last <CR> is to clear the vim command line from the 'press any key'
 " dialog
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start ConEmu64.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start ConEmu64.exe /cmd cmd /c py -3 '.shellescape(@%, 1).' -new_console:c'<CR><CR>
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>silent! execute '!start ConEmu.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
 
 autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python33/Scripts/ipython3 '.shellescape(@%, 1)<CR>
@@ -2116,9 +2118,10 @@ endif
 
 "Identify the syntax highlighting group used at the cursor
 " http://vim.wikia.com/wiki/Identify_the_syntax_highlighting_group_used_at_the_cursor
-map <F6> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+" Helper: Syntax Highlight Under Cursor
+" map <F6> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+" \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 
 " Line Link to filename
