@@ -80,7 +80,9 @@ Plug 'gerw/vim-latex-suite'
 " Bundle 'https://github.com/paradigm/TextObjectify'
 Plug 'justinmk/TextObjectify'
 Plug 'Shougo/unite.vim'
-Plug 'SirVer/ultisnips'
+if has("python")
+  Plug 'SirVer/ultisnips'
+endif
 Plug 'honza/vim-snippets'
 Plug 'kchmck/vim-coffee-script'
 Plug 'ervandew/supertab'
@@ -93,6 +95,9 @@ Plug 'othree/html5.vim'
 Plug 'gorkunov/smartpairs.vim'
 Plug 'sukima/xmledit/'
 Plug 'vim-scripts/restore_view.vim'
+Plug 'rhysd/nyaovim-popup-tooltip'
+Plug 'rhysd/nyaovim-markdown-preview'
+Plug 'rhysd/nyaovim-mini-browser'
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
@@ -674,7 +679,13 @@ set background=light
 colorscheme kalisi 
 set synmaxcol=200
 let g:airline_theme='kalisi'
-let g:airline_powerline_fonts = 1
+if !has("nvim")
+  let g:airline_powerline_fonts = 1
+else
+  let g:airline_powerline_fonts = 0
+  let g:airline_left_sep=''
+  let g:airline_right_sep=''
+endif
 
 if has("gui_running")
   set go-=TlLrR
@@ -2135,6 +2146,12 @@ endfunction
 
 command! Tasklist silent call CollectTasks()
 
+
+function! RegistersCleanUp()
+  let regs='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-"' | let i=0 | while (i<strlen(regs)) | exec 'let @'.regs[i].'=""' | let i=i+1 | endwhile | unlet regs
+endfunction
+
+command! RegClean silent call RegistersCleanUp()
 
 redraw! " for various echom messages
 " End of my epic vimrc!
