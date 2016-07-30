@@ -78,8 +78,8 @@ Plug 'jcfaria/Vim-R-plugin'
 Plug 'kana/vim-vspec'
 Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
 Plug 'gerw/vim-latex-suite'
-" Bundle 'https://github.com/paradigm/TextObjectify'
-Plug 'justinmk/TextObjectify'
+Plug 'paradigm/TextObjectify'
+" Plug 'justinmk/TextObjectify'
 Plug 'Shougo/unite.vim'
 if has("python")
   Plug 'SirVer/ultisnips'
@@ -100,6 +100,10 @@ Plug 'rhysd/nyaovim-popup-tooltip'
 Plug 'rhysd/nyaovim-markdown-preview'
 Plug 'rhysd/nyaovim-mini-browser'
 Plug 'AndrewRadev/sideways.vim'
+" Plug 'hdima/python-syntax'
+" until pull request is done
+"https://github.com/hdima/python-syntax/pull/52
+Plug 'freeo/python-syntax'
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
@@ -117,7 +121,7 @@ Plug 'freeo/vim-ipython'
 Plug 'freeo/vim-makegreen'
 
 " No remote repo, preserve from BundleClean deletion
-Plug 'python-syntax-master'
+" Plug 'python-syntax-master'
 Plug 'plugin_colors'
 " outsourced kalisi colors, which belong to plugins
 
@@ -902,17 +906,14 @@ set autoread
 set autowrite
 set autowriteall
 
-" nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
-" nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
-nnoremap <C-TAB> :exec "call Autosave()"<bar>:bn<CR>
-nnoremap <C-S-TAB> :exec "call Autosave()"<bar>:bp<CR>
+nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
+nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
+" nnoremap <C-TAB> :exec "call Autosave()"<bar>:bn<CR>
+" nnoremap <C-S-TAB> :exec "call Autosave()"<bar>:bp<CR>
+
 " WITHOUT AUTOSAVE
 " nnoremap <C-TAB> :bn<CR>
 " nnoremap <C-S-TAB> :bp<CR>
-
-
-nnoremap <C-TAB> :bn<CR>
-nnoremap <C-S-TAB> :bp<CR>
 " MinTTY sequences, switching windows has to be disabled
 nnoremap [1;5I :bn<CR>
 nnoremap [1;6I :bp<CR>
