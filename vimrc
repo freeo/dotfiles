@@ -38,6 +38,7 @@ imap jk <ESC>
 imap jj <Esc> 
 
 let g:vimfiles = "~/.vim"
+let g:conemu = "C:\\Program Files\\ConEmu\\ConEmu64.exe /single -run"
 
 set nocompatible 
 filetype off " required
@@ -98,6 +99,7 @@ Plug 'vim-scripts/restore_view.vim'
 Plug 'rhysd/nyaovim-popup-tooltip'
 Plug 'rhysd/nyaovim-markdown-preview'
 Plug 'rhysd/nyaovim-mini-browser'
+Plug 'AndrewRadev/sideways.vim'
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
@@ -154,8 +156,21 @@ function! Workaround()
     execute "AirlineTheme ".g:airline_theme
 endfunction
 
+function! RefreshUI()
+  if exists(':AirlineRefresh')
+    AirlineRefresh
+  else
+    " Clear & redraw the screen, then redraw all statuslines.
+    redraw!
+    redrawstatus!
+  endif
+endfunction
+
+au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
+
 " autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call Workaround()
-autocmd! BufWritePost ~/_vimrc :source ~/_vimrc
+" autocmd! BufWritePost ~/_vimrc :source ~/_vimrc
+autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
 let g:jedi#auto_initialization = 1
@@ -168,7 +183,7 @@ let g:pypypath ='!C:/pypy-2.2.1-win32/pypy.exe'
 exec("command! -nargs=1 Pypy ".g:pypypath." <args>")
 
 " Powershell
-command! PS silent exec '!start C:/ConEmu/ConEmu.exe /dir '.shellescape(expand("%:p:h")).' /cmd powershell'
+command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h")).' /cmd powershell'
 " Explorer
 " command! EX silent !start explorer %:p:h
 
@@ -311,7 +326,8 @@ try
 endtry
 
 set textwidth=80
-set formatoptions=tcq
+" set formatoptions=tcq
+set formatoptions=cq
 set showbreak=…
 
 set ignorecase
@@ -319,6 +335,7 @@ set smartcase
 "set commentstring = \ #\ %s
 " set foldlevel=0
 set clipboard+=unnamed " use clipboard for every yank and vice versa
+
 
 " setglobal relativenumber "disables absolute numbers in ruler
 set relativenumber "disables absolute numbers in ruler
@@ -885,8 +902,10 @@ set autoread
 set autowrite
 set autowriteall
 
-nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
-nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
+" nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
+" nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
+nnoremap <C-TAB> :exec "call Autosave()"<bar>:bn<CR>
+nnoremap <C-S-TAB> :exec "call Autosave()"<bar>:bp<CR>
 " WITHOUT AUTOSAVE
 " nnoremap <C-TAB> :bn<CR>
 " nnoremap <C-S-TAB> :bp<CR>
@@ -1427,11 +1446,12 @@ command! NyanMe call NyanMe()
 
 
 
-let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
-let g:startify_session_autoload = 1
-let g:startify_session_persistence = 1
-let g:startify_list_order = ['files', 'bookmarks', 'sessions', 'dir']
+" let g:startify_session_autoload = 1
+" let g:startify_session_persistence = 1
+" let g:startify_list_order = ['files', 'bookmarks', 'sessions', 'dir']
+let g:startify_list_order = ['files', 'bookmarks']
 
 let g:startify_files_number = 22
 
@@ -1448,12 +1468,12 @@ let g:startify_header_begin = [
 " let g:startify_header_dynamic = split(system('awk "NR==1, NR==6" %userprofile%/vimfiles/leftoff.txt'), '\n')
 " let g:startify_header_dynamic =g:startify_header_begin + split(system('awk "NR==1, NR==6" %userprofile%/vimfiles/leftoff.txt'), '\n')
 
-let g:startify_header_end = [
+" let g:startify_header_end = [
       \ '                                                     ']
 
 " let g:startify_custom_header = g:startify_header_begin + g:startify_header_dynamic + g:startify_header_end
 
-let g:startify_custom_header = ["hi freeo!"]
+" let g:startify_custom_header = ["hi freeo!"]
 
 function! MakeHeaderStart()
   redir => version_output
@@ -1470,6 +1490,7 @@ endfunction
 " let g:startify_header_start = MakeHeaderStart()
 " let g:startify_custom_header = [g:startify_header_start] + g:startify_header_dynamic
 " let g:startify_custom_header = MakeHeaderStart() + g:startify_header_dynamic
+let g:startify_custom_header = MakeHeaderStart()
 
 
 " vim-sneak
@@ -1706,11 +1727,15 @@ function! UpdateDiffHunks()
 endfunction
 
 " Swap Words Left and Right
+" Replaced by Plugin: sideways
+" https://github.com/AndrewRadev/sideways.vim
+nnoremap <a-h> :SidewaysLeft<cr>
+nnoremap <a-l> :SidewaysRight<cr>
 " http://vim.wikia.com/wiki/Swapping_characters,_words_and_lines
 " LEFT
-nnoremap <silent> <A-h> "_yiw?\w\+\_W\+\%#<CR>:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>:noh<CR>
+" nnoremap <silent> <A-h> "_yiw?\w\+\_W\+\%#<CR>:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>:noh<CR>
 " RIGHT
-nnoremap <silent> <A-l> "_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o>/\w\+\_W\+<CR><c-l>:noh<CR>
+" nnoremap <silent> <A-l> "_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o>/\w\+\_W\+<CR><c-l>:noh<CR>
 
 
 " ctags integration
@@ -1774,8 +1799,10 @@ endfunction
 "---------------------
 " the last <CR> is to clear the vim command line from the 'press any key'
 " dialog
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start ConEmu64.exe /cmd cmd /c py -3 '.shellescape(@%, 1).' -new_console:c'<CR><CR>
-" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>silent! execute '!start ConEmu.exe /cmd cmd /c py '.shellescape(@%, 1).' -new_console:c'<CR><CR>
+" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' /cmd cmd /c py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console'<CR><CR>
+
+" "py -3 ./tuplecomp.py" -cur_console:c
 
 autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python33/Scripts/ipython3 '.shellescape(@%, 1)<CR>
 
@@ -2155,4 +2182,17 @@ endfunction
 command! RegClean silent call RegistersCleanUp()
 
 redraw! " for various echom messages
+
+function! CleanJQL()
+    exec "g/^$/d"
+    exec "%s/ /\r/g"
+    exec "g/\\v^(GOLD_)@!&(TEST1_)@!&(TEST2_)@!&(RUNBOOK_)@!/d"
+endfunction
+
+function! TodaySeparator()
+  exec "norm O"
+  exec "norma I". strftime("%m%d %a") ." ----------------------------------------------------------------------"
+endfunction
+
 " End of my epic vimrc!
+"
