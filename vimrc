@@ -30,6 +30,11 @@
 " enter new buffer filetype txt
 " emph und de-emph macros
 " ä in der Suche fixen, ist ein <BS> statt nem ä.
+"
+" add to register
+" let @v=""
+" %s/MVP-\d*/\=setreg('V', [submatch(0),""])/n
+" setreg('V', [submatch(0),"\n"])
  
 " SMASH-Escape
 imap jk <ESC>
@@ -143,6 +148,7 @@ call plug#end()
 filetype plugin indent on     " required!
 
 " ############################################################################
+
 
 " Breaks TextObjectify behaviour!!!
 " source $VIMRUNTIME/mswin.vim
