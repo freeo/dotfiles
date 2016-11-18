@@ -105,10 +105,7 @@ Plug 'rhysd/nyaovim-popup-tooltip'
 Plug 'rhysd/nyaovim-markdown-preview'
 Plug 'rhysd/nyaovim-mini-browser'
 Plug 'AndrewRadev/sideways.vim'
-" Plug 'hdima/python-syntax'
-" until pull request is done
-"https://github.com/hdima/python-syntax/pull/52
-Plug 'freeo/python-syntax'
+Plug 'junegunn/vim-emoji'
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
@@ -119,6 +116,10 @@ Plug 'freeo/vim-kalisi'
 Plug 'freeo/vim-saveunnamed'
 Plug 'freeo/vim-workbench'
 Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+" Plug 'hdima/python-syntax'
+" until pull request is done
+"https://github.com/hdima/python-syntax/pull/52
+Plug 'freeo/python-syntax'
 
 " Forked: pytest-2 and pytest-3 support
 Plug 'pytest-vim-compiler'
@@ -148,6 +149,9 @@ call plug#end()
 filetype plugin indent on     " required!
 
 " ############################################################################
+"
+cnoremap s/ s/\v
+nnoremap /  /\v
 
 
 " Breaks TextObjectify behaviour!!!
@@ -335,7 +339,8 @@ try
   catch E518
 endtry
 
-set textwidth=80
+" set textwidth=80
+set textwidth=110
 " set formatoptions=tcq
 set formatoptions=cq
 set showbreak=…
@@ -379,6 +384,8 @@ set list
 set listchars=tab:›\ ,trail:\ ,extends:…
 " set listchars=tab:›…,trail:░,extends:
 "░▒▓
+
+set pythonthreedll=python34.dll
 
 "## REMAPPINGS ##########################################################
 
@@ -718,7 +725,8 @@ endif
 if has("gui_running")
   set go-=TlLrR
   set lines=55
-  set columns=85
+  " set columns=85 " for 80 textwidth
+  set columns=115
   winpos 1132 0
   if has("gui_gtk2")
     set guifont=Liberation\ Mono\ for\ Powerline\ 9,
@@ -1011,13 +1019,14 @@ function! DualwindowSwitch(right)
       endif
       exe "normal \<C-W>q"
       exe "winpos 1132 0"
-      exe "set columns=85"
+      " exe "set columns=85"
+      exe "set columns=115"
       exe "normal \<C-W>="
       let g:window_mode = 1
       echo "LEFT"
     elseif g:window_mode == 1
         exe "winpos 0 0"
-        exe "set columns=85"
+        exe "set columns=115"
         exe "normal \<C-W>="
         let g:window_mode = 2
         echo "RIGHT"
@@ -1025,8 +1034,10 @@ function! DualwindowSwitch(right)
         exe "normal \<C-W>v"
         " exe "winpos 0 0"
         exe "winpos 339 0"
-        " exe "set columns=212"
-        exe "set columns=169"
+        exe "set columns=242"
+        " exe "set columns=212" " for 80
+        exe "set columns=199"
+        " exe "set columns=169" " for 80 textwidth
         exe "normal \<C-W>="
         let g:window_mode = 0
         echo "FULLSCREEN"
@@ -1807,7 +1818,10 @@ endfunction
 " the last <CR> is to clear the vim command line from the 'press any key'
 " dialog
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' /cmd cmd /c py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console'<CR><CR>
+
+let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
+autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 " "py -3 ./tuplecomp.py" -cur_console:c
 
