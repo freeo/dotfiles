@@ -106,6 +106,10 @@ Plug 'rhysd/nyaovim-markdown-preview'
 Plug 'rhysd/nyaovim-mini-browser'
 Plug 'AndrewRadev/sideways.vim'
 Plug 'junegunn/vim-emoji'
+" preserve from BundleClean deletion
+Plug 'Valloric/YouCompleteMe'
+
+" https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
@@ -385,7 +389,9 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 " set listchars=tab:›…,trail:░,extends:
 "░▒▓
 
-set pythonthreedll=python34.dll
+" set pythonthreedll=python34.dll
+
+set completefunc=emoji#complete
 
 "## REMAPPINGS ##########################################################
 
