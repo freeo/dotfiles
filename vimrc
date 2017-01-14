@@ -1,6 +1,4 @@
 "    ########################################################################
-"  ############################################################################
-"  ##              ,---.                            ,--.                     ##
 "  ##             /  .-',--.--. ,---.  ,---.  ,---. |  |,---.                ##
 "  ##             |  `-,|  .--'| .-. :| .-. :| .-. |`-'(  .-'                ##
 "  ##             |  .-'|  |   \   --.\   --.' '-' '   .-'  `)               ##
@@ -38,9 +36,6 @@
  
 " SMASH-Escape
 imap jk <ESC>
-" imap kj <Esc> " deletes k too often
-" imap kk <Esc> " same
-imap jj <Esc> 
 
 let g:vimfiles = "~/.vim"
 let g:conemu = "C:\\Program Files\\ConEmu\\ConEmu64.exe /single -run"
@@ -85,7 +80,9 @@ Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
 Plug 'gerw/vim-latex-suite'
 Plug 'paradigm/TextObjectify'
 " Plug 'justinmk/TextObjectify'
-Plug 'Shougo/unite.vim'
+Plug 'Shougo/unite.vim' " not fully surpassed by denite, features are missing like neoyank
+Plug 'Shougo/denite.nvim'
+Plug 'Shougo/neoyank.vim'
 if has("python")
   Plug 'SirVer/ultisnips'
 endif
@@ -96,7 +93,8 @@ Plug 'ervandew/supertab'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'thinca/vim-ref'
 Plug 'Chiel92/vim-autoformat'
-Plug 'tomtom/quickfixsigns_vim'
+" Has issues since WIN10 20161129
+" Plug 'tomtom/quickfixsigns_vim'
 Plug 'othree/html5.vim'
 Plug 'gorkunov/smartpairs.vim'
 Plug 'sukima/xmledit/'
@@ -108,6 +106,7 @@ Plug 'AndrewRadev/sideways.vim'
 Plug 'junegunn/vim-emoji'
 " preserve from BundleClean deletion
 Plug 'Valloric/YouCompleteMe'
+Plug 'ryanoasis/vim-devicons'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -191,10 +190,8 @@ au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
 autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
-let g:jedi#auto_initialization = 1
-" let g:jedi#auto_vim_configuration = 1
-" let g:jedi#completions_enabled = 1
-let g:jedi#use_tabs_not_buffers = 0 
+" let g:jedi#auto_initialization = 1
+" let g:jedi#use_tabs_not_buffers = 0 
 let g:jedi#force_py_version = 3
 
 let g:pypypath ='!C:/pypy-2.2.1-win32/pypy.exe'
@@ -206,18 +203,20 @@ command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h"))
 " command! EX silent !start explorer %:p:h
 
 
+" EXPLORER INTEGRATION with -
+" WIN10 Migr issue
 " Does 'where' find something?
-let temp = system("where qt_newtab.exe")
-" let temp = system("where explorer.exe")
 " if qt_newtab isn't found, v:shell_error = 1
 " (v:shell_error is builtin, which contains the status of the last external
 " call, ! read or system)
+let temp = system("where qt_newtab.exe")
 if v:shell_error
   echom "qt_newtab.exe not in $path"
 endif
 
 command! EX !start qt_newtab.exe %:p:h
 " command! EX silent !start qt_newtab.exe %:p:h
+" nnoremap <M-_> :EX<CR>
 nnoremap <M-_> :EX<CR>
 
 " XXX
@@ -390,6 +389,7 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 "░▒▓
 
 " set pythonthreedll=python34.dll
+" set pythonthreedll=python35_32.dll
 
 set completefunc=emoji#complete
 
@@ -505,6 +505,8 @@ nnoremap <leader>cd :call SetWDToCurrentFile()<CR>
 
 nnoremap <leader>r :RainbowToggle<CR>
 nnoremap <leader>a :Ack 
+
+let g:ackprg = "ag"
 
 "Marks
 nnoremap <leader>m :marks<CR>
@@ -721,12 +723,17 @@ colorscheme kalisi
 set synmaxcol=200
 let g:airline_theme='kalisi'
 if !has("nvim")
-  let g:airline_powerline_fonts = 1
+  let g:airline_powerline_fonts = 0
+  let g:airline_left_sep=''
+  let g:airline_right_sep=''
+  " let g:airline_powerline_fonts = 1 WIN10
+
 else
   let g:airline_powerline_fonts = 0
   let g:airline_left_sep=''
   let g:airline_right_sep=''
 endif
+
 
 if has("gui_running")
   set go-=TlLrR
@@ -740,15 +747,19 @@ if has("gui_running")
     " set guifont=Droid\ Sans\ Mono\ 14
     "set guifont=Inconsolata\ 12
   elseif has("gui_win32")
-    " set guifont=Liberation_Mono_for_Powerline:h9
-    " set guifont=Liberation_Mono_for_Powerline:h9
-    " set guifont=Literation_Mono_Powerline:h9
-    set guifont=Literation_Mono_Powerline:h9,
-              \DejaVu_Sans_Mono_for_Powerline:h10,
-              \DejaVu_Sans_Mono:h10
-                " \Liberation_Mono_for_Powerline:h9,
-                " \Literation_Mono:h9,
-                " \Consolas:h10
+    set guifont=
+\BitstreamVeraSansMono_NF:h10,
+\LiterationMonoPowerline_NF:h12,
+\Literation_Mono_Powerline:h9,
+\Literation_Mono_for_Powerline:h9,
+\Liberation_Mono_Powerline:h9,
+\Liberation_Mono_for_Powerline:h9,
+\DejaVu_Sans_Mono_for_Powerline:h10,
+\DejaVu_Sans_Mono:h10,
+\Liberation_Mono:h9,
+\Consolas:h10,
+\Lucida_Console:h10
+
 
   endif
 else
@@ -778,6 +789,8 @@ else
     let &t_te.="\e[0 q"
   endif
 endif
+
+
 
 function! Reload256Kalisi()
   source $HOME/.vim/bundle/vim-kalisi/colors/kalisi.vim
@@ -1054,17 +1067,17 @@ function! HalveHorizontally()
   if &lines > 25 
     set lines=25
     set scrolloff=2 
-    set guifont=Liberation_Mono_for_Powerline:h9,
-                \Liberation_Mono:h9,
-                \Liberation\ Mono\ for\ Powerline\ 9,
-                \Liberation\ Mono\ 9
+    " set guifont=Liberation_Mono_for_Powerline:h9,
+    "             \Liberation_Mono:h9,
+    "             \Liberation\ Mono\ for\ Powerline\ 9,
+    "             \Liberation\ Mono\ 9
   else
     set lines=55
     set scrolloff=4 
-    set guifont=Liberation_Mono_for_Powerline:h10,
-                \Liberation_Mono:h10,
-                \Liberation\ Mono\ for\ Powerline\ 10,
-                \Liberation\ Mono\ 10
+    " set guifont=Liberation_Mono_for_Powerline:h10,
+    "             \Liberation_Mono:h10,
+    "             \Liberation\ Mono\ for\ Powerline\ 10,
+    "             \Liberation\ Mono\ 10
   endif
 endfunction
 
@@ -2158,10 +2171,13 @@ command! -nargs=* Highlightevery call HighlightEvery(<f-args>)
 
 let g:unite_source_history_yank_enable = 1
 " $HOME is case sensitive under Linux
-let g:unite_source_history_yank_file =  $HOME.g:vimfiles[1:].'/yankring_history.tmp'
+" let g:unite_source_history_yank_file =  $HOME.g:vimfiles[1:].'/yankring_history.tmp'
 " dont need, only duplicates every entry in the yank history
 let g:unite_source_history_yank_save_clipboard = 0 " default 0
 " yankring style
+"
+" let g:neoyank#file = $HOME.'/.vim/yankring.txt'
+let g:neoyank#file = $HOME.g:vimfiles[1:].'/yankring_history.tmp'
 nnoremap <C-p> :<C-u>Unite history/yank<CR>
 
 " UltiSnips
@@ -2221,5 +2237,26 @@ function! TodaySeparator()
   exec "norma I". strftime("%m%d %a") ." ----------------------------------------------------------------------"
 endfunction
 
+nmap <c-F1> :call TodaySeparator()<CR>
+
+
+let g:ycm_auto_trigger = 0
+
+let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+
+autocmd! Filetype python call PyAutocmd()
+
+function! PyAutocmd()
+  silent call SetWDToCurrentFile()
+  update
+  nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
+  nmap <Enter> :execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR>
+endfunction
+" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+
+" <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
+
+
+
 " End of my epic vimrc!
-"
+
