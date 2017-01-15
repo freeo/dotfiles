@@ -504,7 +504,7 @@ nnoremap <leader>cd :call SetWDToCurrentFile()<CR>
 " nnoremap <leader>v V`]
 
 nnoremap <leader>r :RainbowToggle<CR>
-nnoremap <leader>a :Ack 
+nnoremap <leader>a :Ack <C-r><C-w>
 
 let g:ackprg = "ag"
 
@@ -723,15 +723,15 @@ colorscheme kalisi
 set synmaxcol=200
 let g:airline_theme='kalisi'
 if !has("nvim")
-  let g:airline_powerline_fonts = 0
-  let g:airline_left_sep=''
-  let g:airline_right_sep=''
+  let g:airline_powerline_fonts = 1
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
   " let g:airline_powerline_fonts = 1 WIN10
 
 else
-  let g:airline_powerline_fonts = 0
-  let g:airline_left_sep=''
-  let g:airline_right_sep=''
+  let g:airline_powerline_fonts = 1
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
 endif
 
 
@@ -748,13 +748,13 @@ if has("gui_running")
     "set guifont=Inconsolata\ 12
   elseif has("gui_win32")
     set guifont=
-\BitstreamVeraSansMono_NF:h10,
-\LiterationMonoPowerline_NF:h12,
-\Literation_Mono_Powerline:h9,
-\Literation_Mono_for_Powerline:h9,
-\Liberation_Mono_Powerline:h9,
-\Liberation_Mono_for_Powerline:h9,
-\DejaVu_Sans_Mono_for_Powerline:h10,
+\BitstreamVeraSansMono_NF:h11,
+\LiterationMonoPowerline_NF:h13,
+\Literation_Mono_Powerline:h10,
+\Literation_Mono_for_Powerline:h10,
+\Liberation_Mono_Powerline:h10,
+\Liberation_Mono_for_Powerline:h10,
+\DejaVu_Sans_Mono_for_Powerline:h11,
 \DejaVu_Sans_Mono:h10,
 \Liberation_Mono:h9,
 \Consolas:h10,
@@ -764,9 +764,9 @@ if has("gui_running")
   endif
 else
   if &term == "win32"
-    let g:airline_powerline_fonts=0
-    let g:airline_left_sep=''
-    let g:airline_right_sep=''
+    let g:airline_powerline_fonts=1
+    " let g:airline_left_sep=''
+    " let g:airline_right_sep=''
     set visualbell
     " ConEmu only! Doesn't work with vanilla powershell.exe
     if $is_powershell 
@@ -2242,7 +2242,9 @@ nmap <c-F1> :call TodaySeparator()<CR>
 
 let g:ycm_auto_trigger = 0
 
-let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+" let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+let g:pacman_string = "E:/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+
 
 autocmd! Filetype python call PyAutocmd()
 
@@ -2250,12 +2252,13 @@ function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
   nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
-  nmap <Enter> :execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR>
+  nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
 endfunction
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 " <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
 
+nmap <F2> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
 
 " End of my epic vimrc!
