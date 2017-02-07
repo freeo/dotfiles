@@ -197,27 +197,9 @@ let g:jedi#force_py_version = 3
 let g:pypypath ='!C:/pypy-2.2.1-win32/pypy.exe'
 exec("command! -nargs=1 Pypy ".g:pypypath." <args>")
 
-" Powershell
-command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h")).' /cmd powershell'
-" Explorer
-" command! EX silent !start explorer %:p:h
 
 
-" EXPLORER INTEGRATION with -
-" WIN10 Migr issue
-" Does 'where' find something?
-" if qt_newtab isn't found, v:shell_error = 1
-" (v:shell_error is builtin, which contains the status of the last external
-" call, ! read or system)
-let temp = system("where qt_newtab.exe")
-if v:shell_error
-  echom "qt_newtab.exe not in $path"
-endif
 
-command! EX !start qt_newtab.exe %:p:h
-" command! EX silent !start qt_newtab.exe %:p:h
-" nnoremap <M-_> :EX<CR>
-nnoremap <M-_> :EX<CR>
 
 " XXX
 function! SeekAndDestroy(old, new)
@@ -726,7 +708,20 @@ if !has("nvim")
   let g:airline_powerline_fonts = 1
   " let g:airline_left_sep=''
   " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_right_sep=''
+  let g:airline_left_sep=''
+  let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
   " let g:airline_powerline_fonts = 1 WIN10
+"                                   
 
 else
   let g:airline_powerline_fonts = 1
@@ -980,6 +975,7 @@ function! CommentLineTilEOL(...)
   let l:charamount = 80 - virtcol('.') - l:tcomment_constant
   exec "normal! ".l:charamount."a#"
   TComment
+
   exec "normal 0f♥x"
   if a:0 > 0
     startreplace
@@ -993,6 +989,7 @@ call tcomment#DefineType('text', '// %s')
 call tcomment#DefineType('quakecfg', '// %s')
 call tcomment#DefineType('c', '// %s')
 
+
 nmap <leader>t gcc
 vmap <leader>t gc
 nmap <C-t> gcc
@@ -1001,6 +998,29 @@ nmap <C-Space> gcc
 vmap <C-Space> gc
 nmap <C-@> gcc
 vmap <C-@> gcc
+
+
+" --------------------------------
+" Powershell
+command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h")).' /cmd powershell'
+" Explorer
+" qt_newtab
+" EXPLORER INTEGRATION with -
+" WIN10 Migr issue
+" Does 'where' find something?
+" if qt_newtab isn't found, v:shell_error = 1
+" (v:shell_error is builtin, which contains the status of the last external
+" call, ! read or system)
+let temp = system("where qt_newtab.exe")
+if v:shell_error
+  echom "qt_newtab.exe not in $path"
+endif
+" this specific shortcut needs to be places  after the tcomment bindings!
+" command! EX silent! !start qt_newtab.exe %:p:h
+command! EX !start qt_newtab.exe %:p:h
+nnoremap <M-_> :EX<CR>
+" all silent tries are not working, because the C# app is generating the window, vim can't get past that. I
+" need to compile a silent version of qt_newtab.exe
 
 " map <F3> :call SwitchMinimize()<CR>
 "
@@ -2242,8 +2262,10 @@ nmap <c-F1> :call TodaySeparator()<CR>
 
 let g:ycm_auto_trigger = 0
 
-" let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
-let g:pacman_string = "E:/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+
+let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
+" let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l mediumMaze -p SearchAgent -a fn=depthFirstSearch "
+" let g:pacman_string = "E:/AI/pacman/p1search/pacman.py -z 0.5 -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
 
 
 autocmd! Filetype python call PyAutocmd()
@@ -2252,7 +2274,8 @@ function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
   nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
-  nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
+  " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
+  nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
 endfunction
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
@@ -2262,4 +2285,3 @@ nmap <F2> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
 
 " End of my epic vimrc!
-
