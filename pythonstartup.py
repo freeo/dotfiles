@@ -1,20 +1,20 @@
 # Example snippet to use in a PYTHONSTARTUP file
 from __future__ import print_function, unicode_literals, absolute_import
-from pprint import pprint as print
 import ipdb # isn't loaded automatically when debugging with ipdb3.exe
 print("hi freeo")
 try:
     import pyreadline.rlmain
-    #pyreadline.rlmain.config_path=r"c:\xxx\pyreadlineconfig.ini"
+    # pyreadline.rlmain.config_path=r"C:\Users\arthur.jaron\dotfiles\pyreadlineconfig.ini"
     import readline, atexit
     import pyreadline.unicode_helper
+    # print("PyreadlineConfig loaded successfully")
     #
     #
     #Normally the codepage for pyreadline is set to be sys.stdout.encoding
     #if you need to change this uncomment the following line
     #pyreadline.unicode_helper.pyreadline_codepage="utf8"
-except ImportError:
-    print("Module readline not available.")
+except ImportError as e:
+    print("{0}: Module readline not available.".format(e))
 else:
     #import tab completion functionality
     import rlcompleter

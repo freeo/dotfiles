@@ -107,6 +107,8 @@ Plug 'junegunn/vim-emoji'
 " preserve from BundleClean deletion
 Plug 'Valloric/YouCompleteMe'
 Plug 'ryanoasis/vim-devicons'
+Plug 'wilywampa/vim-ipython'
+Plug 'jpalardy/vim-slime'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -125,9 +127,10 @@ Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 Plug 'freeo/python-syntax'
 
 " Forked: pytest-2 and pytest-3 support
-Plug 'pytest-vim-compiler'
-Plug 'freeo/vim-ipython'
-Plug 'freeo/vim-makegreen'
+" Plug 'pytest-vim-compiler'
+" Plug 'freeo/vim-makegreen'
+" Plug 'freeo/vim-ipython' " not working with newer ipython version
+
 
 " No remote repo, preserve from BundleClean deletion
 " Plug 'python-syntax-master'
@@ -405,6 +408,7 @@ noremap <leader>` :CtrlPMRUFiles<CR>
 " 2 two command on one mapping
 " nur noh
 nnoremap <leader>/ :noh<CR>
+nnoremap <ESC> :noh<CR>
 
 " beide ausführen:
 "nnoremap <leader>/ :noh<CR> :call Deactivate_Highlights()<CR>
@@ -916,6 +920,8 @@ autocmd! FileType cs setlocal tabstop=8 softtabstop=8 shiftwidth=8
 
 autocmd! FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 let javascript_enable_domhtmlcss=1
+
+autocmd! FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=20
 
 " C, make
 " autocmd! FileType makefile setlocal 
@@ -1859,12 +1865,14 @@ endfunction
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' /cmd cmd /c py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
-autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+" autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -2 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 " "py -3 ./tuplecomp.py" -cur_console:c
 
-autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python33/Scripts/ipython3 '.shellescape(@%, 1)<CR>
+autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python35_64/Scripts/ipython3 '.shellescape(@%, 1)<CR>
 
 autocmd! BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
 
@@ -2058,7 +2066,7 @@ endfunction
 " MakeGreen has two highlight group: GreenBar and RedBar. I check them for
 " existence with :hlexists({name}) and disable the naive overwrite.
 
-nmap <S-F9> :call RunAllPythonTests()<CR>
+" nmap <S-F9> :call RunAllPythonTests()<CR>
 
 " map <leader>f :echo g:jedi#force_py_version<CR>
 " map <leader>e :call jedi#force_py_version_switch()<CR>
@@ -2139,7 +2147,7 @@ autocmd FileType python nnoremap <buffer> <S-Enter> vip :py3 run_these_lines()<C
 
 " :IPython works only once, vim-ipython doesn't support multiple call at the
 " moment (planned feature)
-command! IPY execute 'silent !start /min ipython3 kernel' | :echo "Starting ipython3 kernel..." | :sleep 900m | execute 'IPython' | :redraw! | :echo "ipython3 kernel running!"
+command! IPY execute 'silent !start /min c:/python35_64/scripts/ipython3 kernel' | :echo "Starting ipython3 kernel..." | :sleep 900m | execute 'IPython' | :redraw! | :echo "ipython3 kernel running!"
 " explanation, line by line:
 " /min starts minimized: doesn't steal focus (very shortly)
 " echo... 1st msg
@@ -2273,7 +2281,9 @@ autocmd! Filetype python call PyAutocmd()
 function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
+  let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
   nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
+  nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
   " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
   nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
 endfunction
@@ -2281,7 +2291,8 @@ endfunction
 
 " <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
 
-nmap <F2> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
+nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
 
+" echom "correct vimrc!"
 " End of my epic vimrc!
