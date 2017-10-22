@@ -40,6 +40,8 @@ imap jk <ESC>
 let g:vimfiles = "~/.vim"
 let g:conemu = "C:\\Program Files\\ConEmu\\ConEmu64.exe /single -run"
 
+let $PATH .= ';C:/Program Files/Git/usr/bin'
+
 set nocompatible 
 filetype off " required
 
@@ -105,10 +107,11 @@ Plug 'rhysd/nyaovim-mini-browser'
 Plug 'AndrewRadev/sideways.vim'
 Plug 'junegunn/vim-emoji'
 " preserve from BundleClean deletion
-Plug 'Valloric/YouCompleteMe'
+" Plug 'Valloric/YouCompleteMe'
 Plug 'ryanoasis/vim-devicons'
 Plug 'wilywampa/vim-ipython'
 Plug 'jpalardy/vim-slime'
+Plug 'statox/vim-compare-lines'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -134,7 +137,11 @@ Plug 'freeo/python-syntax'
 
 " No remote repo, preserve from BundleClean deletion
 " Plug 'python-syntax-master'
-Plug 'plugin_colors'
+if !has("nvim")
+  Plug 'plugin_colors'
+else
+  let g:python3_host_prog = "C:/Python36/python.exe"
+endif
 " outsourced kalisi colors, which belong to plugins
 
 call plug#end()
@@ -193,6 +200,9 @@ au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
 autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
+" Turn it off... it sucks without YCM
+" let g:jedi#completions_enabled = 0
+let g:jedi#completions_enabled = 1
 " let g:jedi#auto_initialization = 1
 " let g:jedi#use_tabs_not_buffers = 0 
 let g:jedi#force_py_version = 3
@@ -354,6 +364,10 @@ set showtabline=1
 
 if !has('nvim')
   set cryptmethod=blowfish2
+  " set pythonthreedll=python34.dll
+  set pythonthreedll=python36.dll
+else
+  set termguicolors
 endif
 
 set spelllang=de_20,en
@@ -373,8 +387,6 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 " set listchars=tab:›…,trail:░,extends:
 "░▒▓
 
-" set pythonthreedll=python34.dll
-" set pythonthreedll=python35_32.dll
 
 set completefunc=emoji#complete
 
@@ -710,6 +722,14 @@ set synmaxcol=200
 let g:airline_theme='kalisi'
 if !has("nvim")
   let g:airline_powerline_fonts = 1
+  let g:airline_left_sep=''
+  let g:airline_right_sep=''
+
+  " probook 430g
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+
+  " not in user
   " let g:airline_left_sep=''
   " let g:airline_right_sep=''
   " let g:airline_left_sep=''
@@ -720,8 +740,6 @@ if !has("nvim")
   " let g:airline_left_sep=''
   " let g:airline_right_sep=''
   " let g:airline_right_sep=''
-  let g:airline_left_sep=''
-  let g:airline_right_sep=''
   " let g:airline_left_sep=''
   " let g:airline_right_sep=''
   " let g:airline_powerline_fonts = 1 WIN10
@@ -758,8 +776,10 @@ if has("gui_running")
 \Liberation_Mono:h9,
 \Consolas:h10,
 \Lucida_Console:h10
+  endif
+  if has("nvim")
 
-
+    GuiFont BitstreamVeraSansMono_NF:h11
   endif
 else
   if &term == "win32"
@@ -1514,9 +1534,9 @@ let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\Dropbox\vocabulary.txt',g:vim
 " let g:startify_session_autoload = 1
 " let g:startify_session_persistence = 1
 " let g:startify_list_order = ['files', 'bookmarks', 'sessions', 'dir']
-let g:startify_list_order = ['files', 'bookmarks']
+let g:startify_list_order = ['files', 'bookmarks', 'sessions']
 
-let g:startify_files_number = 22
+let g:startify_files_number = 14
 
 let g:startify_header_begin = [
       \ ' __   ___ _ __ ___       ',
@@ -2229,9 +2249,9 @@ endif
 "Identify the syntax highlighting group used at the cursor
 " http://vim.wikia.com/wiki/Identify_the_syntax_highlighting_group_used_at_the_cursor
 " Helper: Syntax Highlight Under Cursor
-" map <F6> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-" \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+map <F5> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 
 " Line Link to filename
@@ -2281,11 +2301,12 @@ autocmd! Filetype python call PyAutocmd()
 function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
-  let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
+  let g:ipdb = "C:/Python36/scripts/ipdb3.exe"
   nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
   nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
   " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
-  nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
+  " WORKING but dont do this for now - it's annoying
+  " nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
 endfunction
 " autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
