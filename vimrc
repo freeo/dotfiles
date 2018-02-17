@@ -81,7 +81,7 @@ Plug 'kana/vim-vspec'
 Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
 Plug 'gerw/vim-latex-suite'
 Plug 'paradigm/TextObjectify'
-" Plug 'justinmk/TextObjectify'
+" Plug 'justinmk/TextObjectify
 Plug 'Shougo/unite.vim' " not fully surpassed by denite, features are missing like neoyank
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neoyank.vim'
@@ -309,9 +309,9 @@ set cmdheight=1
 
 " Tab Settings
 " set smarttab " XXX problems?
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 
 " utf-8 default encoding
 set encoding=utf-8
@@ -932,13 +932,15 @@ function! CompileJava()
   endif
 endfunction
 
-autocmd! FileType txt setlocal tabstop=2 softtabstop=2 shiftwidth=2
-autocmd! FileType vim setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" autocmd! FileType txt setlocal tabstop=2 softtabstop=2 shiftwidth=2
+" autocmd! FileType vim setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd! FileType python setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+
 autocmd! FileType css setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 " C#
 autocmd! FileType cs setlocal tabstop=8 softtabstop=8 shiftwidth=8
 
-autocmd! FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" autocmd! FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 let javascript_enable_domhtmlcss=1
 
 autocmd! FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=20
@@ -2161,7 +2163,7 @@ let g:SuperTabMappingBackward = '<tab>'
 " disable default vim-ipython mappings: F9, <C-s>, ...
 let g:ipy_perform_mappings = 0
 
-autocmd FileType python nnoremap <buffer> <Enter> :py3 run_this_line()<CR> jh
+autocmd FileType python nnoremap <buffer> <Enter> :py3 run_this_line()<CR>
 autocmd FileType python vnoremap <buffer> <Enter> :py3 run_these_lines()<CR>
 autocmd FileType python nnoremap <buffer> <S-Enter> vip :py3 run_these_lines()<CR>
 
@@ -2313,6 +2315,8 @@ endfunction
 " <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
 
 nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
+
+nmap <Enter> ggVGy
 
 
 " echom "correct vimrc!"
