@@ -112,6 +112,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'wilywampa/vim-ipython'
 Plug 'jpalardy/vim-slime'
 Plug 'statox/vim-compare-lines'
+Plug 'maralla/completor.vim'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -261,7 +262,8 @@ set undofile
 
 " XXX
 if has("directx")
-  set renderoptions=type:directx,gamma:1.0,contrast:0.2,level:1.0,geom:1,renmode:5,taamode:1
+  " set renderoptions=type:directx,gamma:1.0,contrast:0.2,level:1.0,geom:1,renmode:5,taamode:1
+  set renderoptions=type:directx,gamma:1.0,contrast:0.1,level:1.0,geom:1,renmode:5,taamode:1
 endif
 
 " => Status line
@@ -765,12 +767,14 @@ if has("gui_running")
     "set guifont=Inconsolata\ 12
   elseif has("gui_win32")
     set guifont=
-\BitstreamVeraSansMono_NF:h11,
+\Cousine_NF:h10:cANSI:qDRAFT,
+\BitstreamVeraSansMono_NF:h10:cANSI:qDRAFT,
 \LiterationMonoPowerline_NF:h13,
 \Literation_Mono_Powerline:h10,
 \Literation_Mono_for_Powerline:h10,
 \Liberation_Mono_Powerline:h10,
 \Liberation_Mono_for_Powerline:h10,
+\DejaVuSansMono_NF:h10:cANSI:qDRAFT,
 \DejaVu_Sans_Mono_for_Powerline:h11,
 \DejaVu_Sans_Mono:h10,
 \Liberation_Mono:h9,
@@ -821,7 +825,7 @@ endfunction
 command! RK call Reload256Kalisi()
 
 " map <F2> :update<CR><bar>:call Reload256Kalisi()<CR> 
-map <F2> :call Reload256Kalisi()<CR> 
+" map <F2> :call Reload256Kalisi()<CR> 
 set backup
 exec 'set backupdir='.g:vimfiles.'/backup'
 exec 'set dir='.g:vimfiles.'/swap'
@@ -1531,7 +1535,7 @@ command! NyanMe call NyanMe()
 
 
 
-let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\Dropbox\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\GDrive\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
 " let g:startify_session_persistence = 1
@@ -1848,7 +1852,7 @@ let g:easytags_by_filetype = g:vimfiles.'/tags/'
 let g:easytags_file = g:vimfiles.'/tags/global'
 let g:python_highlight_file_headers_as_comments = 1
 
-nnoremap <silent> <F1>  :TagbarToggle<CR>
+" nnoremap <silent> <F1>  :TagbarToggle<CR>
 " nnoremap <silent> <F1> :NERDTreeToggle<CR>
 
 " saving all updates all tags, because of the added event in easytags_events
@@ -2314,7 +2318,7 @@ endfunction
 
 " <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
 
-nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
+" nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
 nmap <Enter> ggVGy
 
