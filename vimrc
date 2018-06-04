@@ -79,13 +79,12 @@ Plug 'justinmk/vim-sneak'
 Plug 'jcfaria/Vim-R-plugin'
 Plug 'kana/vim-vspec'
 Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
-Plug 'gerw/vim-latex-suite'
 Plug 'paradigm/TextObjectify'
 " Plug 'justinmk/TextObjectify
 Plug 'Shougo/unite.vim' " not fully surpassed by denite, features are missing like neoyank
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neoyank.vim'
-if has("python")
+if has("python3")
   Plug 'SirVer/ultisnips'
 endif
 Plug 'honza/vim-snippets'
@@ -113,6 +112,19 @@ Plug 'wilywampa/vim-ipython'
 Plug 'jpalardy/vim-slime'
 Plug 'statox/vim-compare-lines'
 Plug 'maralla/completor.vim'
+Plug 'leafgarland/typescript-vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mattn/emmet-vim'
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'equalsraf/neovim-gui-shim'
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+let g:deoplete#enable_at_startup = 1
+Plug 'airblade/vim-gitgutter'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -613,14 +625,11 @@ function! Up(vcount)
 endfunction
 
 " Smart way to move between windows
-" gets fucked by vim-latex! go to ~/vimfiles/after/plugin/... for the
-" resolution of the remapping conflict! Dirty solution, but if works.
-" It seems the shortcut still works in .tex files, despite being remapped.
-" vim-latex is really smart I guess...
 map <C-j> <C-W>j
 map <C-k> <C-W>k
 map <C-h> <C-W>h
 map <C-l> <C-W>l
+
 
 "Folding
 "
@@ -699,7 +708,7 @@ func! DeleteTrailingWS()
   %s/\s\+$//ge
   exe "normal `z"
 endfunc
-autocmd! BufWrite *.coffee :call DeleteTrailingWS()
+autocmd! BufWrite *.py :call DeleteTrailingWS()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => vimgrep searching and cope displaying
@@ -716,58 +725,22 @@ vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 " Visuals
 " =====================
 
-syntax enable " Syntax Colors
-set background=light
-" set background=dark
-colorscheme kalisi 
-set synmaxcol=200
-let g:airline_theme='kalisi'
-if !has("nvim")
-  let g:airline_powerline_fonts = 1
-  let g:airline_left_sep=''
-  let g:airline_right_sep=''
-
-  " probook 430g
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-
-  " not in user
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_left_sep=''
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-  " let g:airline_powerline_fonts = 1 WIN10
-"                                   
-
-else
-  let g:airline_powerline_fonts = 1
-  " let g:airline_left_sep=''
-  " let g:airline_right_sep=''
-endif
 
 
-if has("gui_running")
+
+
+if has("gui_running") || has("nvim")
   set go-=TlLrR
   set lines=55
-  " set columns=85 " for 80 textwidth
   set columns=115
-  winpos 1132 0
+  " winpos 1132 0
   if has("gui_gtk2")
     set guifont=Liberation\ Mono\ for\ Powerline\ 9,
                 \Liberation\ Mono\ 9,
-    " set guifont=Droid\ Sans\ Mono\ 14
-    "set guifont=Inconsolata\ 12
   elseif has("gui_win32")
     set guifont=
-\Cousine_NF:h10:cANSI:qDRAFT,
+\Cousine_NF:h12:cANSI:qDRAFT,
+" \Cousine_NF:h10:cANSI:qDRAFT,
 \BitstreamVeraSansMono_NF:h10:cANSI:qDRAFT,
 \LiterationMonoPowerline_NF:h13,
 \Literation_Mono_Powerline:h10,
@@ -780,10 +753,6 @@ if has("gui_running")
 \Liberation_Mono:h9,
 \Consolas:h10,
 \Lucida_Console:h10
-  endif
-  if has("nvim")
-
-    GuiFont BitstreamVeraSansMono_NF:h11
   endif
 else
   if &term == "win32"
@@ -812,6 +781,41 @@ else
     let &t_te.="\e[0 q"
   endif
 endif
+
+syntax enable " Syntax Colors
+set background=light
+" set background=dark
+colorscheme kalisi
+set synmaxcol=200
+let g:airline_theme='kalisi'
+"
+" if !has("nvim")
+let g:airline_powerline_fonts = 1
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+" else
+  let g:airline_powerline_fonts = 1
+" endif
+
+  " probook 430g
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+
+  " not in user
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_left_sep=''
+  " let g:airline_right_sep=''
+  " let g:airline_powerline_fonts = 1 WIN10
+"                                   
 
 
 
@@ -1016,10 +1020,9 @@ function! CommentLineTilEOL(...)
   endif
 endfunction
 
-" call tcomment#DefineType('txt', '// %s')
-call tcomment#DefineType('text', '// %s')
-call tcomment#DefineType('quakecfg', '// %s')
-call tcomment#DefineType('c', '// %s')
+call tcomment#type#Define('text', '// %s')
+call tcomment#type#Define('quakecfg', '// %s')
+call tcomment#type#Define('c', '// %s')
 
 
 nmap <leader>t gcc
@@ -1237,292 +1240,6 @@ function! <SID>BufcloseCloseIt()
 endfunction
 
 
-
-" ########################################################################
-
-" VIM-LATEX-SUITE
-
-" disable latex-suite mappings
-imap <Nop> <Plug>IMAP_JumpForward
-nmap <Nop> <Plug>IMAP_JumpForward
-
-
-" IMPORTANT: win32 users will need to have 'shellslash' set so that latex
-" can be called correctly.
-" set shellslash
-
-" IMPORTANT: grep will sometimes skip displaying the file name if you
-" search in a singe file. This will confuse Latex-Suite. Set your grep
-" program to always generate a file-name.
-set grepprg=grep\ -nH\ $*
-
-" OPTIONAL: This enables automatic indentation as you type.
-filetype indent on
-
-" OPTIONAL: Starting with Vim 7, the filetype of empty .tex files defaults to
-" 'plaintex' instead of 'tex', which results in vim-latex not being loaded.
-" The following changes the default filetype back to 'tex':
-" flavor=latex doesn't use all the macros, kind of plain.
-let g:tex_flavor='tex'
-
-
-" Babel shorthand german quotes
-let g:Tex_SmartQuoteOpen='"`'
-let g:Tex_SmartQuoteClose="\"'"
-
-" let g:Tex_FormatDependency_pdf = 'dvi,pdf'
-
-" \emph WORD under cursor
-nnoremap <leader>e :normal viWdi\emph{<ESC>""pa}<ESC>
-" remove \emph WORD under cursor
-nnoremap <leader>d :normal viW<CR>:s/\%V\\emph{\([^}]\+\)}/\1/e<CR>:noh<CR><C-o>E
-
-" SumatraPDF forward search
-function! LatexForwardSearch()
-  " http://scturtle.me/2013/1/22/forward-inverse-search/
-  " externalised from vim-late/ftplugin/compiler.vim
-  " https://code.google.com/p/sumatrapdf/wiki/CommandLineArguments
-  let relativeFile=substitute(expand("%:p"), "\\/", '\',"g")
-  let pdfname=substitute(expand("%:p:r").'.pdf', "\\/", '\',"g")
-  let displayoptions=' -fwdsearch-color 0x55ff00 -fwsdsearch-width 500 -fwdsearch-offset 50 -fwdsearch-permanent false'
-  " every display options call writes to the sumatra settings file
-  " don't execute every time
-  " let execString = 'silent! !start sumatrapdf.exe '.displayoptions
-  " execute execString       
-  let execString = 'silent! !start sumatrapdf.exe -reuse-instance "'.pdfname.'" -forward-search "'.relativeFile.'" '.line('.')
-  execute execString       
-endfunction
-
-
-function! LatexShortcuts()
-  " the last <CR> is to clear the vim command line from the 'press any key'
-  " dialog
-  nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>silent! execute '!start C:/ConEmu/ConEmu.exe /cmd cmd /c arara -v -l -L de '.shellescape(@%, 1).' -new_console:c'<CR><CR>
-  nnoremap <buffer> <S-F9> :call Tex_ViewLaTeX()<cr>
-  nnoremap <buffer> <CR> :call LatexForwardSearch()<CR>
-
-  " outdated:
-  " speichern, wd wechseln, compilieren. arara flags: -l für log schreiben
-  " (gleicher Pfad, arara.log)
-  " nmap <F9> :update<CR> :cd %:p:h<cr>:pwd<cr> :!arara -v -l -L de %<CR>
-  " nmap <S-F9> :update<CR> :call Tex_ViewLaTeX()<cr>
-endfunction
-
-let g:Tex_DefaultTargetFormat = 'pdf'
-let g:Tex_MultipleCompileFormats = 'pdf'
-
-if has('win32')
-  " let g:Tex_ViewRule_pdf = 'PDFXCview /A "nolock=yes=OpenParameters"'
-  "
-  " servername und remote-silent müssen zusammen verwendet werden, damit die
-  " inverse search keine neue Instanz öffnet.
-  let g:Tex_ViewRule_pdf = 'sumatrapdf -reuse-instance -inverse-search "gvim --servername GVIM --remote-silent -c \":RemoteOpen +\%l \%f\""'
-endif
-
-" forward and inverse search
-" http://scturtle.me/2013/1/22/forward-inverse-search/
-"set shellslash  " conflict with vundle
-set grepprg=grep\ -nH\ $*
-let g:Tex_Leader=','  " I use this
-" let g:tex_flavor='latex'
-let g:Tex_DefaultTargetFormat = 'pdf'
-" let g:Tex_CompileRule_pdf = 'pdflatex -synctex=-1 -src-specials -interaction=nonstopmode $*'
-let g:Tex_CompileRule_pdf = 'xelatex -synctex=-1 -src-specials -interaction=nonstopmode $*'
-
-" autocmd! Filetype tex call LatexShortcuts()
-
-autocmd! Filetype tex setlocal textwidth=0 | call LatexShortcuts()
-
-" ########################################################################
-" }}}
-" Nyan! {{{
-
-function! NyanMe() " {{{
-    hi NyanFur             guifg=#BBBBBB gui=bold guibg=#303030
-    hi NyanPoptartEdge     guifg=#ffd0ac gui=bold guibg=#303030
-    hi NyanPoptartFrosting guifg=#fd3699 guibg=#fe98ff gui=bold
-    hi NyanRainbow1        guifg=#6831f8 gui=bold guibg=#303030
-    hi NyanRainbow2        guifg=#0099fc gui=bold guibg=#303030
-    hi NyanRainbow3        guifg=#3cfa04 gui=bold guibg=#303030
-    hi NyanRainbow4        guifg=#fdfe00 gui=bold guibg=#303030
-    hi NyanRainbow5        guifg=#fc9d00 gui=bold guibg=#303030
-    hi NyanRainbow6        guifg=#fe0000 gui=bold guibg=#303030
-
-
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "=                                   "
-    echohl None
-    echo ""
-
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanFur
-    echon "ʟ"
-    echohl NyanPoptartEdge
-    echon "("
-    echohl NyanPoptartFrosting
-    echon "░░░"
-    echohl NyanPoptartEdge
-    echon ")"
-    echohl NyanFur
-    echon "^ω^      It's ok not to save!"
-    echohl None
-    echo ""
-
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl NyanRainbow1
-    echon "≈"
-    echohl NyanRainbow2
-    echon "="
-    echohl NyanRainbow3
-    echon "≈"
-    echohl NyanRainbow4
-    echon "="
-    echohl NyanRainbow5
-    echon "≈"
-    echohl NyanRainbow6
-    echon "="
-    echohl None
-    echon ""
-    echohl NyanFur
-    echon " ”   ‟                             "
-    echohl None
-
-    sleep 1300m
-    redraw
-    " echo " "
-    " echo " "
-    " echo "Noms?"
-    redraw
-endfunction " }}}
-command! NyanMe call NyanMe()
 
 " AUTOSAVE ANTI MECHANISM
 " Stop myself from pressing C-s all time!
@@ -2308,8 +2025,11 @@ function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
   let g:ipdb = "C:/Python36/scripts/ipdb3.exe"
-  nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
-  nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
+  " XXX is -3 actually the default in system py settings? -3 here overrides shebang - not good...
+  " nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
+  nmap <F9> :execute '!start '.g:conemu.' py '.shellescape(@%, 1).' -cur_console:c'<CR>
+  " nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
+  nmap <S-F9> :execute '!start '.g:conemu.' py -m ipdb '.shellescape(@%, 1).' -cur_console:c'<CR>
   " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
   " WORKING but dont do this for now - it's annoying
   " nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
@@ -2320,8 +2040,48 @@ endfunction
 
 " nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
-nmap <Enter> ggVGy
+" nmap <Enter> ggVGy
 
+
+" Javascript initiative 2018 04 10
+" FLOW syntax hl by vim-javascript
+let g:javascript_plugin_flow = 1
+let g:javascript_conceal_function             = "ƒ"
+let g:javascript_conceal_null                 = "ø"
+let g:javascript_conceal_this                 = "@"
+let g:javascript_conceal_return               = "⇚"
+let g:javascript_conceal_undefined            = "¿"
+let g:javascript_conceal_NaN                  = "ℕ"
+let g:javascript_conceal_prototype            = "¶"
+let g:javascript_conceal_static               = "•"
+let g:javascript_conceal_super                = "Ω"
+let g:javascript_conceal_arrow_function       = "⇒"
+let g:javascript_conceal_noarg_arrow_function = "🞅"
+let g:javascript_conceal_underscore_arrow_function = "🞅"
+
+autocmd! FileType javascript setlocal conceallevel=1
+" switch conceallevel
+map <leader>c :exec &conceallevel ? "set conceallevel=0" : "set conceallevel=1"<CR>
+
+" Emmet mattn/emmet-vim HTML, CSS
+let g:user_emmet_install_global = 0
+" let g:user_emmet_leader_key='<C-Z>'
+autocmd FileType html,css EmmetInstall
+
+inoremap (; (<CR>);<C-c>O
+inoremap (, (<CR>),<C-c>O
+inoremap {; {<CR>};<C-c>O
+inoremap {, {<CR>},<C-c>O
+inoremap [; [<CR>];<C-c>O
+inoremap [, [<CR>],<C-c>O
+
+" deoplete
+"
+let g:python3_host_prog ="C:/Python36/python.exe"
+
+" let g:UltiSnipsExpandTrigger="<tab>"
+" let g:UltiSnipsJumpForwardTrigger="<C-j>"
+" let g:UltiSnipsJumpBackwardTrigger="<C-k>"
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
