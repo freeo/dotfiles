@@ -38,7 +38,8 @@
 imap jk <ESC>
 
 let g:vimfiles = "~/.vim"
-let g:conemu = "C:\\Program Files\\ConEmu\\ConEmu64.exe /single -run"
+" let g:conemu = "C:\\Program Files\\ConEmu\\ConEmu64.exe /single -run"
+let g:conemu = '"C:\Program Files\ConEmu\ConEmu64.exe" /single -run'
 
 let $PATH .= ';C:/Program Files/Git/usr/bin'
 
@@ -504,12 +505,16 @@ map <F11> :call ReColor()<CR>
 nmap <leader>h hEBi <Esc>E
 
 function! SetWDToCurrentFile()
-  exe "cd %:p:h"
+  exe "!cd %:p:h"
   exe "pwd"
 endfunction
 
 " change working directory to current files path
-nnoremap <leader>cd :call SetWDToCurrentFile()<CR>
+nnoremap <leader>cd :silent! call SetWDToCurrentFile()<bar>:pwd<CR>
+if has('nvim')
+  " avoid "press ENTER..."
+  nnoremap <leader>cd :call jobstart("cd %:p:h")<bar>:pwd<CR>
+endif
 
 "Reselect pasted text, windows style pasting
 "best for indentation
@@ -946,7 +951,6 @@ autocmd! FileType python setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 
 autocmd! FileType css setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 " C#
-autocmd! FileType cs setlocal tabstop=8 softtabstop=8 shiftwidth=8
 
 " autocmd! FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 let javascript_enable_domhtmlcss=1
@@ -1611,7 +1615,7 @@ let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
 " autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -2 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:
 
 " "py -3 ./tuplecomp.py" -cur_console:c
 
@@ -1661,7 +1665,7 @@ autocmd! BufRead *.java call JavaRunShortcuts()
 autocmd! Filetype c nnoremap <buffer>  <F9> :update<bar> silent make %:r<CR>:redraw!<CR>:call QFixConditOpen()<CR>
 
 " autocmd! Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/v4.0.30319/csc.exe /t:exe /out:'.shellescape(%:h, 1).'.exe '.shellescape(@%, 1)<CR><CR>
-autocmd! Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /t:exe /out:'.shellescape(expand(@%)).'.exe '.shellescape(@%, 1)<CR>
+" autocmd! Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /t:exe /out:'.shellescape(expand(@%)).'.exe '.shellescape(@%, 1)<CR>
 
 autocmd! User Startified setlocal cursorline
 
@@ -2027,9 +2031,29 @@ function! PyAutocmd()
   let g:ipdb = "C:/Python36/scripts/ipdb3.exe"
   " XXX is -3 actually the default in system py settings? -3 here overrides shebang - not good...
   " nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
-  nmap <F9> :execute '!start '.g:conemu.' py '.shellescape(@%, 1).' -cur_console:c'<CR>
-  " nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
-  nmap <S-F9> :execute '!start '.g:conemu.' py -m ipdb '.shellescape(@%, 1).' -cur_console:c'<CR>
+  "
+  " WORKS
+  if has('nvim')
+    let g:py_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py ". expand("%")
+    let g:ipdb_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py -m ipdb ". expand("%")
+    echom g:py_conemu
+    nmap <F9> :call jobstart(g:py_conemu)<CR>
+    nmap <S-F9> :call jobstart(g:ipdb_conemu)<CR>
+  " don't work
+  " let g:py_conemu = "C:/Program Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
+  " let g:py_conemu = "C:/Program\ Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
+  " nmap <F9> :call jobstart(shellescape(''.g:py_conemu))<CR>
+  " nmap <F9> :call jobstart("c:/users/arthur.jaron/dotfiles/py_conemu.bat ". expand("%"))<CR>
+  " MANGLED with \v at several points, but works - without the mapping
+  " nmap <F9> :call jobstart(['c:/users/arthur.jaron/dotfiles/py_conemu.bat', expand("%")])<CR>
+  " nmap <F9> :execute "call jobstart(".g:py_conemu." ".expand(%).")"<CR>
+  
+  " NOT IN NEOVIM
+  else
+    nmap <F9> :execute '!start '.g:conemu.' py '.shellescape(@%, 1).' -cur_console:c'<CR>
+    " nmap <S-F9> :execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR>
+    nmap <S-F9> :execute '!start '.g:conemu.' py -m ipdb '.shellescape(@%, 1).' -cur_console:c'<CR>
+  endif
   " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
   " WORKING but dont do this for now - it's annoying
   " nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
@@ -2041,7 +2065,21 @@ endfunction
 " nmap <F3> :e E:/AI/pacman/p1search/ai_workbench.txt<CR>
 
 " nmap <Enter> ggVGy
+"
+"
 
+autocmd! Filetype cs call CsharpAutocmd()
+
+function! CsharpAutocmd()
+  silent call SetWDToCurrentFile()
+  update
+  let g:csc="C:\\Program Files\\Roslyn\\Microsoft.Net.Compilers.2.8.2\\tools\\csc.exe"
+  let g:csc_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat ".g:csc." ". expand("%")
+  " don't know exactly why this works in cmd.exe and nvim, but it does!
+  " %1 contains "...Program Files..." and isn't in quotes
+  echom g:csc_conemu
+  nmap <F9> :call jobstart(g:csc_conemu)<CR>
+endfunction
 
 " Javascript initiative 2018 04 10
 " FLOW syntax hl by vim-javascript
@@ -2082,6 +2120,11 @@ let g:python3_host_prog ="C:/Python36/python.exe"
 " let g:UltiSnipsExpandTrigger="<tab>"
 " let g:UltiSnipsJumpForwardTrigger="<C-j>"
 " let g:UltiSnipsJumpBackwardTrigger="<C-k>"
+"
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
