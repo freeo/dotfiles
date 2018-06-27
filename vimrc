@@ -57,7 +57,7 @@ Plug 'mileszs/ack.vim'
 Plug 'majutsushi/tagbar'
 Plug 'rhysd/clever-f.vim'
 Plug 'tomtom/tcomment_vim'
-Plug 'kien/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'davidhalter/jedi-vim'
 Plug 'luochen1990/rainbow'
 Plug 'elzr/vim-json'
@@ -125,6 +125,7 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
+Plug 'zchee/deoplete-jedi'
 Plug 'airblade/vim-gitgutter'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
@@ -189,7 +190,7 @@ nnoremap /  /\v
 " nnoremap <C-s> :w!<CR>
 " nnoremap <C-s> :w!<CR>:color kalisi_dark<CR>
 
-" autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | AirlineRefresh
+" autocmd BufWritePost ~/_vimrc :source ~/_vimrc | AirlineRefresh
 " Temp Workaround
 function! Workaround()
     execute "AirlineToggle"
@@ -209,9 +210,9 @@ endfunction
 
 au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
 
-" autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call Workaround()
-" autocmd! BufWritePost ~/_vimrc :source ~/_vimrc
-autocmd! BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
+" autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call Workaround()
+" autocmd BufWritePost ~/_vimrc :source ~/_vimrc
+autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
 " Turn it off... it sucks without YCM
@@ -405,6 +406,9 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 
 set completefunc=emoji#complete
 
+" XXX necessary for nvim, check compatibility
+set autochdir
+
 "## REMAPPINGS ##########################################################
 
 " specialkey TODO
@@ -472,7 +476,7 @@ endfunction
 
 
 " too slow
-" autocmd! BufEnter * call Highlight_Keywords_BufEnter()
+" autocmd BufEnter * call Highlight_Keywords_BufEnter()
 
 " function Highlight_Keywords_BufEnter()
 "   " if exists("g:keyword_bool"):
@@ -582,8 +586,8 @@ function! HighlightNearCursor()
 endfunction
 
 
-autocmd! FileType htmldjango inoremap {% {% %}<left><left><left>
-autocmd! FileType htmldjango inoremap {{ {{ }}<left><left><left>
+autocmd FileType htmldjango inoremap {% {% %}<left><left><left>
+autocmd FileType htmldjango inoremap {{ {{ }}<left><left><left>
 
 " PYDICTION SETTINGS
 " 'C:/vim/vimfiles/ftplugin/pydiction/complete-dict'
@@ -660,12 +664,12 @@ set viewdir=~/.vim/view/
 " set viewoptions=folds
 " Restoring cursor is badly implemented in views. Restorting the cursors last
 " position is realized with another method, 
-" autocmd! BufWinLeave *.* silent mkview
-" autocmd! BufWinEnter *.* silent loadview
+" autocmd BufWinLeave *.* silent mkview
+" autocmd BufWinEnter *.* silent loadview
 
 " Works fine, but replaced by restore_view.vim plugin
-" autocmd! BufWinLeave ?* silent mkview
-" autocmd! BufWinEnter ?* silent loadview
+" autocmd BufWinLeave ?* silent mkview
+" autocmd BufWinEnter ?* silent loadview
 
 " recommended by restore_vim.vim
 " set viewoptions=cursor,folds,slash,unix
@@ -685,7 +689,7 @@ nnoremap <leader><space> za
 
 
 " Return to last edit cursor position when opening files (You want this!)
-autocmd! BufReadPost *
+autocmd BufReadPost *
      \ if line("'\"") > 0 && line("'\"") <= line("$") |
      \   exe "normal! g`\"" |
      \ endif
@@ -713,7 +717,7 @@ func! DeleteTrailingWS()
   %s/\s\+$//ge
   exe "normal `z"
 endfunc
-autocmd! BufWrite *.py :call DeleteTrailingWS()
+autocmd BufWrite *.py :call DeleteTrailingWS()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => vimgrep searching and cope displaying
@@ -918,14 +922,14 @@ function! s:SelectHTML()
   set ft=html
 endfun
 
-autocmd! FileType html,xhtml,xml,htmldjango,htmljinja,eruby,mako setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
-autocmd! BufNewFile,BufRead *.md setlocal ft=markdown
-autocmd! BufNewFile,BufRead *.html,*.htm  call s:SelectHTML()
+autocmd FileType html,xhtml,xml,htmldjango,htmljinja,eruby,mako setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+autocmd BufNewFile,BufRead *.md setlocal ft=markdown
+autocmd BufNewFile,BufRead *.html,*.htm  call s:SelectHTML()
 let html_no_rendering=1
 
 let g:closetag_default_xml=1
 let g:closetag_html_style=1
-autocmd! FileType html,htmldjango,htmljinja,eruby,mako let b:closetag_html_style=1
+autocmd FileType html,htmldjango,htmljinja,eruby,mako let b:closetag_html_style=1
 
 "make <> matching parenthesis for %
 set mps+=<:>
@@ -945,29 +949,28 @@ function! CompileJava()
   endif
 endfunction
 
-" autocmd! FileType txt setlocal tabstop=2 softtabstop=2 shiftwidth=2
-" autocmd! FileType vim setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
-autocmd! FileType python setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" autocmd FileType txt setlocal tabstop=2 softtabstop=2 shiftwidth=2
+" autocmd FileType vim setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 
-autocmd! FileType css setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType css setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 " C#
 
-" autocmd! FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" autocmd FileType javascript setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 let javascript_enable_domhtmlcss=1
 
-autocmd! FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=20
+autocmd FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=20
 
 " C, make
-" autocmd! FileType makefile setlocal 
+" autocmd FileType makefile setlocal 
 
 
 "CSV Data autodetection
-autocmd! BufRead,BufNewFile *.csv setfiletype csv
+autocmd BufRead,BufNewFile *.csv setfiletype csv
 
 " AUTOSAVE 
 "---------
 "autmatic saving after buffer change, on loosing focus
-autocmd! FocusLost * :wa
+autocmd FocusLost * :wa
 set nohidden 
 " hidden = 1 disables autowrite!!! Annoying to find...
 set autoread
@@ -1609,19 +1612,18 @@ endfunction
 "---------------------
 " the last <CR> is to clear the vim command line from the 'press any key'
 " dialog
-" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' /cmd cmd /c py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
-" autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' '.g:ipdb.' '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
-autocmd! Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
-autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:
+" for history
+" autocmd Filetype python nnoremap <buffer> <S-F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+" autocmd Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:
+" autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python35_64/Scripts/ipython3 '.shellescape(@%, 1)<CR>
 
 " "py -3 ./tuplecomp.py" -cur_console:c
 
-autocmd Filetype python nnoremap <buffer> <A-F9> :update<Bar>silent! execute '!C:/Python35_64/Scripts/ipython3 '.shellescape(@%, 1)<CR>
 
-autocmd! BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
+autocmd BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
 
 
 let g:TEST_AHK = 0
@@ -1648,26 +1650,26 @@ call GetAHKpath()
 if g:TEST_AHK
   echom g:AHKpath
 endif
-autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.g:AHKpath.' '.shellescape(@%,1)<CR>
+autocmd Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.g:AHKpath.' '.shellescape(@%,1)<CR>
 
 " if has("win64")
-"   autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files (x86)\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+"   autocmd Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files (x86)\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
 " else 
-"   autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
-"   " autocmd! Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+"   autocmd Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
+"   " autocmd Filetype autohotkey nnoremap <buffer> <F9> :update<Bar>silent! execute '!start C:\Program Files\AutoHotkey\AutoHotkey.exe '.shellescape(@%,1)<CR>
 " endif
 
-autocmd! Filetype dosbatch nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.shellescape(@%,1)<CR>
+autocmd Filetype dosbatch nnoremap <buffer> <F9> :update<Bar>silent! execute '!start '.shellescape(@%,1)<CR>
 
-autocmd! Filetype java nnoremap <buffer> <F9> :call CompileJava()<CR>
-autocmd! BufRead *.java call JavaRunShortcuts()
+autocmd Filetype java nnoremap <buffer> <F9> :call CompileJava()<CR>
+autocmd BufRead *.java call JavaRunShortcuts()
 
-autocmd! Filetype c nnoremap <buffer>  <F9> :update<bar> silent make %:r<CR>:redraw!<CR>:call QFixConditOpen()<CR>
+autocmd Filetype c nnoremap <buffer>  <F9> :update<bar> silent make %:r<CR>:redraw!<CR>:call QFixConditOpen()<CR>
 
-" autocmd! Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/v4.0.30319/csc.exe /t:exe /out:'.shellescape(%:h, 1).'.exe '.shellescape(@%, 1)<CR><CR>
-" autocmd! Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /t:exe /out:'.shellescape(expand(@%)).'.exe '.shellescape(@%, 1)<CR>
+" autocmd Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/v4.0.30319/csc.exe /t:exe /out:'.shellescape(%:h, 1).'.exe '.shellescape(@%, 1)<CR><CR>
+" autocmd Filetype cs nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar>execute '!start C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /t:exe /out:'.shellescape(expand(@%)).'.exe '.shellescape(@%, 1)<CR>
 
-autocmd! User Startified setlocal cursorline
+autocmd User Startified setlocal cursorline
 
 
 
@@ -2023,7 +2025,10 @@ let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tin
 " let g:pacman_string = "E:/AI/pacman/p1search/pacman.py -z 0.5 -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
 
 
-autocmd! Filetype python call PyAutocmd()
+augroup pygroup
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+  autocmd Filetype python call PyAutocmd()
+augroup end
 
 function! PyAutocmd()
   silent call SetWDToCurrentFile()
@@ -2034,11 +2039,19 @@ function! PyAutocmd()
   "
   " WORKS
   if has('nvim')
+
+    nmap <F9> :call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
+    nmap <S-F9> :call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe -m ipdb " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
+
+    " Workaround
     let g:py_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py ". expand("%")
     let g:ipdb_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py -m ipdb ". expand("%")
-    echom g:py_conemu
-    nmap <F9> :call jobstart(g:py_conemu)<CR>
-    nmap <S-F9> :call jobstart(g:ipdb_conemu)<CR>
+
+    " echom g:py_conemu
+    " nmap <F9> :call jobstart(g:py_conemu)<CR>
+    " nmap <S-F9> :call jobstart(g:ipdb_conemu)<CR>
+
+
   " don't work
   " let g:py_conemu = "C:/Program Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
   " let g:py_conemu = "C:/Program\ Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
@@ -2058,7 +2071,7 @@ function! PyAutocmd()
   " WORKING but dont do this for now - it's annoying
   " nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
 endfunction
-" autocmd! Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
+" autocmd Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
 " <Enter> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '. g:pacman_string .' -cur_console:c'<CR><CR>
 
@@ -2068,7 +2081,7 @@ endfunction
 "
 "
 
-autocmd! Filetype cs call CsharpAutocmd()
+autocmd Filetype cs call CsharpAutocmd()
 
 function! CsharpAutocmd()
   silent call SetWDToCurrentFile()
@@ -2097,7 +2110,7 @@ let g:javascript_conceal_arrow_function       = "⇒"
 let g:javascript_conceal_noarg_arrow_function = "🞅"
 let g:javascript_conceal_underscore_arrow_function = "🞅"
 
-autocmd! FileType javascript setlocal conceallevel=1
+autocmd FileType javascript setlocal conceallevel=1
 " switch conceallevel
 map <leader>c :exec &conceallevel ? "set conceallevel=0" : "set conceallevel=1"<CR>
 
