@@ -112,7 +112,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'wilywampa/vim-ipython'
 Plug 'jpalardy/vim-slime'
 Plug 'statox/vim-compare-lines'
-Plug 'maralla/completor.vim'
+" Plug 'maralla/completor.vim' # vim 8 only
 Plug 'leafgarland/typescript-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'mattn/emmet-vim'
@@ -125,7 +125,7 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
-Plug 'zchee/deoplete-jedi'
+" Plug 'zchee/deoplete-jedi'
 Plug 'airblade/vim-gitgutter'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
