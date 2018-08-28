@@ -65,9 +65,9 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-markdown'
 Plug 'bling/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -82,9 +82,10 @@ Plug 'kana/vim-vspec'
 Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
 Plug 'paradigm/TextObjectify'
 " Plug 'justinmk/TextObjectify
-Plug 'Shougo/unite.vim' " not fully surpassed by denite, features are missing like neoyank
+" Plug 'Shougo/unite.vim'
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neoyank.vim'
+Plug 'Shougo/deol.nvim'
 if has("python3")
   Plug 'SirVer/ultisnips'
 endif
@@ -119,14 +120,21 @@ Plug 'mattn/emmet-vim'
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'equalsraf/neovim-gui-shim'
+  " If DIRVISH acts up or makes more trouble with autochdir, try defx.nvim
+  " Plug 'Shougo/defx.nvim'
+  Plug 'justinmk/vim-dirvish'
+  Plug 'zchee/deoplete-jedi'
 else
+  " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
+  Plug 'tpope/vim-vinegar'
   Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 let g:deoplete#enable_at_startup = 1
-" Plug 'zchee/deoplete-jedi'
 Plug 'airblade/vim-gitgutter'
+Plug 'ternjs/tern_for_vim'
+" Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -137,7 +145,6 @@ Plug 'etdev/vim-hexcolor'
 " Own Plugins:
 Plug 'freeo/vim-kalisi'
 Plug 'freeo/vim-saveunnamed'
-Plug 'freeo/vim-workbench'
 Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 " Plug 'hdima/python-syntax'
 " until pull request is done
@@ -156,6 +163,7 @@ if !has("nvim")
   Plug 'plugin_colors'
 else
   let g:python3_host_prog = "C:/Python36/python.exe"
+  let g:python_host_prog = "C:/Python27/python.exe"
 endif
 " outsourced kalisi colors, which belong to plugins
 
@@ -215,12 +223,16 @@ au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
 autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
-" Turn it off... it sucks without YCM
-" let g:jedi#completions_enabled = 0
-let g:jedi#completions_enabled = 1
+" disable, use deoplete-jedi with 
+if has('nvim')
+  let g:jedi#completions_enabled = 0
+else
+" OLD: Turn it off... it sucks without YCM
+  let g:jedi#completions_enabled = 1
+endif
 " let g:jedi#auto_initialization = 1
 " let g:jedi#use_tabs_not_buffers = 0 
-let g:jedi#force_py_version = 3
+" let g:jedi#force_py_version = 3 #deprecated?
 
 let g:pypypath ='!C:/pypy-2.2.1-win32/pypy.exe'
 exec("command! -nargs=1 Pypy ".g:pypypath." <args>")
@@ -297,10 +309,8 @@ set viminfo+=!
 "     let g:yankring_history_dir="~/.vim/cache/"
 "   endif
 " endif
- 
+
 "CtrlP
-" yankring uses c-p as well! let it have it, i take leader :)
-let g:ctrlp_map = '<leader>p'
 map <leader><Tab> :CtrlPBuffer<CR>
 
 " User Interface
@@ -406,8 +416,9 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 
 set completefunc=emoji#complete
 
-" XXX necessary for nvim, check compatibility
-set autochdir
+" XXX autochdir doesn't work with dirvish, low prio, but it will come
+" Python execution needs autochdir at numerous points
+" set autochdir
 
 "## REMAPPINGS ##########################################################
 
@@ -417,6 +428,11 @@ set autochdir
   " C-H; C-L delete
 inoremap  <BS>
 inoremap  <DEL>
+
+" let isfname=@,48-57,/,\,.,-,_,+,,,#,$,%,{,},[,],:,@-@,!,~,=
+" dirvish: invalid directory: 'C:/Users/arthur.jaron/OneDrive - Accenture/sherlock'
+
+
 
 " Leader
 " ------
@@ -509,7 +525,8 @@ map <F11> :call ReColor()<CR>
 nmap <leader>h hEBi <Esc>E
 
 function! SetWDToCurrentFile()
-  exe "!cd %:p:h"
+  " exe "!cd %:p:h" " doesn't work for python
+  exe "cd %:h"
   exe "pwd"
 endfunction
 
@@ -1259,7 +1276,7 @@ endfunction
 
 
 
-let g:startify_bookmarks = ['~/dotfiles/vimrc','E:\GDrive\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/dotfiles/vimrc','C:/Users/arthur.jaron/Documents/viki','E:\GDrive\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
 " let g:startify_session_persistence = 1
@@ -1955,7 +1972,13 @@ let g:unite_source_history_yank_save_clipboard = 0 " default 0
 "
 " let g:neoyank#file = $HOME.'/.vim/yankring.txt'
 let g:neoyank#file = $HOME.g:vimfiles[1:].'/yankring_history.tmp'
-nnoremap <C-p> :<C-u>Unite history/yank<CR>
+" nnoremap <C-p> :<C-u>Unite history/yank<CR>
+nnoremap <C-0> :Denite neoyank<CR>
+
+" Denite Mappings
+call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
+call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+
 
 " UltiSnips
 " =====================
@@ -2039,9 +2062,11 @@ function! PyAutocmd()
   "
   " WORKS
   if has('nvim')
-
-    nmap <F9> :call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
-    nmap <S-F9> :call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe -m ipdb " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
+    " ConEmu has to run BEFORE this is called, otherwise nvim is the main handler of the process and can't run
+    " it asyncronously
+    "
+    nmap <F9> :call SetWDToCurrentFile()<Bar>update<BAR>call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
+    nmap <S-F9> :call SetWDToCurrentFile()<Bar>update<BAR>call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe -m ipdb " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
 
     " Workaround
     let g:py_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py ". expand("%")
@@ -2128,7 +2153,6 @@ inoremap [, [<CR>],<C-c>O
 
 " deoplete
 "
-let g:python3_host_prog ="C:/Python36/python.exe"
 
 " let g:UltiSnipsExpandTrigger="<tab>"
 " let g:UltiSnipsJumpForwardTrigger="<C-j>"
@@ -2138,6 +2162,47 @@ if has('nvim')
   tnoremap <Esc> <C-\><C-n>
 endif
 
+
+" Deleted my plugin: vim-workbench
+let g:vwb_f1="C:/users/arthur.jaron/sherlock/wb_sherlock.txt"
+let g:vwb_f2="C:/Users/arthur.jaron/AI/workbench_ai.txt"
+let g:vwb_f3="C:/Users/arthur.jaron/Documents/wb_topics.txt"
+let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
+
+map <F1> :exec "e ".g:vwb_f1<CR>
+map <F2> :exec "e ".g:vwb_f2<CR>
+map <F3> :exec "e ".g:vwb_f3<CR>
+map <S-F1> :exec "e ".g:vwb_f4<CR>
+
+" nmap <S-F1> :call CropPaste(g:vwb_f1)<CR>
+" nmap <S-F2> :call CropPaste(g:vwb_f2)<CR>
+" nmap <S-F3> :call CropPaste(g:vwb_f3)<CR>
+" nmap <S-F4> :call CropPaste(g:vwb_f4)<CR>
+
+function! CropPaste(document)
+  exec 'norm "tdip'
+  exec "e ".a:document
+  exec 'norm gg}o'
+  exec 'norm "tP'
+endfunction
+
+" Copy Pasta from https://github.com/carlitux/deoplete-ternjs/
+" Whether to include JavaScript keywords when completing something that is not 
+" a property.
+" Default: 0
+let g:deoplete#sources#ternjs#include_keywords = 1
+" Whether to use a case-insensitive compare between the current word and 
+" potential completions.
+" Default: 0
+let g:deoplete#sources#ternjs#case_insensitive = 1
+" Whether to include documentation strings (if found) in the result data.
+" Default: 0
+let g:deoplete#sources#ternjs#docs = 1
+" Whether to include the types of the completions in the result data. Default: 0
+let g:deoplete#sources#ternjs#types = 1
+" Use tern_for_vim.
+let g:tern#command = ["tern"]
+let g:tern#arguments = ["--persistent"]
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
