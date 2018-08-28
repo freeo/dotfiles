@@ -1,0 +1,13 @@
+set editing-mode vi
+
+set keymap      vi-move
+"dd":            kill-whole-line
+"yy":            copy-line-to-clipboard
+
+
+set keymap      vi-insert
+"\e`U":         up-directory
+M-C-u:          up-directory
+M-C-e:          expand-env-vars
+"jk":            vi-movement-mode
+
