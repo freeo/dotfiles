@@ -110,7 +110,6 @@ Plug 'junegunn/vim-emoji'
 " preserve from BundleClean deletion
 " Plug 'Valloric/YouCompleteMe'
 Plug 'ryanoasis/vim-devicons'
-Plug 'wilywampa/vim-ipython'
 Plug 'jpalardy/vim-slime'
 Plug 'statox/vim-compare-lines'
 " Plug 'maralla/completor.vim' # vim 8 only
@@ -118,6 +117,8 @@ Plug 'leafgarland/typescript-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'mattn/emmet-vim'
 if has('nvim')
+  " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
+  Plug 'wilywampa/vim-ipython' " vs iron.nvim
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'equalsraf/neovim-gui-shim'
   " If DIRVISH acts up or makes more trouble with autochdir, try defx.nvim
@@ -125,6 +126,7 @@ if has('nvim')
   Plug 'justinmk/vim-dirvish'
   Plug 'zchee/deoplete-jedi'
 else
+  Plug 'wilywampa/vim-ipython' " vs iron.nvim
   " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
   Plug 'tpope/vim-vinegar'
   Plug 'Shougo/deoplete.nvim'
@@ -135,6 +137,7 @@ let g:deoplete#enable_at_startup = 1
 Plug 'airblade/vim-gitgutter'
 Plug 'ternjs/tern_for_vim'
 " Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+Plug 'bfredl/nvim-ipy'
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -264,8 +267,10 @@ set wcm=<C-Z>
 " set guioptions-=T " remove (T)oolbar from guioptions
 " set guioptions-=m " and the (m)enu
 " set guioptions-=e " remove guitabline, use non gui instead
-set guioptions=g
+" set guioptions=g
 " set guioptions+=m
+" set guioptions=
+set guioptions=m
 set shortmess+=I
 set winaltkeys=no
 set nocursorline
@@ -532,10 +537,11 @@ endfunction
 
 " change working directory to current files path
 nnoremap <leader>cd :silent! call SetWDToCurrentFile()<bar>:pwd<CR>
-if has('nvim')
-  " avoid "press ENTER..."
-  nnoremap <leader>cd :call jobstart("cd %:p:h")<bar>:pwd<CR>
-endif
+
+" if has('nvim')
+"   " avoid "press ENTER..."
+"   nnoremap <leader>cd :call jobstart("cd %:p:h")<bar>:pwd<CR>
+" endif
 
 "Reselect pasted text, windows style pasting
 "best for indentation
@@ -1104,7 +1110,7 @@ let window_mode = 1
 map <F6> :call DualwindowSwitch(0)<CR>
 "keep right
 " map <F4> :call DualwindowSwitch(1)<CR>
-map <F4> :call HalveHorizontally()<CR>
+" map <F4> :call HalveHorizontally()<CR>
 
 
 " single = 1
@@ -1986,6 +1992,9 @@ if has("python3")
     let g:UltiSnipsUsePythonVersion = 3
 endif
 
+
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips']
+
 " vim-autoformat python
 " =========================
 " let g:formatprg_args_expr_python = ' --max-line-length 80'
@@ -2164,10 +2173,11 @@ endif
 
 
 " Deleted my plugin: vim-workbench
-let g:vwb_f1="C:/users/arthur.jaron/sherlock/wb_sherlock.txt"
-let g:vwb_f2="C:/Users/arthur.jaron/AI/workbench_ai.txt"
-let g:vwb_f3="C:/Users/arthur.jaron/Documents/wb_topics.txt"
-let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
+let g:vwb_f1="C:/users/arthur.jaron/g/wb_g.txt"
+let g:vwb_f2="C:/users/arthur.jaron/sherlock/wb_sherlock.txt"
+let g:vwb_f3="C:/Users/arthur.jaron/AI/workbench_ai.txt"
+let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_topics.txt"
+let g:vwb_f5="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
 
 map <F1> :exec "e ".g:vwb_f1<CR>
 map <F2> :exec "e ".g:vwb_f2<CR>
@@ -2203,6 +2213,16 @@ let g:deoplete#sources#ternjs#types = 1
 " Use tern_for_vim.
 let g:tern#command = ["tern"]
 let g:tern#arguments = ["--persistent"]
+
+
+"iron.nvim config
+" lua << EOF
+" local iron = require("iron")
+"
+" iron.core.set_config{
+"   repl_open_cmd = "vsplit"
+" }
+" EOF
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
