@@ -43,7 +43,7 @@ let g:conemu = '"C:\Program Files\ConEmu\ConEmu64.exe" /single -run'
 
 let $PATH .= ';C:/Program Files/Git/usr/bin'
 
-set nocompatible 
+set nocompatible
 filetype off " required
 
 " Last time it installed into bundle/vundle as well, two clones! issue?
@@ -85,7 +85,6 @@ Plug 'paradigm/TextObjectify'
 " Plug 'Shougo/unite.vim'
 Plug 'Shougo/denite.nvim'
 Plug 'Shougo/neoyank.vim'
-Plug 'Shougo/deol.nvim'
 if has("python3")
   Plug 'SirVer/ultisnips'
 endif
@@ -125,19 +124,25 @@ if has('nvim')
   " Plug 'Shougo/defx.nvim'
   Plug 'justinmk/vim-dirvish'
   Plug 'zchee/deoplete-jedi'
+  Plug 'Shougo/deol.nvim'
 else
   Plug 'wilywampa/vim-ipython' " vs iron.nvim
   " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
   Plug 'tpope/vim-vinegar'
-  Plug 'Shougo/deoplete.nvim'
   Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
+  if !has('mac')
+    Plug 'Shougo/deoplete.nvim'
+    Plug 'roxma/vim-hug-neovim-rpc'
+  endif
 endif
 let g:deoplete#enable_at_startup = 1
 Plug 'airblade/vim-gitgutter'
 Plug 'ternjs/tern_for_vim'
 " Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
 Plug 'bfredl/nvim-ipy'
+Plug 'cloudhead/neovim-fuzzy'
+" neovim-fuzzyj uses
+" https://github.com/jhawthorn/fzy
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -160,13 +165,19 @@ Plug 'freeo/python-syntax'
 " Plug 'freeo/vim-ipython' " not working with newer ipython version
 
 
+
 " No remote repo, preserve from BundleClean deletion
 " Plug 'python-syntax-master'
 if !has("nvim")
   Plug 'plugin_colors'
 else
-  let g:python3_host_prog = "C:/Python36/python.exe"
-  let g:python_host_prog = "C:/Python27/python.exe"
+  if !has("mac")
+    let g:python3_host_prog = "C:/Python36/python.exe"
+    let g:python_host_prog = "C:/Python27/python.exe"
+  else
+    let g:python3_host_prog = "/usr/local/bin/python3"
+    let g:python_host_prog = "/usr/local/bin/python"
+  endif
 endif
 " outsourced kalisi colors, which belong to plugins
 
@@ -219,11 +230,11 @@ function! RefreshUI()
   endif
 endfunction
 
-au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
+" au BufWritePost .vimrc source $MYVIMRC | :call RefreshUI()
 
 " autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call Workaround()
 " autocmd BufWritePost ~/_vimrc :source ~/_vimrc
-autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
+" autocmd BufWritePost ~/_vimrc :source ~/_vimrc | call RefreshUI()
 
 
 " disable, use deoplete-jedi with 
@@ -317,6 +328,22 @@ set viminfo+=!
 
 "CtrlP
 map <leader><Tab> :CtrlPBuffer<CR>
+noremap <leader>` :CtrlPMRUFiles<CR>
+" And default: <C-P> :CtrlP<CR>
+"
+" https://github.com/cloudhead/neovim-fuzzy
+" disable until Santa is through
+" nnoremap <C-p> :FuzzyOpen<CR>
+"
+" How to make this the default?
+" Once inside the prompt:~
+"   <c-d>
+"     Toggle between full-path search and filename only search.
+"     Note: in filename mode, the prompt's base is '>d>' instead of '>>>'
+"
+let g:ctrlp_show_hidden = 1
+
+noremap <s-tab> :Startify<CR>
 
 " User Interface
 " --------------
@@ -393,13 +420,19 @@ set lazyredraw
 
 set showtabline=1
 
-if !has('nvim')
-  set cryptmethod=blowfish2
-  " set pythonthreedll=python34.dll
-  set pythonthreedll=python36.dll
-else
-  set termguicolors
+if !has('mac')
+  if !has('nvim')
+    set cryptmethod=blowfish2
+    " set pythonthreedll=python34.dll
+    set pythonthreedll=python36.dll
+  else
+    set termguicolors
+  endif
 endif
+
+" if has('mac') && !has('gui_running')
+set termguicolors
+" endif
 
 set spelllang=de_20,en
 
@@ -439,6 +472,7 @@ inoremap  <DEL>
 
 
 
+
 " Leader
 " ------
 " sets leader to ',' and localleader to "\"
@@ -453,8 +487,6 @@ let g:mapleader="\\"
 vnoremap < <gv
 vnoremap > >gv
 
-noremap <s-tab> :Startify<CR>
-noremap <leader>` :CtrlPMRUFiles<CR>
 
 " Search
 " 2 two command on one mapping
@@ -740,7 +772,7 @@ func! DeleteTrailingWS()
   %s/\s\+$//ge
   exe "normal `z"
 endfunc
-autocmd BufWrite *.py :call DeleteTrailingWS()
+" autocmd BufWrite *.py :call DeleteTrailingWS()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => vimgrep searching and cope displaying
@@ -761,7 +793,7 @@ vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 
 
 
-if has("gui_running") || has("nvim")
+if has("gui_running")
   set go-=TlLrR
   set lines=55
   set columns=115
@@ -771,7 +803,7 @@ if has("gui_running") || has("nvim")
                 \Liberation\ Mono\ 9,
   elseif has("gui_win32")
     set guifont=
-\Cousine_NF:h12:cANSI:qDRAFT,
+\Cousine_Nerd_Font_Mono:h12:cANSI:qDRAFT,
 " \Cousine_NF:h10:cANSI:qDRAFT,
 \BitstreamVeraSansMono_NF:h10:cANSI:qDRAFT,
 \LiterationMonoPowerline_NF:h13,
@@ -785,6 +817,11 @@ if has("gui_running") || has("nvim")
 \Liberation_Mono:h9,
 \Consolas:h10,
 \Lucida_Console:h10
+  " endif
+  elseif has("gui_macvim")
+    set guifont=
+\Cousine_Nerd_Font_Mono:h18,
+\Roboto_Mono:h18
   endif
 else
   if &term == "win32"
@@ -805,7 +842,7 @@ else
         let g:airline_theme=''
     endif
 
-  " MinTTY mode-dependent cursor 
+  " MinTTY mode-dependent cursor
   elseif &term == "xterm-256color"
     let &t_ti.="\e[1 q"
     let &t_SI.="\e[5 q"
@@ -946,8 +983,8 @@ function! s:SelectHTML()
 endfun
 
 autocmd FileType html,xhtml,xml,htmldjango,htmljinja,eruby,mako setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
-autocmd BufNewFile,BufRead *.md setlocal ft=markdown
-autocmd BufNewFile,BufRead *.html,*.htm  call s:SelectHTML()
+" autocmd BufNewFile,BufRead *.md setlocal ft=markdown
+" autocmd BufNewFile,BufRead *.html,*.htm  call s:SelectHTML()
 let html_no_rendering=1
 
 let g:closetag_default_xml=1
@@ -988,20 +1025,54 @@ autocmd FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=2
 
 
 "CSV Data autodetection
-autocmd BufRead,BufNewFile *.csv setfiletype csv
+" autocmd BufRead,BufNewFile *.csv setfiletype csv
 
 " AUTOSAVE 
 "---------
 "autmatic saving after buffer change, on loosing focus
-autocmd FocusLost * :wa
+" autocmd FocusLost * :wa
 set nohidden 
 " hidden = 1 disables autowrite!!! Annoying to find...
 set autoread
 set autowrite
 set autowriteall
 
-nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
-nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
+
+" nnoremap <C-TAB> :call Autosave()<CR><bar>:bn<CR>
+" nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
+" for gui (doesn't work in iTerm2)
+" nnoremap <C-TAB> :bn<CR>
+" nnoremap <C-S-TAB> :bp<CR>
+" for terminal, but maybe my new default
+" <M-l>
+" nnoremap ¬ :bn<CR>
+" <M-h>
+" nnoremap ˙ :bp<CR>
+
+" nnoremap <M-h> :bn<CR>
+" nnoremap <M-l> :bp<CR>
+
+" move.txt
+" To enable custom key maps you must disable the automatic key maps with >
+let g:move_map_keys = 0
+
+nmap <A-j> <Plug>MoveLineDown
+nmap <A-k> <Plug>MoveLineUp
+vmap <A-j> <Plug>MoveBlockDown
+vmap <A-k> <Plug>MoveBlockUp
+vmap <A-h> <Plug>MoveBlockLeft
+vmap <A-l> <Plug>MoveBlockRight
+
+" nnoremap <A-a> :bp<cr>
+" nnoremap <A-s> :bn<cr>
+
+nnoremap <A-h> :bp<cr>
+nnoremap <A-l> :bn<cr>
+
+
+" nnoremap <ESC>h :bn<CR>
+" nnoremap <ESC>l :bp<CR>
+
 " nnoremap <C-TAB> :exec "call Autosave()"<bar>:bn<CR>
 " nnoremap <C-S-TAB> :exec "call Autosave()"<bar>:bp<CR>
 
@@ -1009,8 +1080,13 @@ nnoremap <C-S-TAB> :call Autosave()<CR><bar>:bp<CR>
 " nnoremap <C-TAB> :bn<CR>
 " nnoremap <C-S-TAB> :bp<CR>
 " MinTTY sequences, switching windows has to be disabled
+" if !has("mac")
 nnoremap [1;5I :bn<CR>
 nnoremap [1;6I :bp<CR>
+" endif
+
+" nnoremap <a-h> :SidewaysLeft<cr>
+" nnoremap <a-l> :SidewaysRight<cr>
 
 " File Browser
 " ------------
@@ -1055,7 +1131,7 @@ call tcomment#type#Define('quakecfg', '// %s')
 call tcomment#type#Define('c', '// %s')
 
 
-nmap <leader>t gcc
+" nmap <leader>t gcc
 vmap <leader>t gc
 nmap <C-t> gcc
 vmap <C-t> gc
@@ -1076,14 +1152,17 @@ command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h"))
 " if qt_newtab isn't found, v:shell_error = 1
 " (v:shell_error is builtin, which contains the status of the last external
 " call, ! read or system)
-let temp = system("where qt_newtab.exe")
-if v:shell_error
-  echom "qt_newtab.exe not in $path"
+"
+if !has('mac')
+  let temp = system("where qt_newtab.exe")
+  if v:shell_error
+    echom "qt_newtab.exe not in $path"
+  endif
+  " this specific shortcut needs to be places  after the tcomment bindings!
+  " command! EX silent! !start qt_newtab.exe %:p:h
+  command! EX !start qt_newtab.exe %:p:h
+  nnoremap <M-_> :EX<CR>
 endif
-" this specific shortcut needs to be places  after the tcomment bindings!
-" command! EX silent! !start qt_newtab.exe %:p:h
-command! EX !start qt_newtab.exe %:p:h
-nnoremap <M-_> :EX<CR>
 " all silent tries are not working, because the C# app is generating the window, vim can't get past that. I
 " need to compile a silent version of qt_newtab.exe
 
@@ -1282,7 +1361,7 @@ endfunction
 
 
 
-let g:startify_bookmarks = ['~/dotfiles/vimrc','C:/Users/arthur.jaron/Documents/viki','E:\GDrive\vocabulary.txt',g:vimfiles.'\plugged\vimtext-projectsens\syntax\text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
+let g:startify_bookmarks = ['~/dotfiles/vimrc','C:/Users/arthur.jaron/Documents/viki','E:/GDrive/vocabulary.txt',g:vimfiles.'/plugged/vimtext-projectsens/syntax/text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
 " let g:startify_session_persistence = 1
@@ -1565,8 +1644,9 @@ endfunction
 " Swap Words Left and Right
 " Replaced by Plugin: sideways
 " https://github.com/AndrewRadev/sideways.vim
-nnoremap <a-h> :SidewaysLeft<cr>
-nnoremap <a-l> :SidewaysRight<cr>
+" XXX deactivated for now in favor of buffer switching bn and bp
+" nnoremap <a-h> :SidewaysLeft<cr>
+" nnoremap <a-l> :SidewaysRight<cr>
 " http://vim.wikia.com/wiki/Swapping_characters,_words_and_lines
 " LEFT
 " nnoremap <silent> <A-h> "_yiw?\w\+\_W\+\%#<CR>:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>:noh<CR>
@@ -1646,7 +1726,7 @@ let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
 " "py -3 ./tuplecomp.py" -cur_console:c
 
 
-autocmd BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
+" autocmd BufRead *.html,*.md nnoremap <buffer> <F9> :update<CR> :silent! !chrome -new-tab file:///"%:p"<CR>
 
 
 let g:TEST_AHK = 0
@@ -2043,10 +2123,11 @@ endfunction
 
 function! TodaySeparator()
   exec "norm O"
-  exec "norma I". strftime("%m%d %a") ." ----------------------------------------------------------------------"
+  exec "norma I". strftime("%m%d %a") ." --------------------------------------------------------------"
 endfunction
 
 nmap <c-F1> :call TodaySeparator()<CR>
+nmap <leader>t :call TodaySeparator()<CR>
 
 
 let g:ycm_auto_trigger = 0
@@ -2173,11 +2254,11 @@ endif
 
 
 " Deleted my plugin: vim-workbench
-let g:vwb_f1="C:/users/arthur.jaron/g/wb_g.txt"
-let g:vwb_f2="C:/users/arthur.jaron/sherlock/wb_sherlock.txt"
-let g:vwb_f3="C:/Users/arthur.jaron/AI/workbench_ai.txt"
-let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_topics.txt"
-let g:vwb_f5="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
+let g:vwb_f1="$HOME/g/wb_g.txt"
+let g:vwb_f2="$HOME/wb_sherlock.txt"
+" let g:vwb_f3="C:/Users/arthur.jaron/AI/workbench_ai.txt"
+" let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_topics.txt"
+" let g:vwb_f5="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
 
 map <F1> :exec "e ".g:vwb_f1<CR>
 map <F2> :exec "e ".g:vwb_f2<CR>
@@ -2223,6 +2304,16 @@ let g:tern#arguments = ["--persistent"]
 "   repl_open_cmd = "vsplit"
 " }
 " EOF
+"
+"
+" Quickopen
+
+" incompatible with neovim
+" source ~/quickopen/plugin/quickopen.vim
+
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
+
+
+
