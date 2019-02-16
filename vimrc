@@ -157,7 +157,8 @@ Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 " Plug 'hdima/python-syntax'
 " until pull request is done
 "https://github.com/hdima/python-syntax/pull/52
-Plug 'freeo/python-syntax'
+" Plug 'freeo/python-syntax'
+Plug 'anntzer/python-syntax'
 
 " Forked: pytest-2 and pytest-3 support
 " Plug 'pytest-vim-compiler'
@@ -450,9 +451,10 @@ set list
 set listchars=tab:›\ ,trail:\ ,extends:…
 " set listchars=tab:›…,trail:░,extends:
 "░▒▓
-
-
 set completefunc=emoji#complete
+" https://vimways.org/2018/the-power-of-diff/
+" set diffopt+=algorithm:internal " Default
+set diffopt+=algorithm:patience
 
 " XXX autochdir doesn't work with dirvish, low prio, but it will come
 " Python execution needs autochdir at numerous points
@@ -982,6 +984,8 @@ function! s:SelectHTML()
   set ft=html
 endfun
 
+
+autocmd BufNewFile,BufRead *.s setlocal ft=asm
 autocmd FileType html,xhtml,xml,htmldjango,htmljinja,eruby,mako setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 " autocmd BufNewFile,BufRead *.md setlocal ft=markdown
 " autocmd BufNewFile,BufRead *.html,*.htm  call s:SelectHTML()
@@ -1025,7 +1029,9 @@ autocmd FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=2
 
 
 "CSV Data autodetection
+
 " autocmd BufRead,BufNewFile *.csv setfiletype csv
+
 
 " AUTOSAVE 
 "---------
@@ -1075,6 +1081,7 @@ nnoremap <A-l> :bn<cr>
 
 " nnoremap <C-TAB> :exec "call Autosave()"<bar>:bn<CR>
 " nnoremap <C-S-TAB> :exec "call Autosave()"<bar>:bp<CR>
+
 
 " WITHOUT AUTOSAVE
 " nnoremap <C-TAB> :bn<CR>
@@ -1129,7 +1136,6 @@ endfunction
 call tcomment#type#Define('text', '// %s')
 call tcomment#type#Define('quakecfg', '// %s')
 call tcomment#type#Define('c', '// %s')
-
 
 " nmap <leader>t gcc
 vmap <leader>t gc
@@ -2254,11 +2260,16 @@ endif
 
 
 " Deleted my plugin: vim-workbench
-let g:vwb_f1="$HOME/g/wb_g.txt"
-let g:vwb_f2="$HOME/wb_sherlock.txt"
-" let g:vwb_f3="C:/Users/arthur.jaron/AI/workbench_ai.txt"
-" let g:vwb_f4="C:/Users/arthur.jaron/Documents/wb_topics.txt"
-" let g:vwb_f5="C:/Users/arthur.jaron/Documents/wb_allgemein.txt"
+let g:localsettings= "~/localsettings.vim"
+if filereadable(expand(g:localsettings))
+  " source ~/localsettings.vim
+  exec "source ".g:localsettings
+else
+  let g:vwb_f1=""
+  let g:vwb_f2=""
+  let g:vwb_f3=""
+  let g:vwb_f4=""
+endif
 
 map <F1> :exec "e ".g:vwb_f1<CR>
 map <F2> :exec "e ".g:vwb_f2<CR>
@@ -2310,6 +2321,17 @@ let g:tern#arguments = ["--persistent"]
 
 " incompatible with neovim
 " source ~/quickopen/plugin/quickopen.vim
+
+autocmd Filetype asm call AsmAutocmd()
+
+" BGB
+function! AsmAutocmd()
+  silent call SetWDToCurrentFile()
+  update
+  " let g:compiler="D:/GDrive/GameBoyDev/BaneBoy/Source/make_bb.bat"
+  let g:compiler=g:cloudpath."/GameBoyDev/BaneBoy/Source/make_bb.bat"
+  nmap <F9> :call SetWDToCurrentFile()<Bar>update<BAR>call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run ".g:compiler." -cur_console:c:t:".expand('%:t'))<CR>
+endfunction
 
 
 " echom "correct vimrc!"
