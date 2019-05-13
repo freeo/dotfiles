@@ -79,7 +79,9 @@ Plug 'justinmk/vim-sneak'
 " GNU R project
 Plug 'jcfaria/Vim-R-plugin'
 Plug 'kana/vim-vspec'
-Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
+if has("win64")
+  Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
+endif
 Plug 'paradigm/TextObjectify'
 " Plug 'justinmk/TextObjectify
 " Plug 'Shougo/unite.vim'
@@ -151,7 +153,7 @@ Plug 'cloudhead/neovim-fuzzy'
 Plug 'etdev/vim-hexcolor'
 
 " Own Plugins:
-Plug 'freeo/vim-kalisi'
+Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
 Plug 'freeo/vim-saveunnamed'
 Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 " Plug 'hdima/python-syntax'
