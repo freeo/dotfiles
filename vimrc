@@ -119,7 +119,7 @@ Plug 'pangloss/vim-javascript'
 Plug 'mattn/emmet-vim'
 if has('nvim')
   " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
-  Plug 'wilywampa/vim-ipython' " vs iron.nvim
+  " Plug 'wilywampa/vim-ipython' " vs iron.nvim
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'equalsraf/neovim-gui-shim'
   " If DIRVISH acts up or makes more trouble with autochdir, try defx.nvim
@@ -127,8 +127,10 @@ if has('nvim')
   Plug 'justinmk/vim-dirvish'
   Plug 'zchee/deoplete-jedi'
   Plug 'Shougo/deol.nvim'
+  Plug 'Vigemus/iron.nvim'
+  " luafile $HOME/.config/nvim/plugins.lua
 else
-  Plug 'wilywampa/vim-ipython' " vs iron.nvim
+  " Plug 'wilywampa/vim-ipython' " vs iron.nvim
   " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
   Plug 'tpope/vim-vinegar'
   Plug 'roxma/nvim-yarp'
@@ -141,10 +143,13 @@ let g:deoplete#enable_at_startup = 1
 Plug 'airblade/vim-gitgutter'
 Plug 'ternjs/tern_for_vim'
 " Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
-Plug 'bfredl/nvim-ipy'
+" Plug 'bfredl/nvim-ipy' " is this masking f5?
 Plug 'cloudhead/neovim-fuzzy'
 " neovim-fuzzyj uses
 " https://github.com/jhawthorn/fzy
+Plug 'christianrondeau/vim-base64'
+
+Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -155,7 +160,7 @@ Plug 'etdev/vim-hexcolor'
 " Own Plugins:
 Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
 Plug 'freeo/vim-saveunnamed'
-Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+" Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 " Plug 'hdima/python-syntax'
 " until pull request is done
 "https://github.com/hdima/python-syntax/pull/52
@@ -178,7 +183,8 @@ else
     let g:python3_host_prog = "C:/Python36/python.exe"
     let g:python_host_prog = "C:/Python27/python.exe"
   else
-    let g:python3_host_prog = "/usr/local/bin/python3"
+    " let g:python3_host_prog = "/usr/local/bin/python3"
+    let g:python3_host_prog = "/Users/arthur.jaron/.pyenv/versions/neovim/bin/python"
     let g:python_host_prog = "/usr/local/bin/python"
   endif
 endif
@@ -358,7 +364,7 @@ set wildmenu
 set ruler
 "set guioptions-=T
 "set completeopt-=preview
-set gcr=a:blinkon0
+" set guicursor=a:blinkon0
 
 " Statusbar and Linenumbers
 " -------------------------
@@ -434,8 +440,17 @@ if !has('mac')
 endif
 
 " if has('mac') && !has('gui_running')
-set termguicolors
-" endif
+if has('mac')
+  set termguicolors
+  hi Cursor guifg=#ffffff guibg=#ff0000
+  hi Cursor2 guifg=#ffffff guibg=#ff0000
+  set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+                  \,a:blinkon0-Cursor/lCursor
+                  \,sm:block-blinkwait175-blinkoff150-blinkon175
+
+else
+  set guicursor=a:blinkon0
+endif
 
 set spelllang=de_20,en
 
@@ -1755,7 +1770,9 @@ function! GetAHKpath()
   endfor
 endfunction
 
-call GetAHKpath()
+if has("win64")
+  call GetAHKpath()
+endif
 
 " TEST
 if g:TEST_AHK
