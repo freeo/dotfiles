@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/arthur.jaron/.oh-my-zsh"
+export ZSH="/home/freeo/.oh-my-zsh"
 # export NODE_PATH="/usr/local/lib/node_modules"
 
 # Set name of the theme to load --- if set to "random", it will
@@ -67,11 +67,26 @@ ZSH_THEME="spaceship"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  notify
-  zsh-autosuggestions
-)
+
+
+case "$OSTYPE" in
+  darwin*)
+    # ...
+    plugins=(
+      git
+      notify
+      zsh-autosuggestions
+    )
+  ;;
+  linux*)
+    # ...
+    plugins=(
+      git
+      zsh-autosuggestions
+    )
+  ;;
+esac
+
 
 
 source $ZSH/oh-my-zsh.sh
@@ -172,27 +187,56 @@ bindkey '^h' backward-delete-char
 
 
 
-# https://emily.st/2013/05/03/zsh-vi-cursor/
-function zle-keymap-select zle-line-init
-{
-    # change cursor shape in iTerm2
-    case $KEYMAP in
-        vicmd)      print -n -- "\E]50;CursorShape=0\C-G";;  # block cursor
-        viins|main) print -n -- "\E]50;CursorShape=1\C-G";;  # line cursor
-    esac
+# # https://emily.st/2013/05/03/zsh-vi-cursor/
+# function zle-keymap-select zle-line-init
+# {
+#     # change cursor shape in iTerm2
+#     case $KEYMAP in
+#         vicmd)      print -n -- "\E]50;CursorShape=0\C-G";;  # block cursor
+#         viins|main) print -n -- "\E]50;CursorShape=1\C-G";;  # line cursor
+#     esac
+#
+#     zle reset-prompt
+#     zle -R
+# }
+#
+#
+# # block cursor
+# function zle-line-finish
+# {
+#     print -n -- "\E]50;CursorShape=0\C-G"
+# }
 
-    zle reset-prompt
-    zle -R
+# Mode dependant cursor in tmux+zsh in alacritty
+# https://www.reddit.com/r/zsh/comments/7pji2e/tmux_focus_events_and_cursor_shape_manipulation/
+# Decide cursor shape escape sequence
+BLOCK="\E]50;CursorShape=0\C-G"
+LINE="\E]50;CursorShape=1\C-G"
+if [[ -n $TMUX ]]; then
+  BLOCK="\EPtmux;\E\E]50;CursorShape=0\x7\E\\"
+  LINE="\EPtmux;\E\E]50;CursorShape=1\x7\E\\"
+fi
+
+# Use a line cursor for insert mode, block for normal
+function zle-keymap-select zle-line-init {
+  case $KEYMAP in
+    vicmd)      print -n -- "$BLOCK";; # block cursor
+    viins|main) print -n -- "$LINE";; # line cursor
+  esac
+  zle reset-prompt
+  zle -R
 }
 
-function zle-line-finish
-{
-    print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
+# Always default to block on ending a command
+function zle-line-finish {
+  print -n -- "$BLOCK"
 }
 
 zle -N zle-line-init
 zle -N zle-line-finish
 zle -N zle-keymap-select
+
+
 
 bindkey jk vi-cmd-mode
 
@@ -207,12 +251,12 @@ zstyle ':notify:*' success-title "very success. wow"
 bindkey '^r' history-incremental-search-backward
 
 # interactive completion for jenkins x (zsh only)
-source <(jx completion zsh)
+# source <(jx completion zsh)
 
 # source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 
 # echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc # add autocomplete permanently to your zsh shellif [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
-if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
+# if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
@@ -229,13 +273,14 @@ export SONARQ_PASS=freeosonarqube
 
 export PATH=~/go/bin:$PATH
 
+export PATH="/home/freeo/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 
 # interchange-app
 
-export PGP_PRIVATE_KEY=$(<~/milkyway/interchange-app/tests/test-keys.asc)
+# export PGP_PRIVATE_KEY=$(<~/milkyway/interchange-app/tests/test-keys.asc)
 
 
 
@@ -262,10 +307,10 @@ export DSPL_INTERCHANGE_LOCALDEV=True
 
 export GNUPGHOME=~/gpghome
 
-alias k='kubectl'
+# alias k='kubectl'
 alias gs='git status'
 
-[ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+# [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
 
 export LC_ALL=en_US.UTF-8
@@ -282,3 +327,8 @@ alias jxa='jx get applications'
 
 # zsh-autosuggestions
 bindkey '^[[Z' autosuggest-accept
+
+export PATH="$PATH:`pwd`/flutter/bin"
+export PAGER=most man ls
+
+xset r rate 200 30

@@ -1176,7 +1176,7 @@ command! PS silent exec '!start '.g:conemu.' /dir '.shellescape(expand("%:p:h"))
 " (v:shell_error is builtin, which contains the status of the last external
 " call, ! read or system)
 "
-if !has('mac')
+if has("win32")
   let temp = system("where qt_newtab.exe")
   if v:shell_error
     echom "qt_newtab.exe not in $path"
@@ -2352,6 +2352,14 @@ function! AsmAutocmd()
   nmap <F9> :call SetWDToCurrentFile()<Bar>update<BAR>call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run ".g:compiler." -cur_console:c:t:".expand('%:t'))<CR>
 endfunction
 
+
+if exists('$TMUX')
+  let &t_SI = "\ePtmux;\e\e[5 q\e\\"
+  let &t_EI = "\ePtmux;\e\e[2 q\e\\"
+else
+  let &t_SI = "\e[5 q"
+  let &t_EI = "\e[2 q"
+endif
 
 " echom "correct vimrc!"
 " End of my epic vimrc!

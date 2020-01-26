@@ -1,0 +1,70 @@
+shell:
+    program: /usr/bin/tmux
+    # doesn't change anythin about sth like, still "greyed out":
+    # python3 print("\U0001F389")
+    # args:
+     # - -u # force UTF-8 in tmux
+# some inspiration
+# https://github.com/tmcdonell/config-alacritty/blob/master/alacritty.yml
+#
+# Colors (Pencil Light)
+colors:
+ # Default Colors
+ primary:
+   background: '0xf1f1f1'
+   foreground: '0x424242'
+ # Normal colors
+ cursor:
+   cursor:  '0xfb0000'
+   text:    '0xfefefe'
+ normal:
+   black:   '0x212121'
+   red:     '0xc30771'
+   green:   '0x10a778'
+   yellow:  '0xa89c14'
+   blue:    '0x008ec4'
+   magenta: '0x523c79'
+   cyan:    '0x20a5ba'
+   white:   '0xe0e0e0'
+ # Bright colors
+ bright:
+   black:   '0x212121'
+   red:     '0xfb007a'
+   green:   '0x5fd7af'
+   yellow:  '0xf3e430'
+   blue:    '0x20bbfc'
+   magenta: '0x6855de'
+   cyan:    '0x4fb8cc'
+   white:   '0xf1f1f1'
+
+background_opacity: 0.95
+
+font:
+  # The normal (roman) font face to use.
+  normal:
+    family: Cousine Nerd Font Mono
+    # Style can be specified to pick a specific face.
+    style: Regular
+  size: 15
+
+window:
+  # Window dimensions (changes require restart)
+  #
+  # Specified in number of columns/lines, not pixels. If both are zero this
+  # setting is ignored.
+  dimensions:
+    columns: 110
+    lines: 55
+
+  # Window padding (changes require restart)
+  #
+  # Blank space added around the window in pixels. This padding is not scaled by
+  # DPI and the specified value is always added at both opposing sides.
+  padding:
+    x: 5
+    y: 5
+
+key_bindings:
+  - { key: V,        mods: Command,       action: Paste                        }
+  - { key: C,        mods: Command,       action: Copy                         }
+  - { key: Q,        mods: Command,       action: Quit                         }
