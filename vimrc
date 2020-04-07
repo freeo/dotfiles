@@ -471,7 +471,8 @@ set listchars=tab:›\ ,trail:\ ,extends:…
 set completefunc=emoji#complete
 " https://vimways.org/2018/the-power-of-diff/
 " set diffopt+=algorithm:internal " Default
-set diffopt+=algorithm:patience
+" set diffopt+=algorithm:patience
+set diffopt+=algorithm:histogram
 
 " XXX autochdir doesn't work with dirvish, low prio, but it will come
 " Python execution needs autochdir at numerous points

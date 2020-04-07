@@ -69,6 +69,7 @@ ZSH_THEME="spaceship"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  poetry
   notify
   zsh-autosuggestions
 )
@@ -245,7 +246,8 @@ export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PATH=~/milkyway/secrets/PGP_PrivateKey_
 # export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PATH=~/milkyway/interchange-app/tests/test-keys.asc
 export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PASSPHRASE_PATH=/Users/arthur.jaron/milkyway/tfcluster-dairyforge/secrets/crypto-passphrase.key
 # export GOOGLE_APPLICATION_CREDENTIALS=~/milkyway/secrets/dspl-dev-google-application-credentials.json
-export BASICAUTH_JSON_PATH=~/milkyway/secrets/interchange-basicauth-credentials.key.json
+export BASICAUTH_CREDENTIALS=ewogICAgInVzZXJuYW1lIjogInNhcC1kc3BsLXNlcnZpY2UtdXNlciIsCiAgICAicGFzc3dvcmQiOiAiTXYsUHA4TlRObkBuPTQ9LGRAZncuU1B1Igp9
+export PGP_PASSPHRASE=milchmachtmuedemaennermunter
 export DSPL_INTERCHANGE_BASICAUTH_FILE=~/milkyway/secrets/dspl_interchange_basicauth_file.key.json
 export DSPL_INTERCHANGE_STORAGE_BUCKET=interchange-app-localdev
 # dspl-production-fs
@@ -254,6 +256,11 @@ export DSPL_INTERCHANGE_STORAGE_BUCKET=interchange-app-localdev
 export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-fs-firebase-adminsdk-8xs5b-9bcd8a5514.json
 
 export DSPL_INTERCHANGE_LOCALDEV=True
+
+# used in fn-create-mitarbeiter
+export KEYPATH_DSPL_PRODUCTION_FS=/Users/arthur.jaron/milkyway/secrets/dspl-production-fs-firebase-adminsdk-8whuq-49c1e66611.json
+export KEYPATH_DSPL_DEV_FS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-fs-firebase-adminsdk-8xs5b-9bcd8a5514.json
+
 
 # terraform: NECESSARY, otherwise GOOGLE_APPLICATION_CREDENTIALS gets used by defaul! clash!
 # export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/tfcluster-dairyforge/svacc-dspl-development-dairyforge.key.json
@@ -278,7 +285,30 @@ alias jxw='jx get activities -w'
 alias jxc='jx context'
 alias jxn='jx ns'
 alias jxa='jx get applications'
+alias jxui='jx ui -p 10001'
 
 
 # zsh-autosuggestions
 bindkey '^[[Z' autosuggest-accept
+
+export PATH=~/.poetry/bin:$PATH
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+alias gm="gitmoji -c"
+alias gl="git log -5 --oneline | cat"
+alias fbtoken='python3 ~/milkyway/firebase-id-token-generator-python/firebase_token_generator.py'
+alias sz='source ~/.zshrc'
+
+# alias tokenprod='fbtoken kPhO4cHvN4zMj02NvOBw | tee /dev/tty | pbcopy'
+# alias tokenstg='fbtoken Vgh2NzS9yIWcPwunB5IE | tee /dev/tty | pbcopy'
+alias tokenprod='fbtoken kPhO4cHvN4zMj02NvOBw'
+alias tokenstg='fbtoken Vgh2NzS9yIWcPwunB5IE'
+
+export PYTHONBREAKPOINT=ipdb.set_trace
+
+source /Users/arthur.jaron/milkyway/secrets/firebase_projects_envvars.sh
+
+alias hb='hub browse'
