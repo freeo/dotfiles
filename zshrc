@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/freeo/.oh-my-zsh"
+export ZSH="/Users/arthur.jaron/.oh-my-zsh"
 # export NODE_PATH="/usr/local/lib/node_modules"
 
 # Set name of the theme to load --- if set to "random", it will
@@ -249,11 +249,12 @@ zstyle ':notify:*' success-icon "https://s-media-cache-ak0.pinimg.com/564x/b5/5a
 zstyle ':notify:*' success-title "very success. wow"
 
 bindkey '^r' history-incremental-search-backward
+bindkey '^s' history-incremental-search-forward
 
 # interactive completion for jenkins x (zsh only)
-# source <(jx completion zsh)
+source <(jx completion zsh)
 
-# source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 
 # echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc # add autocomplete permanently to your zsh shellif [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 # if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
@@ -313,10 +314,20 @@ export KEYPATH_DSPL_DEV_FS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-fs-fire
 
 export GNUPGHOME=~/gpghome
 
-# alias k='kubectl'
+alias k='kubectl'
 alias gs='git status'
 
-# [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+
+case "$OSTYPE" in
+  darwin*)
+    # ...
+    [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+  ;;
+  linux*)
+    # ...
+    xset r rate 200 30
+  ;;
+esac
 
 
 export LC_ALL=en_US.UTF-8
@@ -342,14 +353,35 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 alias gm="gitmoji -c"
-alias gl="git log -5 --oneline | cat"
 alias fbtoken='python3 ~/milkyway/firebase-id-token-generator-python/firebase_token_generator.py'
 alias sz='source ~/.zshrc'
-
 # alias tokenprod='fbtoken kPhO4cHvN4zMj02NvOBw | tee /dev/tty | pbcopy'
 # alias tokenstg='fbtoken Vgh2NzS9yIWcPwunB5IE | tee /dev/tty | pbcopy'
 alias tokenprod='fbtoken kPhO4cHvN4zMj02NvOBw'
 alias tokenstg='fbtoken Vgh2NzS9yIWcPwunB5IE'
+
+# GLP: git log pretty, devmoji
+# glp is defined by the git plugin for "_git_log_prettily", which doesn't work currently anyway. 2020/04/28
+unalias glp
+function glp() {
+  if [ "$1" -eq "" ]
+  then
+    git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(blue)<%an>%Creset' --abbrev-commit --decorate --date=short | devmoji --log | nvimpager
+  else 
+    git log $1 --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(blue)<%an>%Creset' --abbrev-commit --decorate --date=short | devmoji --log
+  fi
+}
+
+# GLPD: git log pretty detail
+function glpd() {
+  if [ "$1" -eq "" ]
+  then
+    git log --graph --decorate | devmoji --log | nvimpager
+  else 
+    git log $1 --graph --decorate | devmoji --log
+  fi
+}
+
 
 export PYTHONBREAKPOINT=ipdb.set_trace
 
@@ -357,7 +389,14 @@ source /Users/arthur.jaron/milkyway/secrets/firebase_projects_envvars.sh
 
 alias hb='hub browse'
 export PATH="$PATH:`pwd`/flutter/bin"
+export PATH="$PATH:$HOME/.local/bin"
 # this pager has its downsides, especially shortcuts
-export PAGER=most man ls
-# linux only?
-xset r rate 200 30
+# export PAGER=most man ls
+export PAGER=nvimpager
+
+eval "$(direnv hook zsh)"
+
+# source <(manage completion)
+
+. $(brew --prefix asdf)/asdf.sh
+

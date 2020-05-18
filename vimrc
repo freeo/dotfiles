@@ -156,6 +156,9 @@ Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
 Plug 'etdev/vim-hexcolor'
+" Plug 'powerman/vim-plugin-AnsiEsc'  " used for nvimpager, but then I found out:
+"   1. they don't share plugins
+"   2. nvimpager bundles its own AnsiEsc using the old vim-scrips/AnsiEsc.vim package (which works fine)
 
 " Own Plugins:
 Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
