@@ -3,6 +3,7 @@
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/arthur.jaron/.oh-my-zsh"
+# export ZSH="/home/freeo/.oh-my-zsh"
 # export NODE_PATH="/usr/local/lib/node_modules"
 
 # Set name of the theme to load --- if set to "random", it will

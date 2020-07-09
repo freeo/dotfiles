@@ -159,11 +159,12 @@ Plug 'etdev/vim-hexcolor'
 " Plug 'powerman/vim-plugin-AnsiEsc'  " used for nvimpager, but then I found out:
 "   1. they don't share plugins
 "   2. nvimpager bundles its own AnsiEsc using the old vim-scrips/AnsiEsc.vim package (which works fine)
+Plug 'michaeljsmith/vim-indent-object'
 
 " Own Plugins:
 Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
 Plug 'freeo/vim-saveunnamed'
-" Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
 " Plug 'hdima/python-syntax'
 " until pull request is done
 "https://github.com/hdima/python-syntax/pull/52
@@ -183,7 +184,7 @@ if !has("nvim")
   Plug 'plugin_colors'
 else
   if !has("mac")
-    let g:python3_host_prog = "C:/Python36/python.exe"
+    let g:python3_host_prog = "C:/Python38/python.exe"
     let g:python_host_prog = "C:/Python27/python.exe"
   else
     " let g:python3_host_prog = "/usr/local/bin/python3"
@@ -435,8 +436,7 @@ set showtabline=1
 if !has('mac')
   if !has('nvim')
     set cryptmethod=blowfish2
-    " set pythonthreedll=python34.dll
-    set pythonthreedll=python36.dll
+    set pythonthreedll=python38.dll
   else
     set termguicolors
   endif
@@ -1054,11 +1054,12 @@ autocmd FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=2
 " autocmd BufRead,BufNewFile *.csv setfiletype csv
 
 
-" AUTOSAVE 
+" AUTOSAVE
 "---------
-"autmatic saving after buffer change, on loosing focus
-" autocmd FocusLost * :wa
-set nohidden 
+" automatic saving after buffer change, on loosing focus
+" next line is necessary for neovim-qt on windows
+autocmd FocusLost * :wa
+set nohidden
 " hidden = 1 disables autowrite!!! Annoying to find...
 set autoread
 set autowrite
@@ -1758,11 +1759,11 @@ let g:ipdb = "C:/Python35_64/scripts/ipdb3.exe"
 
 let g:TEST_AHK = 0
 function! GetAHKpath()
-  let a:AHKpaths = [
+  let AHKpaths = [
       \ "C:/Program Files/AutoHotkey/AutoHotkey.exe", 
       \ "C:/Program Files (x86)/AutoHotkey/AutoHotkey.exe"
       \ ]
-  for i in a:AHKpaths
+  for i in AHKpaths
     " TEST
     if g:TEST_AHK
       echo i
@@ -2175,7 +2176,7 @@ augroup end
 function! PyAutocmd()
   silent call SetWDToCurrentFile()
   update
-  let g:ipdb = "C:/Python36/scripts/ipdb3.exe"
+  let g:ipdb = "C:/Python38/scripts/ipdb3.exe"
   " XXX is -3 actually the default in system py settings? -3 here overrides shebang - not good...
   " nmap <F9> :execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR>
   "
