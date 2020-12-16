@@ -2,17 +2,13 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/arthur.jaron/.oh-my-zsh"
-# export ZSH="/home/freeo/.oh-my-zsh"
+export ZSH="/home/$USER/.oh-my-zsh"
 # export NODE_PATH="/usr/local/lib/node_modules"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-# ZSH_THEME="miloshadzic"
-# ZSH_THEME="philips"
 ZSH_THEME="spaceship"
 # # kphoen
 
@@ -60,16 +56,25 @@ ZSH_THEME="spaceship"
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
 
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
+
+
+export AUTO_NOTIFY_THRESHOLD=4
+
+# Linux settings ###################
+# if ostype == Linux
+function linuxSettings () {
+xset r rate 200 30
+}
+
+# macOS settings ###################
+# if ostype == darwin
+function darwinSettings () {
+. $(brew --prefix asdf)/asdf.sh
+}
+
+
 # Add wisely, as too many plugins slow down shell startup.
-
-
 case "$OSTYPE" in
   darwin*)
     # ...`
@@ -79,18 +84,25 @@ case "$OSTYPE" in
       poetry
       zsh-autosuggestions
     )
+    darwinSettings
   ;;
   linux*)
     # ...
     plugins=(
       git
+      # auto-notify
+      notify
       zsh-autosuggestions
     )
+    linuxSettings
   ;;
 esac
 
 
 source $ZSH/oh-my-zsh.sh
+
+
+
 
 # User configuration
 
@@ -217,6 +229,23 @@ if [[ -n $TMUX ]]; then
   LINE="\EPtmux;\E\E]50;CursorShape=1\x7\E\\"
 fi
 
+# Tested OK in Linux Kitty, Terminator, Alacritty
+if [[ $OSTYPE =~ "linux" ]]; then
+  BLOCK="\033[1 q"
+  LINE="\033[5 q"
+# Sourcing here necessary due to Debian Policy
+. /usr/share/autojump/autojump.sh
+fi
+
+
+# Completion for kitty
+if [[ $TERM = "xterm-kitty" ]]; then
+  autoload -Uz compinit
+  compinit
+  kitty + complete setup zsh | source /dev/stdin
+fi
+
+
 # Use a line cursor for insert mode, block for normal
 function zle-keymap-select zle-line-init {
   case $KEYMAP in
@@ -240,9 +269,20 @@ bindkey jk vi-cmd-mode
 
 export KEYTIMEOUT=6
 
-zstyle ':notify:*' error-icon "https://media3.giphy.com/media/10ECejNtM1GyRy/200_s.gif"
+zstyle ':notify:*' command-complete-timeout 10
+
+case "$OSTYPE" in
+  darwin*)
+    zstyle ':notify:*' error-icon "https://media3.giphy.com/media/10ECejNtM1GyRy/200_s.gif"
+    zstyle ':notify:*' success-icon "https://s-media-cache-ak0.pinimg.com/564x/b5/5a/18/b55a1805f5650495a74202279036ecd2.jpg"
+  ;;
+  linux*)
+    zstyle ':notify:*' success-icon "/home/freeo/icons/dogeOk.jpg"
+    zstyle ':notify:*' error-icon "/home/freeo/icons/dogeFail.gif"
+  ;;
+esac
+
 zstyle ':notify:*' error-title "wow such #fail"
-zstyle ':notify:*' success-icon "https://s-media-cache-ak0.pinimg.com/564x/b5/5a/18/b55a1805f5650495a74202279036ecd2.jpg"
 zstyle ':notify:*' success-title "very success. wow"
 
 bindkey '^r' history-incremental-search-backward
@@ -268,7 +308,7 @@ export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 
 export PATH=~/go/bin:$PATH
 
-export PATH="/home/freeo/.pyenv/bin:$PATH"
+export PATH="/home/$USER/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
@@ -351,8 +391,6 @@ function glpd() {
 
 export PYTHONBREAKPOINT=ipdb.set_trace
 
-source /Users/arthur.jaron/milkyway/secrets/firebase_projects_envvars.sh
-
 alias hb='hub browse'
 export PATH="$PATH:`pwd`/flutter/bin"
 export PATH="$PATH:$HOME/.local/bin"
@@ -364,7 +402,6 @@ eval "$(direnv hook zsh)"
 
 # source <(manage completion)
 
-. $(brew --prefix asdf)/asdf.sh
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
@@ -381,3 +418,6 @@ export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/C
 export PATH=$GRAALVM_HOME/bin:$PATH
 
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
