@@ -72,7 +72,7 @@ ZSH_THEME="spaceship"
 
 case "$OSTYPE" in
   darwin*)
-    # ...
+    # ...`
     plugins=(
       git
       notify
@@ -151,7 +151,6 @@ if [ -f '/Users/arthurj/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/arthurj
 if [ -f '/Users/arthurj/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/arthurj/google-cloud-sdk/completion.zsh.inc'; fi
 
 # export pgstorage=gs://drebes-playground-storage-users
-
 # export PATH="$PATH:~/flutter/bin"
 
 export PATH
@@ -237,10 +236,7 @@ zle -N zle-line-init
 zle -N zle-line-finish
 zle -N zle-keymap-select
 
-
-
 bindkey jk vi-cmd-mode
-
 
 export KEYTIMEOUT=6
 
@@ -253,9 +249,9 @@ bindkey '^r' history-incremental-search-backward
 bindkey '^s' history-incremental-search-forward
 
 # interactive completion for jenkins x (zsh only)
-source <(jx completion zsh)
+# source <(jx completion zsh)
 
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+# source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 
 # echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc # add autocomplete permanently to your zsh shellif [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 # if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
@@ -270,52 +266,20 @@ export PATH=~/.npm-global/bin:$PATH
 unset MANPATH # delete if you already modified MANPATH elsewhere in your config
 export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 
-export SONARQ_USER=arjaron
-export SONARQ_PASS=freeosonarqube
-
 export PATH=~/go/bin:$PATH
 
 export PATH="/home/freeo/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-
-# interchange-app
-
 # export PGP_PRIVATE_KEY=$(<~/milkyway/interchange-app/tests/test-keys.asc)
 
-
-
-### Microservices
-export DSPL_INTERCHANGE_FIRESTORE_PROJECT_ID=dspl-dev-fs
-export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PATH=~/milkyway/secrets/PGP_PrivateKey_DSPL2019.asc
-# export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PATH=~/milkyway/interchange-app/tests/test-keys.asc
-export DSPL_INTERCHANGE_DSPL_PRIVATE_KEY_PASSPHRASE_PATH=/Users/arthur.jaron/milkyway/tfcluster-dairyforge/secrets/crypto-passphrase.key
-# export GOOGLE_APPLICATION_CREDENTIALS=~/milkyway/secrets/dspl-dev-google-application-credentials.json
-export BASICAUTH_CREDENTIALS=ewogICAgInVzZXJuYW1lIjogInNhcC1kc3BsLXNlcnZpY2UtdXNlciIsCiAgICAicGFzc3dvcmQiOiAiTXYsUHA4TlRObkBuPTQ9LGRAZncuU1B1Igp9
-export PGP_PASSPHRASE=milchmachtmuedemaennermunter
-export DSPL_INTERCHANGE_BASICAUTH_FILE=~/milkyway/secrets/dspl_interchange_basicauth_file.key.json
-export DSPL_INTERCHANGE_STORAGE_BUCKET=interchange-app-localdev
-# dspl-production-fs
-# export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/secrets/dspl-production-fs-firebase-adminsdk-8whuq-49c1e66611.json
-# dspl-dev-fs
-export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-fs-firebase-adminsdk-8xs5b-9bcd8a5514.json
-
-export DSPL_INTERCHANGE_LOCALDEV=True
-
-# used in fn-create-mitarbeiter
-export KEYPATH_DSPL_PRODUCTION_FS=/Users/arthur.jaron/milkyway/secrets/dspl-production-fs-firebase-adminsdk-8whuq-49c1e66611.json
-export KEYPATH_DSPL_DEV_FS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-fs-firebase-adminsdk-8xs5b-9bcd8a5514.json
-
-
 # terraform: NECESSARY, otherwise GOOGLE_APPLICATION_CREDENTIALS gets used by defaul! clash!
-# export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/tfcluster-dairyforge/svacc-dspl-development-dairyforge.key.json
-# interchange-app: dspl-dev/datastore
-# export GOOGLE_APPLICATION_CREDENTIALS=/Users/arthur.jaron/milkyway/secrets/dspl-dev-google-application-credentials.json
+# export GOOGLE_APPLICATION_CREDENTIALS=
 
 export GNUPGHOME=~/gpghome
 
-alias k='kubectl'
+# alias k='kubectl'
 alias gs='git status'
 
 
@@ -336,12 +300,12 @@ export LC_ALL=en_US.UTF-8
 export EDITOR=nvim
 export KUBE_EDITOR=nvim
 
-alias jxl='jx get build logs'
-alias jxw='jx get activities -w'
-alias jxc='jx context'
-alias jxn='jx ns'
-alias jxa='jx get applications'
-alias jxui='jx ui -p 10001'
+# alias jxl='jx get build logs'
+# alias jxw='jx get activities -w'
+# alias jxc='jx context'
+# alias jxn='jx ns'
+# alias jxa='jx get applications'
+# alias jxui='jx ui -p 10001'
 
 
 # zsh-autosuggestions
@@ -384,6 +348,7 @@ function glpd() {
 }
 
 
+
 export PYTHONBREAKPOINT=ipdb.set_trace
 
 source /Users/arthur.jaron/milkyway/secrets/firebase_projects_envvars.sh
@@ -400,4 +365,19 @@ eval "$(direnv hook zsh)"
 # source <(manage completion)
 
 . $(brew --prefix asdf)/asdf.sh
+
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/Users/arthur.jaron/.sdkman"
+[[ -s "/Users/arthur.jaron/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/arthur.jaron/.sdkman/bin/sdkman-init.sh"
+
+# for scalafmt, installed by coursier (cs)
+export PATH="$PATH:/Users/arthur.jaron/Library/Application Support/Coursier/bin"
+
+alias sz='source ~/.zshrc'
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+export PATH=$GRAALVM_HOME/bin:$PATH
+
 
