@@ -57,10 +57,6 @@ ZSH_THEME="spaceship"
 # HIST_STAMPS="mm/dd/yyyy"
 
 
-
-
-export AUTO_NOTIFY_THRESHOLD=4
-
 # Linux settings ###################
 # if ostype == Linux
 function linuxSettings () {
