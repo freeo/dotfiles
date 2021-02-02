@@ -48,3 +48,12 @@ K-<kbd>PgDn</kbd>  Page Down
 K-<kbd>o</kbd> open selection in VSCode
 
 K-<kbd>c</kbd> open CWD Folder in VSCode
+
+## Scrollback buffer
+
+K-<kbd>h</kbd> enter pager mode (less by default)
+`: is displayed`
+
+/ search
+
+q quit

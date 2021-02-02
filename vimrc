@@ -452,7 +452,7 @@ if has('mac')
                   \,sm:block-blinkwait175-blinkoff150-blinkon175
 
 else
-  set guicursor=a:blinkon0
+  set guicursor=a:blinkon0-Cursor/lCursor
 endif
 
 set spelllang=de_20,en
@@ -872,6 +872,10 @@ else
     let &t_EI.="\e[1 q"
     let &t_te.="\e[0 q"
   endif
+endif
+
+if exists('g:neovide')
+    set guifont=Cousine\ Nerd\ Font\ Mono:h16:cANSI:qDRAFT
 endif
 
 syntax enable " Syntax Colors

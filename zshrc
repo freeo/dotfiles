@@ -60,13 +60,33 @@ ZSH_THEME="spaceship"
 # Linux settings ###################
 # if ostype == Linux
 function linuxSettings () {
-xset r rate 200 30
+  xset r rate 200 30
+
+  # ra = reset audio
+  alias ra="pulseaudio -k"
+  # reset capslock to ctrl
+  alias caps="setxkbmap -option ctrl:nocaps"
+
+  export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
+  export JAVA_HOME=$GRAALVM_HOME
+  export PATH=$GRAALVM_HOME/bin:$PATH
+
+  export ANDROID_HOME=$HOME/Android/Sdk
+  # for adb
+  export PATH=$PATH:$ANDROID_HOME/platform-tools
+  export PATH=$PATH:~/bin
 }
+
 
 # macOS settings ###################
 # if ostype == darwin
 function darwinSettings () {
-. $(brew --prefix asdf)/asdf.sh
+  . $(brew --prefix asdf)/asdf.sh
+
+  export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+  export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+  export PATH=$GRAALVM_HOME/bin:$PATH
+
 }
 
 
@@ -159,7 +179,6 @@ if [ -f '/Users/arthurj/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/arthurj
 if [ -f '/Users/arthurj/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/arthurj/google-cloud-sdk/completion.zsh.inc'; fi
 
 # export pgstorage=gs://drebes-playground-storage-users
-# export PATH="$PATH:~/flutter/bin"
 
 export PATH
 
@@ -388,7 +407,7 @@ function glpd() {
 export PYTHONBREAKPOINT=ipdb.set_trace
 
 alias hb='hub browse'
-export PATH="$PATH:`pwd`/flutter/bin"
+export PATH="$PATH:$HOME/flutter/bin"
 export PATH="$PATH:$HOME/.local/bin"
 # this pager has its downsides, especially shortcuts
 # export PAGER=most man ls
@@ -409,11 +428,14 @@ export PATH="$PATH:/Users/arthur.jaron/Library/Application Support/Coursier/bin"
 
 alias sz='source ~/.zshrc'
 
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
-export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
-export PATH=$GRAALVM_HOME/bin:$PATH
 
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+###-tns-completion-start-###
+if [ -f /home/freeo/.tnsrc ]; then 
+    source /home/freeo/.tnsrc 
+fi
+###-tns-completion-end-###
