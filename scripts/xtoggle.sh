@@ -1,38 +1,39 @@
 #!/bin/bash
 # Toggles between Acer ROG and external Toshiba monitor
 
-# echo $(</home/freeo/.config/monitor.freeo)
+# KNOWN ISSUE:
+# if DP-x isn't found, xrandr will through a WARNING, but return statuscode 0,
+# which isn't catched currently and therefore will end up writing the wrong
+# variable to the cfg file.
 
 export CFGFILE="/home/freeo/.config/monitor.freeo"
 MONITOR=$(<$CFGFILE)
 echo "CFG File:" $MONITOR
 
 activateToshiba() {
-    echo -n "TOSHIBA" > $CFGFILE
-    export MONITOR=TOSHIBA
     xrandr \
     --dpi 108 \
-    --output DP-1 --off \
-    --output HDMI-1 --mode 1920x1080 --rate 60 --pos 0x0 --primary \
-    --output DP-2 --off \
-    --output DP-3 --off \
-    --output None-1 --off 
-    echo "Activated Toshiba"
+    --output DP-0 --off \
+    --output HDMI-0 --mode 1920x1080 --rate 60 --pos 0x0 --primary
+    postXrandr "TOSHIBA"
 }
 
 activateROG() {
-    echo -n "ROG" > $CFGFILE
-    export MONITOR=ROG
     xrandr \
     --dpi 108 \
-    --output DP-1 --mode 2560x1440 --rate 144 --pos 0x0 --primary \
-    --output HDMI-1 --off \
-    --output DP-2 --off \
-    --output DP-3 --off \
-    --output None-1 --off 
-    echo "Activated ROG"
-    echo $(<$CFGFILE)
-    
+    --output DP-0 --mode 2560x1440 --rate 144 --pos 0x0 --primary \
+    --output HDMI-0 --off
+    postXrandr "ROG"
+}
+
+# $1 = ROG | TOSHIBA
+postXrandr() {
+    if [[ $? -eq 0 ]]; then
+        echo -n $1 > $CFGFILE
+        echo "Activated "$1
+    else
+        echo "Aborting - xrandr unsuccessful"
+    fi
 }
 
 
