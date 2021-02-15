@@ -22,6 +22,9 @@ else if (computername="Asa") {
 else if (computername="VN7-591G") {
     CloudFolder := "D:\GDrive"
 }
+else if (computername="DESKTOP-9AEL4S3") {
+    CloudFolder := "E:\GDrive"
+}
 else {
     CloudFolder := ""
     MsgBox ERROR: Computer CloudFolder undefined, computername:"%computername%"
