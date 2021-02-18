@@ -97,9 +97,11 @@ global language
 $`;:: Send, ö
 $':: Send, ä
 $[:: Send, ü
+$\:: Send, ü
 $+':: Send, Ä
 $+;:: Send, Ö
 $+[:: Send, Ü
+$+\:: Send, Ü
 
 $!;:: Send,;
 $!+;:: Send,:
@@ -112,9 +114,11 @@ $!+[:: Send, {{}
 $!`;:: Send, ö
 $!':: Send, ä
 $![:: Send, ü
+$!\:: Send, ü
 $!+':: Send, Ä
 $!+;:: Send, Ö
 $!+[:: Send, Ü
+$!+\:: Send, Ü
 
 ; Pidgin
 #If (language == "English" and WinActive("ahk_class gdkWindowToplevel"))
@@ -124,4 +128,5 @@ $![:: SendInput, ^+{u}00fc{Space}
 $!+':: SendInput, ^+{u}00c4{Space}
 $!+;:: SendInput, ^+{u}00d6{Space}
 $!+[:: SendInput, ^+{u}00dc{Space}
+$!+\:: SendInput, ^+{u}00dc{Space}
 $!-:: SendInput, ^+{u}00df{Space}

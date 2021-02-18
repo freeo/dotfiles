@@ -875,7 +875,8 @@ else
 endif
 
 if exists('g:neovide')
-    set guifont=Cousine\ Nerd\ Font\ Mono:h16:cANSI:qDRAFT
+    " set guifont=Cousine\ Nerd\ Font\ Mono:h16:cANSI:qDRAFT
+    set guifont=Cousine_Nerd_Font_Mono:h16
 endif
 
 syntax enable " Syntax Colors
