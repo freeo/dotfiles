@@ -69,12 +69,12 @@ function linuxSettings () {
 
   export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   export JAVA_HOME=$GRAALVM_HOME
-  export PATH=$GRAALVM_HOME/bin:$PATH
-
   export ANDROID_HOME=$HOME/Android/Sdk
+  export PATH=$GRAALVM_HOME/bin:$PATH
   # for adb
   export PATH=$PATH:$ANDROID_HOME/platform-tools
   export PATH=$PATH:~/bin
+  export PATH=$PATH:/usr/local/go/bin
 }
 
 
@@ -86,6 +86,7 @@ function darwinSettings () {
   export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
   export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
   export PATH=$GRAALVM_HOME/bin:$PATH
+  export PATH=~/go/bin:$PATH
 
 }
 
@@ -321,7 +322,6 @@ export PATH=~/.npm-global/bin:$PATH
 unset MANPATH # delete if you already modified MANPATH elsewhere in your config
 export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 
-export PATH=~/go/bin:$PATH
 
 export PATH="/home/$USER/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
