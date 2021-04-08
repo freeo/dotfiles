@@ -66,6 +66,8 @@ function linuxSettings () {
   alias ra="pulseaudio -k"
   # reset capslock to ctrl
   alias caps="setxkbmap -option ctrl:nocaps"
+  alias win10="systemctl hibernate --boot-loader-entry=Windows10.conf"
+
 
   export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   export JAVA_HOME=$GRAALVM_HOME
