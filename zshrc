@@ -1,8 +1,13 @@
+# PROFILING this .zshrc:
+# NOTE: Last line of this script is necessary to know when to stop
+# zmodload zsh/zprof 
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/$USER/.oh-my-zsh"
+# export ZSH="/home/$USER/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 # export NODE_PATH="/usr/local/lib/node_modules"
 
 # Set name of the theme to load --- if set to "random", it will
@@ -83,6 +88,7 @@ function linuxSettings () {
 # macOS settings ###################
 # if ostype == darwin
 function darwinSettings () {
+  export PATH=/usr/local/bin:$PATH
   . $(brew --prefix asdf)/asdf.sh
 
   export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
@@ -99,7 +105,8 @@ case "$OSTYPE" in
     # ...`
     plugins=(
       git
-      notify
+      # notify
+      auto-notify
       poetry
       zsh-autosuggestions
     )
@@ -237,32 +244,31 @@ bindkey '^h' backward-delete-char
 #     print -n -- "\E]50;CursorShape=0\C-G"
 # }
 
-# Mode dependant cursor in tmux+zsh in alacritty
-# https://www.reddit.com/r/zsh/comments/7pji2e/tmux_focus_events_and_cursor_shape_manipulation/
-# Decide cursor shape escape sequence
-BLOCK="\E]50;CursorShape=0\C-G"
-LINE="\E]50;CursorShape=1\C-G"
-if [[ -n $TMUX ]]; then
-  BLOCK="\EPtmux;\E\E]50;CursorShape=0\x7\E\\"
-  LINE="\EPtmux;\E\E]50;CursorShape=1\x7\E\\"
-fi
-
-# Tested OK in Linux Kitty, Terminator, Alacritty
-if [[ $OSTYPE =~ "linux" ]]; then
+if [[ $TERM = "xterm-kitty" ]]; then
+  # BLOCK & LINE tested in Linux and macOS
   BLOCK="\033[1 q"
   LINE="\033[5 q"
-# Sourcing here necessary due to Debian Policy
-. /usr/share/autojump/autojump.sh
-fi
-
-
-# Completion for kitty
-if [[ $TERM = "xterm-kitty" ]]; then
+  # Completion for kitty
   autoload -Uz compinit
   compinit
   kitty + complete setup zsh | source /dev/stdin
 fi
 
+# Mode dependant cursor in tmux+zsh in alacritty
+# https://www.reddit.com/r/zsh/comments/7pji2e/tmux_focus_events_and_cursor_shape_manipulation/
+# Decide cursor shape escape sequence
+# BLOCK="\E]50;CursorShape=0\C-G"
+# LINE="\E]50;CursorShape=1\C-G"
+# if [[ -n $TMUX ]]; then
+#   BLOCK="\EPtmux;\E\E]50;CursorShape=0\x7\E\\"
+#   LINE="\EPtmux;\E\E]50;CursorShape=1\x7\E\\"
+# fi
+
+# Tested OK in Linux Kitty, Terminator, Alacritty
+if [[ $OSTYPE =~ "linux" ]]; then
+  # Sourcing here necessary due to Debian Policy
+. /usr/share/autojump/autojump.sh
+fi
 
 # Use a line cursor for insert mode, block for normal
 function zle-keymap-select zle-line-init {
@@ -370,9 +376,9 @@ bindkey '^[[Z' autosuggest-accept
 
 export PATH=~/.poetry/bin:$PATH
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 alias gm="gitmoji -c"
 alias fbtoken='python3 ~/milkyway/firebase-id-token-generator-python/firebase_token_generator.py'
@@ -384,7 +390,8 @@ alias tokenstg='fbtoken Vgh2NzS9yIWcPwunB5IE'
 
 # GLP: git log pretty, devmoji
 # glp is defined by the git plugin for "_git_log_prettily", which doesn't work currently anyway. 2020/04/28
-unalias glp
+# issue only in kitty
+# unalias glp
 function glp() {
   if [ "$1" -eq "" ]
   then
@@ -432,12 +439,12 @@ alias sz='source ~/.zshrc'
 
 
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 ###-tns-completion-start-###
 if [ -f /home/freeo/.tnsrc ]; then 
     source /home/freeo/.tnsrc 
 fi
 ###-tns-completion-end-###
+
+# PROFILING endpoint:
+# zprof
