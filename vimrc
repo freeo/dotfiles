@@ -149,7 +149,7 @@ Plug 'cloudhead/neovim-fuzzy'
 " https://github.com/jhawthorn/fzy
 Plug 'christianrondeau/vim-base64'
 
-Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+" Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
 " https://github.com/Valloric/YouCompleteMe/wiki/Windows-Installation-Guide-for-Unix%E2%80%90like-Environments
 
@@ -184,7 +184,7 @@ if !has("nvim")
   Plug 'plugin_colors'
 else
   if !has("mac")
-    let g:python3_host_prog = "C:/Python38/python.exe"
+    let g:python3_host_prog = "C:/Python39/python.exe"
     let g:python_host_prog = "C:/Python27/python.exe"
   else
     " let g:python3_host_prog = "/usr/local/bin/python3"
@@ -368,7 +368,6 @@ set wildmenu
 set ruler
 "set guioptions-=T
 "set completeopt-=preview
-" set guicursor=a:blinkon0
 
 " Statusbar and Linenumbers
 " -------------------------
@@ -442,17 +441,18 @@ if !has('mac')
   endif
 endif
 
-" if has('mac') && !has('gui_running')
+hi Cursor guifg=#ffffff guibg=#ff0000
+hi Cursor2 guifg=#ffffff guibg=#ff0000
 if has('mac')
   set termguicolors
-  hi Cursor guifg=#ffffff guibg=#ff0000
-  hi Cursor2 guifg=#ffffff guibg=#ff0000
   set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
                   \,a:blinkon0-Cursor/lCursor
                   \,sm:block-blinkwait175-blinkoff150-blinkon175
 
-else
-  set guicursor=a:blinkon0-Cursor/lCursor
+elseif has('win32')
+  echom "no mac block"
+  set termguicolors
+  set guicursor=n-v-c-sm:block-Cursor/lCursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20
 endif
 
 set spelllang=de_20,en
@@ -812,9 +812,10 @@ vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 " Visuals
 " =====================
 
-
-
-
+if has("win32")
+  set guifont=Cousine\ NF:h12:cANSI:qDRAFT
+  " exec "Guifont! Cousine NF:h12:cANSI:qDRAFT"
+endif
 
 if has("gui_running")
   set go-=TlLrR
@@ -825,22 +826,10 @@ if has("gui_running")
     set guifont=Liberation\ Mono\ for\ Powerline\ 9,
                 \Liberation\ Mono\ 9,
   elseif has("gui_win32")
-    set guifont=
-\Cousine_Nerd_Font_Mono:h12:cANSI:qDRAFT,
-" \Cousine_NF:h10:cANSI:qDRAFT,
-\BitstreamVeraSansMono_NF:h10:cANSI:qDRAFT,
-\LiterationMonoPowerline_NF:h13,
-\Literation_Mono_Powerline:h10,
-\Literation_Mono_for_Powerline:h10,
-\Liberation_Mono_Powerline:h10,
-\Liberation_Mono_for_Powerline:h10,
-\DejaVuSansMono_NF:h10:cANSI:qDRAFT,
-\DejaVu_Sans_Mono_for_Powerline:h11,
-\DejaVu_Sans_Mono:h10,
-\Liberation_Mono:h9,
+    set guifont=Cousine\ NF:h12:cANSI:qDRAFT,
+\Cousine_NF:h12:cANSI:qDRAFT,
 \Consolas:h10,
 \Lucida_Console:h10
-  " endif
   elseif has("gui_macvim")
     set guifont=
 \Cousine_Nerd_Font_Mono:h18,
@@ -853,7 +842,7 @@ else
     " let g:airline_right_sep=''
     set visualbell
     " ConEmu only! Doesn't work with vanilla powershell.exe
-    if $is_powershell 
+    if $is_powershell
         " cursor not working, unreliable, slow
         " $is_powershell is an ENV variable set in the powershell $profile
         " set term=xterm
