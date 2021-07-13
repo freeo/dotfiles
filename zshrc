@@ -10,7 +10,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 source ~/.zinit/bin/zinit.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
@@ -36,7 +35,7 @@ zinit light-mode for \
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export ZSH="$HOME/.oh-my-zsh"
+# export ZSH="$HOME/.oh-my-zsh"
 
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -55,7 +54,8 @@ fi
 # Common settings ###################
 export NVM_LAZY_LOAD=true # for zsh-nvm
 
-
+export AUTO_NOTIFY_THRESHOLD=10
+export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
 
 # Linux settings ###################
 # if ostype == Linux
@@ -68,6 +68,8 @@ function linuxSettings () {
   alias caps="setxkbmap -option ctrl:nocaps"
   alias win10="systemctl hibernate --boot-loader-entry=Windows10.conf"
 
+  alias chmod='chmod --preserve-root -v'
+  alias chown='chown --preserve-root -v'
 
   export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   export JAVA_HOME=$GRAALVM_HOME
@@ -79,6 +81,8 @@ function linuxSettings () {
   export PATH=$PATH:/usr/local/go/bin
 }
 
+# Linux Environment Variables, not conflicting with Darwin
+export GREP_COLORS="1;97;102"
 
 # macOS settings ###################
 # if ostype == darwin
@@ -91,6 +95,8 @@ function darwinSettings () {
   export PATH=$GRAALVM_HOME/bin:$PATH
   export PATH=~/go/bin:$PATH
   export PATH=/usr/local/opt/avr-gcc@7/bin:$PATH
+
+  export GREP_COLOR=$GREP_COLORS
 }
 
 
@@ -99,11 +105,14 @@ case "$OSTYPE" in
   darwin*)
     # ...`
     zinit light zsh-users/zsh-autosuggestions
-    zinit light MichaelAquilina/zsh-auto-notify
     zinit light darvid/zsh-poetry
     zinit light lukechilds/zsh-nvm
     zinit light zdharma/fast-syntax-highlighting
-
+    zinit light MichaelAquilina/zsh-auto-notify
+    zinit light Tarrasch/zsh-bd
+    zinit light zimfw/git
+    zinit light zimfw/exa
+    zinit light zimfw/archive
     darwinSettings
   ;;
   linux*)
@@ -118,12 +127,10 @@ case "$OSTYPE" in
   ;;
 esac
 
-
-source $ZSH/oh-my-zsh.sh
-
+# source $ZSH/oh-my-zsh.sh
 
 alias sz='source ~/.zshrc'
-
+alias l='exa -la'
 
 # User configuration
 
@@ -168,7 +175,7 @@ SPACESHIP_DOCKER_COLOR="green"
 SPACESHIP_KUBECONTEXT_COLOR="blue"
 SPACESHIP_VI_MODE_COLOR="black"
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 
 # The next line updates PATH for the Google Cloud SDK.
@@ -189,9 +196,33 @@ freeohelp () {
   # echo "mdv      - markdown viewer"
 }
 
-
-setopt ZLE
+setopt zle
 setopt vi
+setopt autocd
+setopt extendedhistory
+setopt noflowcontrol
+setopt histexpiredupsfirst
+setopt histignoredups
+setopt histignorespace
+setopt histverify
+setopt interactivecomments
+setopt longlistjobs
+# shares .zsh_history among tabs. Try without for a while, what feels more natural
+# off seems more sensible
+# setopt sharehistory
+
+# from omz, not in use
+# alwaystoend
+# autopushd
+# completeinword
+# interactive
+# promptsubst
+# pushdignoredups
+# pushdminus
+
+# Fuzzy Finder needs to be loaded *after* ZLE, otherwise it won't be available on
+# startup, but only after manually sourcing this .zshrc
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # https://dougblack.io/words/zsh-vi-mode.html
 # bindkey -v
@@ -300,6 +331,7 @@ bindkey '^s' history-incremental-search-forward
 
 # echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc # add autocomplete permanently to your zsh shellif [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 # if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
+
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
@@ -420,11 +452,65 @@ export SDKMAN_DIR="/Users/arthur.jaron/.sdkman"
 
 export PASSWORD_STORE_DIR=/Users/arthur.jaron/bmwcode/infra-base/secrets
 
+## NativeScript
 ###-tns-completion-start-###
 if [ -f /home/freeo/.tnsrc ]; then 
     source /home/freeo/.tnsrc 
 fi
 ###-tns-completion-end-###
+
+alias printaliases="print -rl -- ${(k)aliases}"
+# print -rl -- ${(k)aliases} ${(k)functions} ${(k)parameters}
+
+
+source ~/secrets/secrets.zsh
+source ~/bmwcode/rc_pulumi_settings.zsh
+alias plrc="source ~/bmwcode/rc_pulumi_settings.zsh"
+
+alias grep='grep --color=auto'
+
+function git-alias-lookup () {
+  local gprefix
+  zstyle -s ':zim:git' aliases-prefix 'gprefix' || gprefix=G
+
+  local -A gdoc
+  local gline galias
+  local -r gmodule_home=${1}
+  shift
+  # read one-line documentations from README.md
+  for gline in ${(f)"$(command sed -n 's/^ *\* `G\([^`]*\)` /\1=/p' ${gmodule_home}/README.md)"}; do
+    gdoc[${gline%%=*}]=${gline#*=}
+  done
+  # read aliases from init.zsh
+  for gline in ${(f)"$(command sed -n 's/^ *alias ${gprefix}//p' ${gmodule_home}/init.zsh)"}; do
+    galias=${(Q)gline%%=*}
+    print -R ${gprefix}${galias}'%'${aliases[${gprefix}${galias}]}'%'${gdoc[${galias}]}
+  done | command grep "${(j:.*:)@}" | command column -s '%' -t
+}
+
+function git-branch-current (){
+  command git symbolic-ref -q --short HEAD
+}
+
+function git-branch-delete-interactive () {
+  local -a remotes
+  if (( ${*[(I)(-r|--remotes)]} )); then
+    remotes=(${^*:#-*})
+  else
+    remotes=(${(f)"$(command git rev-parse --abbrev-ref ${^*:#-*}@{u} 2>/dev/null)"}) || remotes=()
+  fi
+  if command git branch --delete ${@} && \
+      (( ${#remotes} )) && \
+      read -q "?Also delete remote branch(es) ${remotes} [y/N]? "; then
+    print
+    local remote
+    for remote (${remotes}) command git push ${remote%%/*} :${remote#*/}
+  fi
+}
+
+
+alias df='df -h'
+alias du='du -h'
 
 # PROFILING endpoint:
 # zprof

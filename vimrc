@@ -49,6 +49,7 @@ filetype off " required
 " Last time it installed into bundle/vundle as well, two clones! issue?
 " set runtimepath+=$HOME/.vim/bundle/Vundle.vim
 " call vundle#rc('~/.vim/bundle')
+"
 
 call plug#begin('~/.vim/plugged')
  
@@ -182,17 +183,22 @@ Plug 'anntzer/python-syntax'
 " Plug 'python-syntax-master'
 if !has("nvim")
   Plug 'plugin_colors'
+  echom "No nvim"
 else
   if !has("mac")
     let g:python3_host_prog = "C:/Python39/python.exe"
     let g:python_host_prog = "C:/Python27/python.exe"
+    echom "Win py3"
   else
-    " let g:python3_host_prog = "/usr/local/bin/python3"
-    let g:python3_host_prog = "/Users/arthur.jaron/.pyenv/versions/neovim/bin/python"
-    let g:python_host_prog = "/usr/local/bin/python"
+    " let g:python3_host_prog = "/Users/arthur.jaron/.pyenv/versions/neovim/bin/python"
+    let g:python_host_prog = "/usr/bin/python"
+    let g:python3_host_prog = "/usr/local/bin/python3"
   endif
 endif
 " outsourced kalisi colors, which belong to plugins
+"
+
+
 
 call plug#end()
 
