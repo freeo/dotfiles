@@ -185,14 +185,16 @@ if !has("nvim")
   Plug 'plugin_colors'
   echom "No nvim"
 else
-  if !has("mac")
-    let g:python3_host_prog = "C:/Python39/python.exe"
-    let g:python_host_prog = "C:/Python27/python.exe"
-    echom "Win py3"
-  else
+  if has("unix")
+    let g:python_host_prog = "/usr/bin/python"
+    let g:python3_host_prog = "/usr/bin/python3"
+  elseif has("mac")
     " let g:python3_host_prog = "/Users/arthur.jaron/.pyenv/versions/neovim/bin/python"
     let g:python_host_prog = "/usr/bin/python"
     let g:python3_host_prog = "/usr/local/bin/python3"
+  elseif has('win32')
+    let g:python3_host_prog = "C:/Python39/python.exe"
+    let g:python_host_prog = "C:/Python27/python.exe"
   endif
 endif
 " outsourced kalisi colors, which belong to plugins

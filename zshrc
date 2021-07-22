@@ -2,12 +2,10 @@
 # NOTE: Last line of this script is necessary to know when to stop
 # zmodload zsh/zprof 
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
+  fortune | lolcat
 fi
+
 
 source ~/.zinit/bin/zinit.zsh
 
@@ -52,10 +50,12 @@ if [[ $TERM = "xterm-kitty" ]]; then
 fi
 
 # Common settings ###################
+export SHELL=/usr/bin/zsh
 export NVM_LAZY_LOAD=true # for zsh-nvm
 
 export AUTO_NOTIFY_THRESHOLD=10
 export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
+AUTO_NOTIFY_IGNORE+=("ranger")
 
 # Linux settings ###################
 # if ostype == Linux
@@ -117,15 +117,34 @@ case "$OSTYPE" in
   ;;
   linux*)
     # ...
-    plugins=(
-      git
-      # auto-notify
-      notify
-      zsh-autosuggestions
-    )
+    zinit light zsh-users/zsh-autosuggestions
+    zinit light darvid/zsh-poetry
+    zinit light lukechilds/zsh-nvm
+    zinit light zdharma/fast-syntax-highlighting
+    # zinit light MichaelAquilina/zsh-auto-notify
+    zinit light marzocchi/zsh-notify
+    zinit light Tarrasch/zsh-bd
+    zinit light zimfw/git
+    zinit light zimfw/exa
+    zinit light zimfw/archive
+    # plugins=(
+    #   git
+    #   # auto-notify
+    #   notify
+    #   zsh-autosuggestions
+    # )
     linuxSettings
   ;;
 esac
+
+# TODO: Moved down here, otherwise I can't see installation progress... Observe if it's ok to stay here.
+# ---
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 # source $ZSH/oh-my-zsh.sh
 
@@ -304,7 +323,13 @@ bindkey jk vi-cmd-mode
 
 export KEYTIMEOUT=6
 
-zstyle ':notify:*' command-complete-timeout 10
+# TODO: Expire not working, sound neither
+# zstyle ':notify:*' error-sound "Glass"
+# zstyle ':notify:*' success-sound "default"
+zstyle ':notify:*' expire-time 1000
+zstyle ':notify:*' command-complete-timeout 4
+zstyle ':notify:*' enable-on-ssh yes
+zstyle ':notify:*' blacklist-regex 'find|git|ranger'
 
 case "$OSTYPE" in
   darwin*)
@@ -463,8 +488,9 @@ alias printaliases="print -rl -- ${(k)aliases}"
 # print -rl -- ${(k)aliases} ${(k)functions} ${(k)parameters}
 
 
-source ~/secrets/secrets.zsh
-source ~/bmwcode/rc_pulumi_settings.zsh
+# source ~/secrets/secrets.zsh
+# source ~/bmwcode/rc_pulumi_settings.zsh
+
 alias plrc="source ~/bmwcode/rc_pulumi_settings.zsh"
 
 alias grep='grep --color=auto'
