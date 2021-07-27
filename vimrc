@@ -53,102 +53,119 @@ filetype off " required
 
 call plug#begin('~/.vim/plugged')
  
-Plug 'mhinz/vim-startify'
-Plug 'mileszs/ack.vim'
-Plug 'majutsushi/tagbar'
-Plug 'rhysd/clever-f.vim'
-Plug 'tomtom/tcomment_vim'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'davidhalter/jedi-vim'
-Plug 'luochen1990/rainbow'
-Plug 'elzr/vim-json'
+
+" Delete:
+" Plug 'kchmck/vim-coffee-script'
+" Plug 'sukima/xmledit/' " i never edit xml...
+" Plug 'rhysd/nyaovim-popup-tooltip'
+" Plug 'rhysd/nyaovim-markdown-preview'
+" Plug 'rhysd/nyaovim-mini-browser'
+"
+
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-markdown'
-Plug 'bling/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'matze/vim-move'
 Plug 'justinmk/vim-sneak'
+Plug 'paradigm/TextObjectify'
+Plug 'gorkunov/smartpairs.vim'
+Plug 'AndrewRadev/sideways.vim'
+" <leader>atob: str to b64
+" <leader>btoa: b64 to str
+Plug 'christianrondeau/vim-base64'
+Plug 'statox/vim-compare-lines' " :CL <other line nr>
+Plug 'michaeljsmith/vim-indent-object' " <cmd>ii and <cmd>ai
+
+if !exists('g:vscode')
+  Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
+  Plug 'mhinz/vim-startify'
+  Plug 'rhysd/clever-f.vim'
+  Plug 'tomtom/tcomment_vim'
+  Plug 'ctrlpvim/ctrlp.vim'
+  Plug 'bling/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+  Plug 'Shougo/denite.nvim'
+  " TODO: do I need this if I use denite?
+  Plug 'cloudhead/neovim-fuzzy'
+  Plug 'Shougo/neoyank.vim'
+  Plug 'mileszs/ack.vim'
+  Plug 'majutsushi/tagbar'
+  Plug 'davidhalter/jedi-vim'
+  Plug 'luochen1990/rainbow'
+  Plug 'elzr/vim-json'
+  Plug 'tpope/vim-fugitive'
+  Plug 'tpope/vim-markdown'
+  Plug 'kana/vim-vspec'
+  Plug 'ervandew/supertab'
+  Plug 'vim-scripts/restore_view.vim'
+  Plug 'junegunn/vim-emoji'
+  Plug 'ryanoasis/vim-devicons'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'ternjs/tern_for_vim'
+  Plug 'etdev/vim-hexcolor'
+  Plug 'jpalardy/vim-slime'
+  Plug 'Chiel92/vim-autoformat'
+  Plug 'mattn/emmet-vim' " completion doesn't work ootb with vscode
+
+  if has('nvim')
+    " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
+    " Plug 'wilywampa/vim-ipython' " vs iron.nvim
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'equalsraf/neovim-gui-shim'
+    " If DIRVISH acts up or makes more trouble with autochdir, try defx.nvim
+    " Plug 'Shougo/defx.nvim'
+    Plug 'justinmk/vim-dirvish'
+    Plug 'zchee/deoplete-jedi'
+    Plug 'Shougo/deol.nvim'
+    Plug 'Vigemus/iron.nvim'
+    " luafile $HOME/.config/nvim/plugins.lua
+  else
+    " Plug 'wilywampa/vim-ipython' " vs iron.nvim
+    " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
+    Plug 'tpope/vim-vinegar'
+    Plug 'roxma/nvim-yarp'
+    if !has('mac')
+      Plug 'Shougo/deoplete.nvim'
+      Plug 'roxma/vim-hug-neovim-rpc'
+    endif
+  endif
+  let g:deoplete#enable_at_startup = 1
+
+  if has("python3")
+    Plug 'SirVer/ultisnips'
+  endif
+  Plug 'honza/vim-snippets'
+  Plug 'thinca/vim-ref'
+
+  " Syntax
+  Plug 'anntzer/python-syntax'
+  Plug 'othree/html5.vim'
+  Plug 'octol/vim-cpp-enhanced-highlight'
+  Plug 'leafgarland/typescript-vim'
+  Plug 'pangloss/vim-javascript'
+  Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+  if has("win64")
+    Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
+  endif
+endif
 " Bundle 'https://github.com/xolox/vim-easytags'
 " Bundle 'https://github.com/xolox/vim-misc'
 " Bundle 'https://github.com/xolox/vim-shell'
 " GNU R project
-Plug 'jcfaria/Vim-R-plugin'
-Plug 'kana/vim-vspec'
-if has("win64")
-  Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
-endif
-Plug 'paradigm/TextObjectify'
-" Plug 'justinmk/TextObjectify
-" Plug 'Shougo/unite.vim'
-Plug 'Shougo/denite.nvim'
-Plug 'Shougo/neoyank.vim'
-if has("python3")
-  Plug 'SirVer/ultisnips'
-endif
-Plug 'honza/vim-snippets'
-Plug 'kchmck/vim-coffee-script'
-Plug 'ervandew/supertab'
+" Plug 'jcfaria/Vim-R-plugin'
 " Bundle 'https://github.com/lukaszkorecki/CoffeeTags'
-Plug 'octol/vim-cpp-enhanced-highlight'
-Plug 'thinca/vim-ref'
-Plug 'Chiel92/vim-autoformat'
 " Has issues since WIN10 20161129
 " Plug 'tomtom/quickfixsigns_vim'
-Plug 'othree/html5.vim'
-Plug 'gorkunov/smartpairs.vim'
-Plug 'sukima/xmledit/'
-Plug 'vim-scripts/restore_view.vim'
-Plug 'rhysd/nyaovim-popup-tooltip'
-Plug 'rhysd/nyaovim-markdown-preview'
-Plug 'rhysd/nyaovim-mini-browser'
-Plug 'AndrewRadev/sideways.vim'
-Plug 'junegunn/vim-emoji'
 " preserve from BundleClean deletion
 " Plug 'Valloric/YouCompleteMe'
-Plug 'ryanoasis/vim-devicons'
-Plug 'jpalardy/vim-slime'
-Plug 'statox/vim-compare-lines'
 " Plug 'maralla/completor.vim' # vim 8 only
-Plug 'leafgarland/typescript-vim'
-Plug 'pangloss/vim-javascript'
-Plug 'mattn/emmet-vim'
-if has('nvim')
-  " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
-  " Plug 'wilywampa/vim-ipython' " vs iron.nvim
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  Plug 'equalsraf/neovim-gui-shim'
-  " If DIRVISH acts up or makes more trouble with autochdir, try defx.nvim
-  " Plug 'Shougo/defx.nvim'
-  Plug 'justinmk/vim-dirvish'
-  Plug 'zchee/deoplete-jedi'
-  Plug 'Shougo/deol.nvim'
-  Plug 'Vigemus/iron.nvim'
-  " luafile $HOME/.config/nvim/plugins.lua
-else
-  " Plug 'wilywampa/vim-ipython' " vs iron.nvim
-  " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
-  Plug 'tpope/vim-vinegar'
-  Plug 'roxma/nvim-yarp'
-  if !has('mac')
-    Plug 'Shougo/deoplete.nvim'
-    Plug 'roxma/vim-hug-neovim-rpc'
-  endif
-endif
-let g:deoplete#enable_at_startup = 1
-Plug 'airblade/vim-gitgutter'
-Plug 'ternjs/tern_for_vim'
 " Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
 " Plug 'bfredl/nvim-ipy' " is this masking f5?
-Plug 'cloudhead/neovim-fuzzy'
 " neovim-fuzzyj uses
 " https://github.com/jhawthorn/fzy
-Plug 'christianrondeau/vim-base64'
 
 " Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
@@ -156,21 +173,15 @@ Plug 'christianrondeau/vim-base64'
 
 " I forked this! Original repo is not maintained.
 " Plug 'gorodinskiy/vim-coloresque.git'
-Plug 'etdev/vim-hexcolor'
 " Plug 'powerman/vim-plugin-AnsiEsc'  " used for nvimpager, but then I found out:
 "   1. they don't share plugins
 "   2. nvimpager bundles its own AnsiEsc using the old vim-scrips/AnsiEsc.vim package (which works fine)
-Plug 'michaeljsmith/vim-indent-object'
 
-" Own Plugins:
-Plug 'freeo/vim-kalisi', { 'branch': 'dev-0.9'}
-Plug 'freeo/vim-saveunnamed'
-Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+" Plug 'freeo/vim-saveunnamed'
 " Plug 'hdima/python-syntax'
 " until pull request is done
 "https://github.com/hdima/python-syntax/pull/52
 " Plug 'freeo/python-syntax'
-Plug 'anntzer/python-syntax'
 
 " Forked: pytest-2 and pytest-3 support
 " Plug 'pytest-vim-compiler'
@@ -178,6 +189,7 @@ Plug 'anntzer/python-syntax'
 " Plug 'freeo/vim-ipython' " not working with newer ipython version
 
 
+call plug#end()
 
 " No remote repo, preserve from BundleClean deletion
 " Plug 'python-syntax-master'
@@ -202,7 +214,6 @@ endif
 
 
 
-call plug#end()
 
 " Problem Plugins:
 " Closetag
@@ -271,9 +282,6 @@ endif
 
 let g:pypypath ='!C:/pypy-2.2.1-win32/pypy.exe'
 exec("command! -nargs=1 Pypy ".g:pypypath." <args>")
-
-
-
 
 
 " XXX
@@ -425,7 +433,12 @@ set ignorecase
 set smartcase
 "set commentstring = \ #\ %s
 " set foldlevel=0
-set clipboard+=unnamed " use clipboard for every yank and vice versa
+" use clipboard for every yank and vice versa
+if has("nvim")
+  set clipboard+=unnamedplus
+else
+  set clipboard+=unnamed
+endif
 
 
 " setglobal relativenumber "disables absolute numbers in ruler
@@ -671,6 +684,7 @@ function! HighlightNearCursor()
   endif
 endfunction
 
+let g:slime_target = "kitty"
 
 autocmd FileType htmldjango inoremap {% {% %}<left><left><left>
 autocmd FileType htmldjango inoremap {{ {{ }}<left><left><left>
@@ -879,9 +893,11 @@ endif
 syntax enable " Syntax Colors
 set background=light
 " set background=dark
-colorscheme kalisi
+if !exists('g:vscode')
+  colorscheme kalisi
+  let g:airline_theme='kalisi'
+endif
 set synmaxcol=200
-let g:airline_theme='kalisi'
 "
 " if !has("nvim")
 let g:airline_powerline_fonts = 1
@@ -1157,19 +1173,22 @@ function! CommentLineTilEOL(...)
   endif
 endfunction
 
-call tcomment#type#Define('text', '// %s')
-call tcomment#type#Define('quakecfg', '// %s')
-call tcomment#type#Define('c', '// %s')
 
-" nmap <leader>t gcc
-vmap <leader>t gc
-nmap <C-t> gcc
-vmap <C-t> gc
-nmap <C-Space> gcc
-vmap <C-Space> gc
-nmap <C-@> gcc
-vmap <C-@> gcc
+if !exists('g:vscode')
+  call tcomment#type#Define('text', '// %s')
+  call tcomment#type#Define('quakecfg', '// %s')
+  call tcomment#type#Define('c', '// %s')
 
+  " nmap <leader>t gcc
+  vmap <leader>t gc
+  nmap <C-t> gcc
+  vmap <C-t> gc
+  nmap <C-Space> gcc
+  vmap <C-Space> gc
+  nmap <C-@> gcc
+  vmap <C-@> gcc
+
+endif
 
 " --------------------------------
 " Powershell
@@ -2091,11 +2110,13 @@ let g:unite_source_history_yank_save_clipboard = 0 " default 0
 " let g:neoyank#file = $HOME.'/.vim/yankring.txt'
 let g:neoyank#file = $HOME.g:vimfiles[1:].'/yankring_history.tmp'
 " nnoremap <C-p> :<C-u>Unite history/yank<CR>
-nnoremap <C-0> :Denite neoyank<CR>
 
-" Denite Mappings
-call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
-call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+if !exists('g:vscode')
+  " Denite Mappings
+  nnoremap <C-0> :Denite neoyank<CR>
+  call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
+  call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+endif
 
 
 " UltiSnips
@@ -2263,7 +2284,7 @@ map <leader>c :exec &conceallevel ? "set conceallevel=0" : "set conceallevel=1"<
 
 " Emmet mattn/emmet-vim HTML, CSS
 let g:user_emmet_install_global = 0
-" let g:user_emmet_leader_key='<C-Z>'
+let g:user_emmet_leader_key='<C-z>'
 autocmd FileType html,css EmmetInstall
 
 inoremap (; (<CR>);<C-c>O
