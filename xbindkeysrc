@@ -1,0 +1,6 @@
+# Sample .xbindkeysrc for a G9x mouse.
+"/usr/bin/xvkbd -text '\[Alt_L]\[Left]'"
+ b:8
+"/usr/bin/xvkbd -text '\[Alt_L]\[Right]'"
+ b:9
+
