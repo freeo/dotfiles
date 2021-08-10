@@ -37,6 +37,10 @@ zinit light-mode for \
 
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
+
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
+zstyle :compinstall filename '/home/freeo/.zshrc'
+
 if [[ $TERM = "xterm-kitty" ]]; then
   # BLOCK & LINE tested in Linux and macOS
   BLOCK="\033[1 q"
@@ -56,6 +60,12 @@ export NVM_LAZY_LOAD=true # for zsh-nvm
 export AUTO_NOTIFY_THRESHOLD=10
 export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
 AUTO_NOTIFY_IGNORE+=("ranger")
+# export BAT_THEME="Monokai Extended Light"
+
+alias md='mkdir'
+alias sz='source ~/.zshrc'
+alias l='exa -la'
+alias pcat='pygmentize -f terminal256 -O style=native -g'
 
 # Linux settings ###################
 # if ostype == Linux
@@ -70,7 +80,14 @@ function linuxSettings () {
 
   alias chmod='chmod --preserve-root -v'
   alias chown='chown --preserve-root -v'
-
+  
+  # tricking shells into scanning commands after sudo for other aliases as well
+  # most notably: `sudo nvim`, where alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim'
+  alias sudo='sudo '
+  alias nvim="snap run nvim"
+  # alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
   export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   export JAVA_HOME=$GRAALVM_HOME
   export ANDROID_HOME=$HOME/Android/Sdk
@@ -148,8 +165,6 @@ fi
 
 # source $ZSH/oh-my-zsh.sh
 
-alias sz='source ~/.zshrc'
-alias l='exa -la'
 
 # User configuration
 
@@ -165,15 +180,6 @@ alias l='exa -la'
 # ssh
 # export SSH_KEY_PATH="~/.ssh/rsa_id"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-#
 
 export PATH=/opt/local/bin:/opt/local/sbin:$PATH
 
@@ -207,7 +213,6 @@ SPACESHIP_VI_MODE_COLOR="black"
 
 # export PATH
 
-alias pcat='pygmentize -f terminal256 -O style=native -g'
 
 
 freeohelp () {
@@ -238,6 +243,10 @@ setopt longlistjobs
 # promptsubst
 # pushdignoredups
 # pushdminus
+
+HISTFILE=~/.zsh_history
+HISTSIZE=1000000   # the number of items for the internal history list
+SAVEHIST=1000000   # maximum number of items for the history file
 
 # Fuzzy Finder needs to be loaded *after* ZLE, otherwise it won't be available on
 # startup, but only after manually sourcing this .zshrc
@@ -323,10 +332,12 @@ bindkey jk vi-cmd-mode
 
 export KEYTIMEOUT=6
 
-# TODO: Expire not working, sound neither
-# zstyle ':notify:*' error-sound "Glass"
-# zstyle ':notify:*' success-sound "default"
-zstyle ':notify:*' expire-time 1000
+# TODO: Expire not working
+zstyle ':notify:*' error-sound "/usr/share/sounds/gnome/default/alerts/bark.ogg"
+zstyle ':notify:*' success-sound "/home/freeo/.local/share/sounds/Enchanted/stereo/bell.ogg"
+# Enchanged sound theme: https://www.gnome-look.org/p/1332121
+# included system fallback: zstyle ':notify:*' success-sound "/usr/share/sounds/freedesktop/stereo/message.oga"
+zstyle ':notify:*' expire-time 50
 zstyle ':notify:*' command-complete-timeout 4
 zstyle ':notify:*' enable-on-ssh yes
 zstyle ':notify:*' blacklist-regex 'find|git|ranger'
@@ -361,7 +372,6 @@ bindkey '^s' history-incremental-search-forward
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 alias vim="nvim"
-alias vi="nvim"
 
 export PATH=~/.npm-global/bin:$PATH
 # Unset manpath so we can inherit from /etc/manpath via the `manpath` command
@@ -400,7 +410,8 @@ esac
 
 export LC_ALL=en_US.UTF-8
 
-export EDITOR=nvim
+export VISUAL="snap run nvim"
+export EDITOR="snap run nvim"
 export KUBE_EDITOR=nvim
 
 # alias jxl='jx get build logs'
@@ -537,6 +548,26 @@ function git-branch-delete-interactive () {
 
 alias df='df -h'
 alias du='du -h'
+
+source ~/dotfiles/private/corp_vpn.sh
+source ~/dotfiles/private/jira.sh
+
+function vpndnsfix () {
+  sudo resolvectl dns ppp0 $CORP_IP
+  sudo resolvectl domain ppp0 $CORP_DOMAIN
+  sudo resolvectl default-route ppp0 false
+  sudo resolvectl default-route enp6s0 true
+}
+
+alias vpncon='nmcli con up id catenate && vpndnsfix'
+alias vpndis='nmcli con down id catenate'
+
+
+# function timer () {
+# TIMER_TITLE="Default Timer Title"
+# TIMER_TITLE="Default Timer Text"
+# sleep $1 & && notify-send -t 5000 -i "/home/freeo/icons/dogeOk.jpg" "$TIMER_TITLE" "$TIMER_TEXT"
+# }
 
 # PROFILING endpoint:
 # zprof
