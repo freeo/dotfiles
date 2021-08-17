@@ -330,6 +330,18 @@ zle -N zle-keymap-select
 
 bindkey jk vi-cmd-mode
 
+# vi mode
+# bindkey -v
+
+# Yank to the system clipboard
+function vi-yank-xclip {
+  zle vi-yank
+  echo "$CUTBUFFER" | pbcopy -i
+}
+zle -N vi-yank-xclip
+bindkey -M vicmd 'y' vi-yank-xclip
+
+
 export KEYTIMEOUT=6
 
 # TODO: Expire not working
@@ -486,7 +498,7 @@ export SDKMAN_DIR="/Users/arthur.jaron/.sdkman"
 # export PATH="$PATH:/Users/arthur.jaron/Library/Application Support/Coursier/bin"
 
 
-export PASSWORD_STORE_DIR=/Users/arthur.jaron/bmwcode/infra-base/secrets
+export PASSWORD_STORE_DIR=$HOME/bmwcode/infra-base/secrets
 
 ## NativeScript
 ###-tns-completion-start-###
