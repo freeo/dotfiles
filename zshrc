@@ -35,6 +35,7 @@ zinit light-mode for \
 
 # export ZSH="$HOME/.oh-my-zsh"
 
+# p10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 
@@ -61,22 +62,79 @@ export AUTO_NOTIFY_THRESHOLD=10
 export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
 AUTO_NOTIFY_IGNORE+=("ranger")
 # export BAT_THEME="Monokai Extended Light"
+export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filter=metadata.managedFields"
 
 alias md='mkdir'
 alias sz='source ~/.zshrc'
 alias l='exa -la'
 alias pcat='pygmentize -f terminal256 -O style=native -g'
 
+export PATH="$PATH:$HOME/.cargo/env"
+
+typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❯❯❯'
+typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😎❮'
+
+# this SKIM_DEFAULT_COMMAND: 1.37 seconds for ~1.4 million files, faster than fd
+export SKIM_DEFAULT_COMMAND="rg --files --no-ignore --hidden"
+function skind() {
+  file="$(sk --bind "ctrl-p:toggle-preview" --ansi -i --cmd-query "$*" -c 'rg --ignore-case --color=always --line-number --column {}' --preview-window 50%:wrap --preview 'bat --color=always --style=header,numbers --highlight-line "$(echo {1}|cut -d: -f2)" --line-range "$(($(echo {1}|cut -d: -f2)-5 > 1 ? $(echo {1}|cut -d: -f2)-5 : 1)):$(($(echo {1}|cut -d: -f2)+50))" "$(echo {1}|cut -d: -f1)"')"; [[ $? -eq 0 ]] && echo "opening $file" && emacsclient -n "+$(echo "$file"|cut -d: -f2):$(echo "$file"|cut -d: -f3)" "$(echo "$file"|cut -d: -f1)"
+}
+zle -N skind
+# C-/ equals ^_
+bindkey -s "^_" "skind\n"
+
+# emacs-vterm
+
+if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+    && [[ -n ${EMACS_VTERM_PATH} ]] \
+    && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh ]]; then
+  source ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh
+
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#999999,bold" # for gruvbox-light
+
+  setopt PROMPT_SUBST
+
+  # this line doesn't work due to p10k owning "PROMPT"
+  #   PROMPT=$PROMPT:'%{$(vterm_prompt_end)%}'
+  # and needs to be replaced with this function, which is registered in
+  # `~/.p10k.zsh` as simply "trackdir", "prompt_" is ignored
+  function prompt_trackdir() {
+    # the icon is required as a workaround! vterm_prompt_end doesn't work in an empty segment
+    # the icon is just a simple way to fill the segment.
+    p10k segment -i "" -t "%{$(vterm_prompt_end)%}"
+  }
+
+  # 😇😈✂✏
+  # ❯01❮
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=''
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😈'
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION='VIS✂'
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIOWR_CONTENT_EXPANSION='RWR✏'
+
+  # typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=50
+
+fi
+
+
+find_file() {
+    vterm_cmd find-file "$(realpath "${@:-.}")"
+}
+
+say() {
+    vterm_cmd message "%s" "$*"
+}
+
 # Linux settings ###################
 # if ostype == Linux
 function linuxSettings () {
-  xset r rate 200 30
+  xset r rate 180 40
 
   # ra = reset audio
   alias ra="pulseaudio -k"
   # reset capslock to ctrl
   alias caps="setxkbmap -option ctrl:nocaps"
-  alias win10="systemctl hibernate --boot-loader-entry=Windows10.conf"
+  alias win10h="systemctl hibernate --boot-loader-entry=Windows10.conf"
+  alias win10="systemctl reboot --boot-loader-entry=Windows10.conf"
 
   alias chmod='chmod --preserve-root -v'
   alias chown='chown --preserve-root -v'
@@ -114,6 +172,10 @@ function darwinSettings () {
   export PATH=/usr/local/opt/avr-gcc@7/bin:$PATH
 
   export GREP_COLOR=$GREP_COLORS
+
+  # successor: zoxide
+  # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+
 }
 
 
@@ -130,6 +192,7 @@ case "$OSTYPE" in
     zinit light zimfw/git
     zinit light zimfw/exa
     zinit light zimfw/archive
+
     darwinSettings
   ;;
   linux*)
@@ -139,11 +202,15 @@ case "$OSTYPE" in
     zinit light lukechilds/zsh-nvm
     zinit light zdharma/fast-syntax-highlighting
     # zinit light MichaelAquilina/zsh-auto-notify
-    zinit light marzocchi/zsh-notify
+    # silence notify inside of emacs, as EVERY cmd triggers a notification!
+    if [[ -z "$INSIDE_EMACS" ]]; then
+      zinit light marzocchi/zsh-notify
+    fi
     zinit light Tarrasch/zsh-bd
     zinit light zimfw/git
     zinit light zimfw/exa
     zinit light zimfw/archive
+    zinit light fdw/ranger-zoxide
     # plugins=(
     #   git
     #   # auto-notify
@@ -159,9 +226,9 @@ esac
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# fi
 
 # source $ZSH/oh-my-zsh.sh
 
@@ -303,13 +370,15 @@ bindkey '^h' backward-delete-char
 #   LINE="\EPtmux;\E\E]50;CursorShape=1\x7\E\\"
 # fi
 
-# Tested OK in Linux Kitty, Terminator, Alacritty
-if [[ $OSTYPE =~ "linux" ]]; then
-  # Sourcing here necessary due to Debian Policy
-. /usr/share/autojump/autojump.sh
-fi
+# replacing by zoxide! rust ftw
+# # Tested OK in Linux Kitty, Terminator, Alacritty
+# if [[ $OSTYPE =~ "linux" ]]; then
+#   # Sourcing here necessary due to Debian Policy
+# . /usr/share/autojump/autojump.sh
+# fi
 
 # Use a line cursor for insert mode, block for normal
+
 function zle-keymap-select zle-line-init {
   case $KEYMAP in
     vicmd)      print -n -- "$BLOCK";; # block cursor
@@ -352,7 +421,7 @@ zstyle ':notify:*' success-sound "/home/freeo/.local/share/sounds/Enchanted/ster
 zstyle ':notify:*' expire-time 50
 zstyle ':notify:*' command-complete-timeout 4
 zstyle ':notify:*' enable-on-ssh yes
-zstyle ':notify:*' blacklist-regex 'find|git|ranger'
+zstyle ':notify:*' blacklist-regex 'find|git|ranger|sk'
 
 case "$OSTYPE" in
   darwin*)
@@ -406,18 +475,6 @@ unset GNUPGHOME
 
 alias k='kubectl'
 alias gs='git status'
-
-
-case "$OSTYPE" in
-  darwin*)
-    # ...
-    [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
-  ;;
-  linux*)
-    # ...
-    xset r rate 200 30
-  ;;
-esac
 
 
 export LC_ALL=en_US.UTF-8
@@ -488,6 +545,9 @@ eval "$(direnv hook zsh)"
 
 # source <(manage completion)
 
+
+export PATH="$PATH:$(go env GOPATH)/bin"
+export GOPATH=$(go env GOPATH)
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
@@ -562,7 +622,15 @@ alias df='df -h'
 alias du='du -h'
 
 source ~/dotfiles/private/corp_vpn.sh
-source ~/dotfiles/private/jira.sh
+source ~/dotfiles/private/variables_functions.sh
+
+
+function updateprodip () {
+  current_ips=$(az aks show -n $PRIVATE_CLUSTERNAME -g $PRIVATE_CLUSTER_RG | jq -r '.apiServerAccessProfile.authorizedIpRanges | join(",")')
+  myNewIPv4=$(curl -s https://ipv4.icanhazip.com/)
+  new_ips="$current_ips,$myNewIPv4/32"
+  az aks update -n $PRIVATE_CLUSTERNAME -g $PRIVATE_CLUSTER_RG --api-server-authorized-ip-ranges $new_ips
+}
 
 function vpndnsfix () {
   sudo resolvectl dns ppp0 $CORP_IP
@@ -574,12 +642,36 @@ function vpndnsfix () {
 alias vpncon='nmcli con up id catenate && vpndnsfix'
 alias vpndis='nmcli con down id catenate'
 
+eval "$(zoxide init zsh)"
 
+alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..." && z '
+
+source $HOME/.cargo/env
 # function timer () {
 # TIMER_TITLE="Default Timer Title"
 # TIMER_TITLE="Default Timer Text"
 # sleep $1 & && notify-send -t 5000 -i "/home/freeo/icons/dogeOk.jpg" "$TIMER_TITLE" "$TIMER_TEXT"
 # }
+#
+#
+
+# /home/freeo/.emacs.d/.local/straight/build-28.0.60/vterm/etc/emacs-vterm-zsh.sh
+
+# ranger_cd
+rcd() {
+    temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
+    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+    if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
+        cd -- "$chosen_dir"
+    fi
+    rm -f -- "$temp_file"
+}
+# zle -N ranger-cd rcd
+
+# This binds Ctrl-O to ranger_cd:
+# bindkey ^o ranger-cd
+bindkey -s "^o" "rcd\n"
+
 
 # PROFILING endpoint:
 # zprof
