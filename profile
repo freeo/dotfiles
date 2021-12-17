@@ -38,5 +38,9 @@ if [ $retVal -eq 0 ]; then
     eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 
+. "$HOME/.cargo/env"
 
-
+export XSECURELOCK_SAVER=saver_xscreensaver
+export XSECURELOCK_FONT="Noto Mono"
+export XSECURELOCK_PASSWORD_PROMPT="asterisks"
+export XSECURELOCK_AUTH_BACKGROUND_COLOR="#550000"

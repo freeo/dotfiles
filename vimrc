@@ -400,7 +400,7 @@ lua <<EOF
 EOF
 
 " https://github.com/folke/which-key.nvim#%EF%B8%8F-configuration
-set timeoutlen 500
+" set timeoutlen 500
 
 lua <<EOF
   -- …

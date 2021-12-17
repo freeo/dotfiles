@@ -59,7 +59,7 @@ export SHELL=/usr/bin/zsh
 export NVM_LAZY_LOAD=true # for zsh-nvm
 
 export AUTO_NOTIFY_THRESHOLD=10
-export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
+# export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
 AUTO_NOTIFY_IGNORE+=("ranger")
 # export BAT_THEME="Monokai Extended Light"
 export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filter=metadata.managedFields"
@@ -90,7 +90,8 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
     && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh ]]; then
   source ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh
 
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#999999,bold" # for gruvbox-light
+  # ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#999999,bold" # for gruvbox-light
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#000088,bold"
 
   setopt PROMPT_SUBST
 
@@ -154,6 +155,8 @@ function linuxSettings () {
   export PATH=$PATH:$ANDROID_HOME/platform-tools
   export PATH=$PATH:~/bin
   export PATH=$PATH:/usr/local/go/bin
+
+  # since I started with tiling window managers (currently awesome)
 }
 
 # Linux Environment Variables, not conflicting with Darwin
@@ -641,6 +644,7 @@ function vpndnsfix () {
 
 alias vpncon='nmcli con up id catenate && vpndnsfix'
 alias vpndis='nmcli con down id catenate'
+alias vpnconask='nmcli --ask con up id catenate && vpndnsfix'
 
 eval "$(zoxide init zsh)"
 

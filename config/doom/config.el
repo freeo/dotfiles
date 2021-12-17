@@ -75,7 +75,13 @@
        :desc "kill buffer" "k" #'kill-current-buffer
 
         (:prefix-map ("o" . "open")
-       :desc "vterm at path of current file" "o" #'vterm
+       :desc "vterm at path of current file" "t" #'vterm
+       )
+        (:prefix-map ("o" . "open")
+       :desc "vterm here current frame" "o" #'+vterm/here
+       )
+        (:prefix-map ("o" . "open")
+       :desc "vterm toggle" "T" #'+vterm/toggle
        )
        (:prefix-map ("TAB" . "workspace")
        :desc "kill workspace, consistent binding" "k" #'+workspace/delete
@@ -111,8 +117,10 @@
       :n "C-k" #'evil-window-up
       :n "C-l" #'evil-window-right
       :n "C-m" #'electric-newline-and-maybe-indent
-      :n "<f1>" #'evil-next-buffer
-      :n "<f2>" #'evil-prev-buffer
+      :n "<f1>" #'next-buffer
+      :n "<f2>" #'previous-buffer
+      :n "<f3>" #'evil-next-buffer
+      :n "<f4>" #'evil-prev-buffer
       ;; :n "C-S-h" #'+workspace/switch-left
       ;; :n "C-S-l" #'+workspace/switch-right
       :n "C-S-t" #'+workspace/new
@@ -352,6 +360,10 @@ helm-ff-fuzzy-matching t
 (setq k8s-search-documentation-browser-function (quote browse-url-firefox))
 
 
+; Lua LSP
+;
+;; (add-hook 'lua-mode-hook #'lsp) ; old
+(add-hook 'lua-local-vars-hook #'lsp!) ; from newest doom docshares
 
 
 (defun durr ()
