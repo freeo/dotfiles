@@ -76,6 +76,7 @@ Plug 'justinmk/vim-sneak'
 Plug 'paradigm/TextObjectify'
 Plug 'gorkunov/smartpairs.vim'
 Plug 'AndrewRadev/sideways.vim'
+" Base64 shortcuts:
 " <leader>atob: str to b64
 " <leader>btoa: b64 to str
 Plug 'christianrondeau/vim-base64'

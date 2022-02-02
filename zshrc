@@ -67,6 +67,9 @@ export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filte
 alias md='mkdir'
 alias sz='source ~/.zshrc'
 alias l='exa -la'
+# function la () {
+  # exa -la
+# }
 alias pcat='pygmentize -f terminal256 -O style=native -g'
 
 export PATH="$PATH:$HOME/.cargo/env"
@@ -193,7 +196,7 @@ case "$OSTYPE" in
     zinit light MichaelAquilina/zsh-auto-notify
     zinit light Tarrasch/zsh-bd
     zinit light zimfw/git
-    zinit light zimfw/exa
+    # zinit light zimfw/exa
     zinit light zimfw/archive
 
     darwinSettings
@@ -211,7 +214,7 @@ case "$OSTYPE" in
     fi
     zinit light Tarrasch/zsh-bd
     zinit light zimfw/git
-    zinit light zimfw/exa
+    # zinit light zimfw/exa
     zinit light zimfw/archive
     zinit light fdw/ranger-zoxide
     # plugins=(
@@ -563,6 +566,8 @@ export SDKMAN_DIR="/Users/arthur.jaron/.sdkman"
 
 export PASSWORD_STORE_DIR=$HOME/bmwcode/infra-base/secrets
 
+export XDG_CONFIG_HOME=$HOME/.config
+
 ## NativeScript
 ###-tns-completion-start-###
 if [ -f /home/freeo/.tnsrc ]; then 
@@ -676,6 +681,11 @@ rcd() {
 # bindkey ^o ranger-cd
 bindkey -s "^o" "rcd\n"
 
+
+function virtcam () {
+  sudo modprobe -r v4l2loopback
+  sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
+}
 
 # PROFILING endpoint:
 # zprof

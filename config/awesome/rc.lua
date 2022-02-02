@@ -24,7 +24,7 @@ local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- shared tags across monitors
-local sharedtags = require("sharedtags")
+local sharedtags = require("awesome-sharedtags")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -604,7 +604,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "p", function () awful.spawn("rofi -show drun") end,
               {description = "open rofi", group = "launcher"}),
 
-    awful.key({ modkey, "Control" }, "l", function () awful.spawn("xsecurelock") end,
+    awful.key({ modkey, "Control" }, "Escape", function () awful.spawn("xsecurelock") end,
               {description = "open rofi", group = "launcher"}),
 
     awful.key({ modkey,           }, "Escape", function () awful.spawn("kitty", {urgent = false, marked = false}) end,
@@ -654,10 +654,15 @@ globalkeys = gears.table.join(
 
 
     -- always last entry, no comma
+    -- replaced by flameshot
+    -- awful.key({ modkey, "Shift"   }, "4", function () awful.util.spawn_with_shell(
+    --     "sleep 0.5 && scrot -s -e 'mv $f ~/Pictures/Scrots'"
+    --     ) end,
+    --           {description = "Screenshot selection ", group = "layout"})
     awful.key({ modkey, "Shift"   }, "4", function () awful.util.spawn_with_shell(
-        "sleep 0.5 && scrot -s -e 'mv $f ~/Pictures/Scrots'"
+        "flameshot gui"
         ) end,
-              {description = "Screenshot selection ", group = "layout"})
+              {description = "Screenshot flameshot", group = "layout"})
 
 )
 
@@ -1091,7 +1096,9 @@ run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
 
-
+-- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
+awful.spawn_with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
+awful.spawn_with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
 
 
 -- Autostart
