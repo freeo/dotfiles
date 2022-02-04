@@ -651,6 +651,8 @@ globalkeys = gears.table.join(
     --     end,
     --     { description = 'reset fake screen size', group = 'fake screen' }),
 
+    awful.key({ "Control", "Shift" }, 'b', function () awful.spawn("/usr/bin/diodon", {urgent = false, marked = false}) end,
+        { description = 'reset fake screen size', group = 'fake screen' }),
 
 
     -- always last entry, no comma
@@ -1095,10 +1097,13 @@ run_once("autokey","","/usr/bin/python3 /usr/bin/autokey")
 run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
+run_once("/usr/bin/diodon")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
-awful.spawn_with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
-awful.spawn_with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
+awful.util.spawn_with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
+awful.util.spawn_with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
+
+awful.util.spawn_with_shell("xset r rate 180 40")
 
 
 -- Autostart

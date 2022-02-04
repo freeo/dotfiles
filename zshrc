@@ -93,10 +93,13 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
     && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh ]]; then
   source ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh
 
-  # ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#999999,bold" # for gruvbox-light
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#000088,bold"
+# TODO NOTE: Undo this line, which breaks zsh-autosuggest
+# file: ~/.emacs.d/.local/straight/repos/emacs-libvterm/etc/emacs-vterm-zsh.sh
+# add-zsh-hook -Uz chpwd (){ print -Pn "\e]2;%m:%2~\a" }
 
-  setopt PROMPT_SUBST
+  # for gruvbox-light
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#a89984" #dark4
+  # ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#000088,bold"
 
   # this line doesn't work due to p10k owning "PROMPT"
   #   PROMPT=$PROMPT:'%{$(vterm_prompt_end)%}'

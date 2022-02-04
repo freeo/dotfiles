@@ -1401,6 +1401,16 @@ let g:explHideFiles='^\.,.*\.sw[po]$,.*\.pyc$'
 let g:explDetailedHelp=0
 map <C-B> :Explore!<CR>
 nmap - :RnvimrToggle<CR>
+" Make Ranger replace Netrw and be the file explorer
+let g:rnvimr_enable_ex = 1
+
+" Make Ranger to be hidden after picking a file
+let g:rnvimr_enable_picker = 1
+
+" Change the border's color
+let g:rnvimr_border_attr = {'fg': 7, 'bg': -1}
+" Link CursorLine into RnvimrNormal highlight in the Floating window
+highlight link RnvimrNormal CursorLine
 
 " http://emanuelduss.ch/2011/04/meine-konfigurationsdatei-fur-vim-vimrc/
 "
@@ -1990,8 +2000,22 @@ let g:easytags_by_filetype = g:vimfiles.'/tags/'
 let g:easytags_file = g:vimfiles.'/tags/global'
 let g:python_highlight_file_headers_as_comments = 1
 
-" nnoremap <silent> <F1>  :TagbarToggle<CR>
-" nnoremap <silent> <F1> :NERDTreeToggle<CR>
+" Investigate Keypresses:
+" kitty +kitten show_key
+  " KEY   UNIX            send_text
+  " C-F1  ^[[1;5P         \x1b[1;5P
+  " C-F2  ^[[1;5Q         \x1b[1;5Q
+" determine C-F1... values with "infocmp" command in terminal
+" kf25=\E[1;5P, kf26=\E[1;5Q
+" kitty:
+"   F25=C-F1
+"   F26=C-F2
+nnoremap <F25> :bprevious<CR>
+nnoremap <F26> :bnext<CR>
+" nnoremap <F27> :!echo 7<CR>
+" nnoremap <F28> :!echo 8<CR>
+" nnoremap <F29> :!echo 9<CR>
+" nnoremap <F30> :!echo 0<CR>
 
 " saving all updates all tags, because of the added event in easytags_events
 nmap <leader><CR> :wa<CR>
@@ -2442,7 +2466,7 @@ function! TodaySeparator()
   exec "norma I## ". strftime("%m%d %a") ." --------------------------------------------------------------"
 endfunction
 
-nmap <c-F1> :call TodaySeparator()<CR>
+" nmap <c-F1> :call TodaySeparator()<CR>
 nmap <leader>t :call TodaySeparator()<CR>
 
 
@@ -2581,10 +2605,10 @@ else
   let g:vwb_f4=""
 endif
 
-map <F1> :exec "e ".g:vwb_f1<CR>
-map <F2> :exec "e ".g:vwb_f2<CR>
-map <F3> :exec "e ".g:vwb_f3<CR>
-map <S-F1> :exec "e ".g:vwb_f4<CR>
+" map <F1> :exec "e ".g:vwb_f1<CR>
+" map <F2> :exec "e ".g:vwb_f2<CR>
+" map <F3> :exec "e ".g:vwb_f3<CR>
+" map <S-F1> :exec "e ".g:vwb_f4<CR>
 
 " nmap <S-F1> :call CropPaste(g:vwb_f1)<CR>
 " nmap <S-F2> :call CropPaste(g:vwb_f2)<CR>

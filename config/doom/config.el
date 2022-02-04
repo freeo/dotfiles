@@ -74,6 +74,8 @@
 
        :desc "kill buffer" "k" #'kill-current-buffer
 
+       :desc "insert date header" "t" #'insert-current-date
+
         (:prefix-map ("o" . "open")
        :desc "vterm at path of current file" "t" #'vterm
        )
@@ -364,6 +366,9 @@ helm-ff-fuzzy-matching t
 ;
 ;; (add-hook 'lua-mode-hook #'lsp) ; old
 (add-hook 'lua-local-vars-hook #'lsp!) ; from newest doom docshares
+
+(defun insert-current-date () (interactive)
+  (insert (concat "## " (shell-command-to-string "echo -n $(date '+%m%d %A')")  " ######################")))
 
 
 (defun durr ()
