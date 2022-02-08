@@ -657,6 +657,7 @@ alias vpnconask='nmcli --ask con up id catenate && vpndnsfix'
 eval "$(zoxide init zsh)"
 
 alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..." && z '
+alias kd="kitty +kitten diff"
 
 source $HOME/.cargo/env
 # function timer () {
@@ -689,6 +690,11 @@ function virtcam () {
   sudo modprobe -r v4l2loopback
   sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
 }
+
+
+# eval `ssh-agent -s`
+# ssh-add
+# https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
 
 # PROFILING endpoint:
 # zprof

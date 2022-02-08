@@ -580,7 +580,7 @@ globalkeys = gears.table.join(
               {description = "show the menubar", group = "launcher"}),
 
 
-    -- Freeo
+    -- Shortcuts by Freeo
     awful.key({ modkey,           }, "8", function () awful.screen.focus(1) end,
               {description = "Focus screen 1", group = "layout"}),
     awful.key({ modkey,           }, "9", function () awful.screen.focus(2) end,
@@ -610,6 +610,13 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "Escape", function () awful.spawn("kitty", {urgent = false, marked = false}) end,
               {description = "open kitty", group = "launcher"}),
 
+    -- Philips Hue
+    -- https://github.com/bahamas10/hue-cli
+    awful.key({ modkey,           }, "braceleft", function () awful.util.spawn_with_shell("hue lights all on") end,
+              {description = "ON Hue Play Bars", group = "Hue"}),
+
+    awful.key({ modkey,           }, "braceright", function () awful.util.spawn_with_shell("hue lights all off") end,
+              {description = "OFF Hue Play Bars", group = "Hue"}),
 
     -- -- Fake Screens
     -- -- Toggle/hide fake screen
@@ -1098,12 +1105,17 @@ run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
 run_once("/usr/bin/diodon")
+run_once("mictray &")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 awful.util.spawn_with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
 awful.util.spawn_with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
 
 awful.util.spawn_with_shell("xset r rate 180 40")
+
+awful.util.spawn_with_shell("eval `ssh-agent -s`")
+awful.util.spawn_with_shell("ssh-add")
+-- https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
 
 
 -- Autostart
