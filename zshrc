@@ -153,10 +153,10 @@ function linuxSettings () {
   # alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
-  export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
-  export JAVA_HOME=$GRAALVM_HOME
+  # export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
+  # export JAVA_HOME=$GRAALVM_HOME
   export ANDROID_HOME=$HOME/Android/Sdk
-  export PATH=$GRAALVM_HOME/bin:$PATH
+  # export PATH=$GRAALVM_HOME/bin:$PATH
   # for adb
   export PATH=$PATH:$ANDROID_HOME/platform-tools
   export PATH=$PATH:~/bin
@@ -686,10 +686,15 @@ rcd() {
 bindkey -s "^o" "rcd\n"
 
 
+source /home/freeo/.config/broot/launcher/bash/br
+
+bindkey -s "^p" "br\n"
+
 function virtcam () {
   sudo modprobe -r v4l2loopback
   sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
 }
+
 
 
 # eval `ssh-agent -s`
@@ -698,3 +703,4 @@ function virtcam () {
 
 # PROFILING endpoint:
 # zprof
+

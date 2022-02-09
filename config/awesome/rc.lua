@@ -612,11 +612,16 @@ globalkeys = gears.table.join(
 
     -- Philips Hue
     -- https://github.com/bahamas10/hue-cli
-    awful.key({ modkey,           }, "braceleft", function () awful.util.spawn_with_shell("hue lights all on") end,
+    -- awesome requires hue to be installed in the system node! nvm doesn't work and is hard to debug...
+    awful.key({ modkey, "Shift" }, "#34", function () awful.util.spawn_with_shell("/usr/local/bin/hue lights all on") end,
               {description = "ON Hue Play Bars", group = "Hue"}),
-
-    awful.key({ modkey,           }, "braceright", function () awful.util.spawn_with_shell("hue lights all off") end,
+    awful.key({ modkey, "Shift" }, "#35", function () awful.util.spawn_with_shell("/usr/local/bin/hue lights all off") end,
               {description = "OFF Hue Play Bars", group = "Hue"}),
+
+    awful.key({ modkey,         }, "6", function () awful.util.spawn_with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-3 | xargs) && pactl set-source-mute $MICSRC toggle") end,
+              {description = "Toggle Mic: Jack Source ", group = "Audio"}),
+
+
 
     -- -- Fake Screens
     -- -- Toggle/hide fake screen
@@ -1105,7 +1110,7 @@ run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
 run_once("/usr/bin/diodon")
-run_once("mictray &")
+run_once("mictray")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 awful.util.spawn_with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
@@ -1116,6 +1121,8 @@ awful.util.spawn_with_shell("xset r rate 180 40")
 awful.util.spawn_with_shell("eval `ssh-agent -s`")
 awful.util.spawn_with_shell("ssh-add")
 -- https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
+
+
 
 
 -- Autostart

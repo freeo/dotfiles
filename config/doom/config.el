@@ -368,7 +368,7 @@ helm-ff-fuzzy-matching t
 (add-hook 'lua-local-vars-hook #'lsp!) ; from newest doom docshares
 
 (defun insert-current-date () (interactive)
-  (insert (concat "## " (shell-command-to-string "echo -n $(date '+%m%d %A')")  " ######################")))
+  (insert (concat "* " (shell-command-to-string "echo -n $(date '+%m%d %A')")  " ######################")))
 
 
 (defun durr ()
