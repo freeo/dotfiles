@@ -618,7 +618,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Shift" }, "#35", function () awful.util.spawn_with_shell("/usr/local/bin/hue lights all off") end,
               {description = "OFF Hue Play Bars", group = "Hue"}),
 
-    awful.key({ modkey,         }, "6", function () awful.util.spawn_with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-3 | xargs) && pactl set-source-mute $MICSRC toggle") end,
+    awful.key({ modkey,         }, "6", function () awful.util.spawn_with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle") end,
               {description = "Toggle Mic: Jack Source ", group = "Audio"}),
 
 
