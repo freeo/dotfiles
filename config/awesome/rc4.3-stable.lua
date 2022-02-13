@@ -55,6 +55,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 beautiful.init(gears.filesystem.get_themes_dir() .. "xresources/theme.lua")
+-- beautiful.init("./theme.lua")
 -- beautiful.init("./themes/copland/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
@@ -581,6 +582,17 @@ globalkeys = gears.table.join(
 
 
     -- Shortcuts by Freeo
+
+
+    -- Toggle microphone state
+    awful.key({ modkey, "Shift" }, "m",
+            function ()
+                beautiful.mic:toggle()
+            end,
+            {description = "Toggle microphone (amixer)", group = "Hotkeys"}
+    ),
+
+
     awful.key({ modkey,           }, "8", function () awful.screen.focus(1) end,
               {description = "Focus screen 1", group = "layout"}),
     awful.key({ modkey,           }, "9", function () awful.screen.focus(2) end,
