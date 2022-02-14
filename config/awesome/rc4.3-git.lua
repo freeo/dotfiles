@@ -41,11 +41,11 @@ end)
 -- {{{ Variable definitions
 -- @DOC_LOAD_THEME@
 -- Themes define colours, icons, font and wallpapers.
--- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
-beautiful.init(gears.filesystem.get_themes_dir() .. "xresources/theme.lua")
--- beautiful.init(gears.filesystem.get_themes_dir() .. "kalisi/theme.lua")
--- beautiful.init("./theme.lua")
 -- beautiful.init("./themes/copland/theme.lua")
+-- beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+-- beautiful.init(gears.filesystem.get_themes_dir() .. "xresources/theme.lua")
+-- beautiful.init(gears.filesystem.get_themes_dir() .. "kalisi/theme.lua")
+beautiful.init(gears.filesystem.get_configuration_dir() .. "kalisi/theme.lua")
 
 -- @DOC_DEFAULT_APPLICATIONS@
 -- This is used later as the default terminal and editor to run.
@@ -135,8 +135,33 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
 
+-- Create a textclock widget
+mytextclock = wibox.widget.textclock()
 
 
+-- Custom Widgets
+
+local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
+local cw = calendar_widget({
+    theme = 'nord',
+    placement = 'top_right',
+    radius = 8,
+    previous_month_button = 3,
+    next_month_button = 1,
+})
+mytextclock:connect_signal("button::press",
+    function(_, _, _, button)
+        if button == 1 then cw.toggle() end
+    end)
+
+
+-- apt_widget unfortunately bugged currently
+-- local apt_widget = require("awesome-wm-widgets.apt-widget.apt-widget")
+local fs_widget = require("awesome-wm-widgets.fs-widget.fs-widget")
+local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
+local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
+
+-- local test_widget = require("widgets.test-widget.test-widget")
 
 -- @DOC_FOR_EACH_SCREEN@
 screen.connect_signal("request::desktop_decoration", function(s)
@@ -212,9 +237,20 @@ screen.connect_signal("request::desktop_decoration", function(s)
             s.mytasklist, -- Middle widget
             { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
+                fs_widget({'/','/home/freeo','/mnt/nvme0n1p6','/mnt/Drive D','/mnt/Drive E'}),
+                cpu_widget({
+                  -- width = 70,
+                  -- step_width = 2,
+                  -- step_spacing = 0,
+                  color = '#ffffff'
+                }),
+                ram_widget(),
+                -- test_widget(),
+                -- apt_widget(), -- bugged
                 mykeyboardlayout,
                 wibox.widget.systray(),
                 mytextclock,
+                widget_mic,
                 s.mylayoutbox,
             },
         }
@@ -507,13 +543,24 @@ for i, _ in ipairs(tags) do
 end
 
 
+function mic_border_reset()
+  local c = client.focus
+  if c then
+    c.border_color         = "#7e5edc"
+    beautiful.border_focus = "#7e5edc"
+  end
+end
+
 
 -- Shortcuts by Freeo
 awful.keyboard.append_global_keybindings({
 
+    -- awful.key({ modkey,"Control"  }, "t", function () naughty.notify({ title="KEYSTROKE Pulseevent", text="triggered by signal pulseevent"}) end,
+              -- {description = "debug", group = "debug"}),
 
-    awful.key({ modkey,"Control"  }, "t", function () awful.util.spawn.with_shell( "echo 'durr: " .. gears.filesystem.get_themes_dir() .. "' >> ~/workbench/awesome.log") end,
-              {description = "output to log", group = "debug"}),
+
+    -- awful.key({ modkey,"Control"  }, "t", function () awful.spawn.with_shell( "echo 'durr: " .. gears.filesystem.get_themes_dir() .. "' >> ~/workbench/awesome.log") end,
+    --           {description = "output to log", group = "debug"}),
 
     -- Toggle microphone state
     -- awful.key({ modkey, "Shift" }, "m",
@@ -532,9 +579,9 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
               {description = "xrandr NeoG9+Toshiba", group = "xrandr"}),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
-    awful.key({ modkey,  "Control"}, "8", function () awful.util.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120") end,
+    awful.key({ modkey,  "Control"}, "8", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120") end,
               {description = "toggle NeoG9", group = "xrandr"}),
-    awful.key({ modkey,  "Control"}, "9", function () awful.util.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
+    awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
               {description = "toggle Toshiba", group = "xrandr"}),
 
     -- awful.key({ modkey,  "Control"}, "8", function () awful.spawn("xrandr --output DP-0 --off") end,
@@ -554,19 +601,22 @@ awful.keyboard.append_global_keybindings({
     -- Philips Hue
     -- https://github.com/bahamas10/hue-cli
     -- awesome requires hue to be installed in the system node! nvm doesn't work and is hard to debug...
-    awful.key({ modkey, "Shift" }, "#34", function () awful.util.spawn.with_shell("/usr/local/bin/hue lights all on") end,
+    awful.key({ modkey, "Shift" }, "#34", function () awful.spawn.with_shell("/usr/local/bin/hue lights all on") end,
               {description = "ON Hue Play Bars", group = "Hue"}),
-    awful.key({ modkey, "Shift" }, "#35", function () awful.util.spawn.with_shell("/usr/local/bin/hue lights all off") end,
+    awful.key({ modkey, "Shift" }, "#35", function () awful.spawn.with_shell("/usr/local/bin/hue lights all off") end,
               {description = "OFF Hue Play Bars", group = "Hue"}),
 
-    awful.key({ modkey,         }, "6", function () awful.util.spawn.with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle") end,
+    awful.key({ modkey,         }, "6", function () awful.spawn.with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle") end,
+              {description = "Toggle Mic: Jack Source ", group = "Audio"}),
+
+    awful.key({ modkey, "Shift" }, "6", mic_border_reset,
               {description = "Toggle Mic: Jack Source ", group = "Audio"}),
 
     awful.key({ "Control", "Shift" }, 'b', function () awful.spawn("/usr/bin/diodon", {urgent = false, marked = false}) end,
         { description = 'reset fake screen size', group = 'fake screen' }),
 
     -- always last entry, no comma
-    awful.key({ modkey, "Shift"   }, "4", function () awful.util.spawn.with_shell(
+    awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
         "flameshot gui"
         ) end,
               {description = "Screenshot flameshot", group = "layout"})
@@ -743,6 +793,7 @@ client.connect_signal("request::titlebars", function(c)
     }
 end)
 
+
 -- {{{ Notifications
 
 ruled.notification.connect_signal('request::rules', function()
@@ -815,6 +866,40 @@ client.connect_signal("unfocus", function(c)
 end)
 
 
+-- client.connect_signal("pulseevent", function()
+--   local c = client.focus
+--   if c then
+--     if beautiful.border_focus == "#ff0000" then
+--       c.border_color         = "#00FF00"
+--       beautiful.border_focus = "#00FF00"
+--     else
+--       c.border_color         = "#ff0000"
+--       beautiful.border_focus = "#ff0000"
+--     end
+--   else
+--     naughty.notify({ title="no client", text="no focus client!"})
+--   end
+--   naughty.notify({ title="Pulseevent", text="triggered by signal pulseevent"})
+-- end)
+
+
+client.connect_signal("jack_source_off", function()
+  local c = client.focus
+  if c then
+    c.border_color         = "#ff0000"
+    beautiful.border_focus = "#ff0000"
+  end
+end)
+
+client.connect_signal("jack_source_on", function()
+  local c = client.focus
+  if c then
+    c.border_color         = "#00FF00"
+    beautiful.border_focus = "#00FF00"
+  end
+end)
+
+
 
 -- Autostart
 
@@ -827,13 +912,40 @@ function run_once(prg,arg_string,pname,screen)
         pname = prg
     end
     if not arg_string then
-        awful.util.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. ")",screen)
+        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. ")")
     else
-        awful.util.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. " " .. arg_string .. ")",screen)
+        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. " " .. arg_string .. ")")
     end
 end
 
 -- pgrep -f -x "/usr/bin/python3 /usr/bin/redshift-gtk"
+
+-- if [[ $(pactl get-source-mute 7) = "Mute: no" ]]; then echo "muted"; fi
+
+
+-- awful.spawn.with_shell("./pactl_listener.sh &")
+
+-- awful.spawn.with_shell('pactl subscribe | rg "Event \'change\' on source" && MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && if [[ $(pactl get-source-mute $MICSRC) = "Mute: yes" ]]; then awesome-client \'client.emit_signal("pulseevent")\'; fi &')
+
+-- awful.spawn.with_shell("pactl subscribe | rg \"Event 'change' on source\" && MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && if [[ $(pactl get-source-mute $MICSRC) = \"Mute: yes\" ]]; then awesome-client 'client.emit_signal(\"pulseevent\")'; fi &")
+--
+
+mictoggle_script = [=[
+#!/bin/bash
+pactl subscribe | rg --line-buffered "Event 'change' on source" | \
+while read line ; do
+  MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && echo $MICSRC
+  MUTE_STATUS=$(pactl get-source-mute $MICSRC)
+  if [[ $MUTE_STATUS = "Mute: yes" ]]; then
+    awesome-client 'client.emit_signal("jack_source_off")'
+  elif [[ $MUTE_STATUS = "Mute: no" ]]; then
+    awesome-client 'client.emit_signal("jack_source_on")'
+  fi
+done
+]=]
+
+awful.spawn.with_shell(mictoggle_script)
+
 
 
 run_once("picom")
@@ -849,11 +961,11 @@ run_once("/usr/bin/diodon")
 run_once("mictray")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
-awful.util.spawn.with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
-awful.util.spawn.with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
+awful.spawn.with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
+awful.spawn.with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
 
-awful.util.spawn.with_shell("xset r rate 180 40")
+awful.spawn.with_shell("xset r rate 180 40")
 
-awful.util.spawn.with_shell("eval `ssh-agent -s`")
-awful.util.spawn.with_shell("ssh-add")
+awful.spawn.with_shell("eval `ssh-agent -s`")
+awful.spawn.with_shell("ssh-add")
 
