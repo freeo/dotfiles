@@ -58,3 +58,4 @@
 (package! flatui-theme)
 (package! dap-mode)
 (package! k8s-mode)
+;; (package! mixed-pitch) ;; buggy, :weight doesn't work so pass for now: 2022 02 15

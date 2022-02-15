@@ -24,12 +24,34 @@
 ;;
 ;; (setq doom-font (font-spec :family "Cousine Nerd Font Mono" :size
 
+(after! so-long
+  (setq so-long-threshold 1000))
 
-(setq doom-font (font-spec :family "GoMono Nerd Font Mono" :size 16 )
-      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 16)
-      doom-unicode-font (font-spec :family "GoMono Nerd Font Mono" :size 16)
-      doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
-      ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
+
+(use-package! mixed-pitch
+  :hook
+  ;; If you want it in all text modes:
+  (text-mode . mixed-pitch-mode))
+
+;; (setq doom-font (font-spec :family "GoMono Nerd Font Mono" :size 16 )
+;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16)
+;;       ;; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC Semibold" :size 16)
+;;       ;; doom-variable-pitch-font (font-spec :family "Ubuntu" :size 16)
+;;       doom-unicode-font (font-spec :family "GoMono Nerd Font Mono" :size 16)
+;;       doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
+;;       ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
+;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
+;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
+;;       ;; mixed-pitch-face (font-spec :family "Lexend Exa" :size 16 :weight 'light )
+;;       ;; doom-variable-pitch-font (font-spec :family "Noto Serif" :size 16 :weight 'extra-bold)
+;;       doom-unicode-font (font-spec :family "FiraCode Nerd Font Mono" :size 16)
+;;       doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :size 20 ))
+(setq doom-font (font-spec :family "Cousine Nerd Font Mono" :size 16 )
+      doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
+      doom-unicode-font (font-spec :family "Cousine Nerd Font Mono" :size 16)
+      doom-big-font (font-spec :family "Cousine Nerd Font Mono" :size 20 ))
+
+      ;; doom-serif-font (font-spec :family "IBM Plex Mono" :weight 'light))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -93,7 +115,9 @@
        )
         (:prefix-map ("s" . "search")
        :desc "search current PWD" "c" #'helm-rg)
+
 )
+
 
 ;; (projectile-switch-project-by-name "/home/freeo/bmwcode/")
 ;; (projectile-switch-project-by-name "~/bmwcode/")
@@ -119,15 +143,16 @@
       :n "C-k" #'evil-window-up
       :n "C-l" #'evil-window-right
       :n "C-m" #'electric-newline-and-maybe-indent
-      :n "<f1>" #'next-buffer
-      :n "<f2>" #'previous-buffer
-      :n "<f3>" #'evil-next-buffer
-      :n "<f4>" #'evil-prev-buffer
+      :n "<f1>" #'previous-buffer
+      :n "<f2>" #'next-buffer
+      :n "<f3>" #'evil-prev-buffer
+      :n "<f4>" #'evil-next-buffer
       ;; :n "C-S-h" #'+workspace/switch-left
       ;; :n "C-S-l" #'+workspace/switch-right
       :n "C-S-t" #'+workspace/new
       :n "C-w C-q" #'evil-quit
       :n "C-;" #'helm-M-x  ;; previous mapping: embark-act
+      :n "RET"   nil  ;; unbind electric-indent-mode
       )
 
 
@@ -137,6 +162,14 @@
 
 (global-set-key (kbd "C-S-h") #'+workspace/switch-left)
 (global-set-key (kbd "C-S-l") #'+workspace/switch-right)
+
+;; map specifically for org-mode. Tested other maps (org-mode-map) and
+;; conditions (after! :after) but I didn't realize until later, that
+;; evil-org-mode-map exists
+(map! :map evil-org-mode-map
+        :n "C-S-h" #'+workspace/switch-left
+        :n "C-S-l" #'+workspace/switch-right
+)
 
 ;; not working
 ;; (map! (:after evil-window-map
@@ -369,6 +402,12 @@ helm-ff-fuzzy-matching t
 
 (defun insert-current-date () (interactive)
   (insert (concat "* " (shell-command-to-string "echo -n $(date '+%m%d %A')")  " ######################")))
+
+
+; magit ediff default instead of underneath diff
+(setq magit-ediff-dwim-show-on-hunks t)
+
+;; https://www.dschapman.com/notes/33f4867d-dbe9-4c4d-8b0a-d28ad6376128
 
 
 (defun durr ()
