@@ -59,3 +59,11 @@
 (package! dap-mode)
 (package! k8s-mode)
 ;; (package! mixed-pitch) ;; buggy, :weight doesn't work so pass for now: 2022 02 15
+(package! zoxide)
+(package! git-link)
+(package! impatient-mode)
+(package! impatient-showdown)
+
+(package! emacs-livedown
+ :recipe (:host github :repo "shime/emacs-livedown"))
+
