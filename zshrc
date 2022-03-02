@@ -1,3 +1,4 @@
+#!/bin/zsh
 # PROFILING this .zshrc:
 # NOTE: Last line of this script is necessary to know when to stop
 # zmodload zsh/zprof 
@@ -161,6 +162,7 @@ function linuxSettings () {
   export PATH=$PATH:$ANDROID_HOME/platform-tools
   export PATH=$PATH:~/bin
   export PATH=$PATH:/usr/local/go/bin
+  export PATH=$PATH:$XDG_CONFIG_HOME/rofi/rofi-power-menu
 
   # since I started with tiling window managers (currently awesome)
 }
@@ -229,6 +231,14 @@ case "$OSTYPE" in
     linuxSettings
   ;;
 esac
+
+# Git aliases, additionally on top of zimfw/git
+# upper case f for same shortcut, as magit uses
+alias GF="git pull"
+alias GFr="git pull --rebase"
+alias GFm="git pull --no-rebase"
+alias Gfa="git fetch --all"
+
 
 # TODO: Moved down here, otherwise I can't see installation progress... Observe if it's ok to stay here.
 # ---
@@ -695,12 +705,14 @@ function virtcam () {
   sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
 }
 
-
-
-# eval `ssh-agent -s`
-# ssh-add
+eval `ssh-agent -s`
+ssh-add
 # https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
 
 # PROFILING endpoint:
 # zprof
 
+
+[ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
+
+eval $(thefuck --alias)

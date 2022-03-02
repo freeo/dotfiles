@@ -133,10 +133,9 @@ if !exists('g:vscode')
   Plug 'hrsh7th/nvim-cmp'
 
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-
   Plug 'kevinhwang91/rnvimr'
-
   Plug 'folke/which-key.nvim'
+  Plug 'shime/vim-livedown'
 
   if has('nvim')
     " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
@@ -1104,6 +1103,7 @@ if has("gui_running")
   set columns=115
   " winpos 1132 0
   if has("gui_gtk2")
+    " set guifont=BlexMono\ Nerd \Font \Mono 9
     set guifont=Liberation\ Mono\ for\ Powerline\ 9,
                 \Liberation\ Mono\ 9,
   elseif has("gui_win32")
