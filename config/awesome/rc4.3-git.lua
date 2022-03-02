@@ -555,20 +555,35 @@ end
 -- Shortcuts by Freeo
 awful.keyboard.append_global_keybindings({
 
+    -- AUDIO
+    awful.key({ modkey,         }, "6", function () awful.spawn.with_shell(
+                "MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle")
+        end, {description = "Toggle Mic: Jack Source ", group = "Audio"}),
+    awful.key({}, "XF86AudioRaiseVolume", function() awful.spawn.with_shell(
+                "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
+        end, {description = "Volume INCREASE jack_out", group = "Audio"}),
+    awful.key({}, "XF86AudioLowerVolume", function() awful.spawn.with_shell(
+                "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT -5%")
+        end, {description = "Volume DECREASE jack_out", group = "Audio"}),
+    awful.key({}, "XF86AudioMute", function() awful.spawn.with_shell(
+                "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-mute $JACKOUT toggle")
+        end, {description = "Volume DECREASE jack_out", group = "Audio"}),
+    -- awful.key({ modkey }, "Next", function() awful.spawn.with_shell( -- PAGE UP = Prior
+    --             "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
+    --     end, {description = "Volume INCREASE jack_out", group = "Audio"}),
+    -- awful.key({ modkey }, "Prior", function() awful.spawn.with_shell(  -- PAGE DOWN = Next
+    --             "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT -5%")
+    --     end, {description = "Volume DECREASE jack_out", group = "Audio"}),
+
+    -- *******************************
+    --        DEBUG KEYBINDINGS
+    -- *******************************
     -- awful.key({ modkey,"Control"  }, "t", function () naughty.notify({ title="KEYSTROKE Pulseevent", text="triggered by signal pulseevent"}) end,
               -- {description = "debug", group = "debug"}),
-
-
     -- awful.key({ modkey,"Control"  }, "t", function () awful.spawn.with_shell( "echo 'durr: " .. gears.filesystem.get_themes_dir() .. "' >> ~/workbench/awesome.log") end,
     --           {description = "output to log", group = "debug"}),
 
-    -- Toggle microphone state
-    -- awful.key({ modkey, "Shift" }, "m",
-    --         function ()
-    --             beautiful.mic:toggle()
-    --         end,
-    --         {description = "Toggle microphone (amixer)", group = "Hotkeys"}
-    -- ),
+    -- DISPLAYS
     awful.key({ modkey,           }, "8", function () awful.screen.focus(1) end,
               {description = "Focus screen 1", group = "layout"}),
     awful.key({ modkey,           }, "9", function () awful.screen.focus(2) end,
@@ -576,6 +591,7 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey,           }, "0", function () awful.screen.focus(2) end,
               {description = "Focus screen 3", group = "layout"}),
 
+    -- VIDEO
     awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
               {description = "xrandr NeoG9+Toshiba", group = "xrandr"}),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
@@ -583,18 +599,19 @@ awful.keyboard.append_global_keybindings({
               {description = "toggle NeoG9", group = "xrandr"}),
     awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
               {description = "toggle Toshiba", group = "xrandr"}),
-
     -- awful.key({ modkey,  "Control"}, "8", function () awful.spawn("xrandr --output DP-0 --off") end,
     --           {description = "turn off NeoG9", group = "xrandr"}),
     -- awful.key({ modkey,  "Control"}, "9", function () awful.spawn("xrandr --output DP-5 --off") end,
     --           {description = "turn off Toshiba", group = "xrandr"}),
 
+    -- APPLICATIONS
     awful.key({ modkey,           }, "p", function () awful.spawn("rofi -show drun") end,
               {description = "open rofi", group = "launcher"}),
-
+    awful.key({ modkey,"Control"  }, "p", function () awful.spawn.with_shell(
+                "rofi -show p -modi p:rofi-power-menu") end,
+              {description = "rofi power menu", group = "launcher"}),
     awful.key({ modkey, "Control" }, "Escape", function () awful.spawn("xsecurelock") end,
               {description = "open rofi", group = "launcher"}),
-
     awful.key({ modkey,           }, "Escape", function () awful.spawn(terminal) end,
               {description = "open terminal", group = "launcher"}),
 
@@ -606,14 +623,11 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey, "Shift" }, "#35", function () awful.spawn.with_shell("/usr/local/bin/hue lights all off") end,
               {description = "OFF Hue Play Bars", group = "Hue"}),
 
-    awful.key({ modkey,         }, "6", function () awful.spawn.with_shell("MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle") end,
-              {description = "Toggle Mic: Jack Source ", group = "Audio"}),
-
-    awful.key({ modkey, "Shift" }, "6", mic_border_reset,
-              {description = "Toggle Mic: Jack Source ", group = "Audio"}),
-
     awful.key({ "Control", "Shift" }, 'b', function () awful.spawn("/usr/bin/diodon", {urgent = false, marked = false}) end,
-        { description = 'reset fake screen size', group = 'fake screen' }),
+        { description = 'clipboard manager', group = 'Applications' }),
+
+    awful.key({ modkey,    "Shift" }, 'u', function () awful.spawn("pcmanfm", {urgent = false, marked = false}) end,
+        { description = 'File Manager', group = 'Applications' }),
 
     -- always last entry, no comma
     awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
@@ -866,40 +880,6 @@ client.connect_signal("unfocus", function(c)
 end)
 
 
--- client.connect_signal("pulseevent", function()
---   local c = client.focus
---   if c then
---     if beautiful.border_focus == "#ff0000" then
---       c.border_color         = "#00FF00"
---       beautiful.border_focus = "#00FF00"
---     else
---       c.border_color         = "#ff0000"
---       beautiful.border_focus = "#ff0000"
---     end
---   else
---     naughty.notify({ title="no client", text="no focus client!"})
---   end
---   naughty.notify({ title="Pulseevent", text="triggered by signal pulseevent"})
--- end)
-
-
-client.connect_signal("jack_source_off", function()
-  local c = client.focus
-  if c then
-    c.border_color         = "#ff0000"
-    beautiful.border_focus = "#ff0000"
-  end
-end)
-
-client.connect_signal("jack_source_on", function()
-  local c = client.focus
-  if c then
-    c.border_color         = "#00FF00"
-    beautiful.border_focus = "#00FF00"
-  end
-end)
-
-
 
 -- Autostart
 
@@ -919,19 +899,34 @@ function run_once(prg,arg_string,pname,screen)
 end
 
 -- pgrep -f -x "/usr/bin/python3 /usr/bin/redshift-gtk"
-
 -- if [[ $(pactl get-source-mute 7) = "Mute: no" ]]; then echo "muted"; fi
 
 
--- awful.spawn.with_shell("./pactl_listener.sh &")
+client.connect_signal("jack_source_off", function()
+  mic_border_reset()
+end)
 
--- awful.spawn.with_shell('pactl subscribe | rg "Event \'change\' on source" && MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && if [[ $(pactl get-source-mute $MICSRC) = "Mute: yes" ]]; then awesome-client \'client.emit_signal("pulseevent")\'; fi &')
+client.connect_signal("jack_source_on", function()
+  local c = client.focus
+  if c then
+    -- local color_highlight_mic_on = "#B200FF"
+    local color_highlight_mic_on = "#DD00FF"
+    c.border_color         = color_highlight_mic_on
+    beautiful.border_focus = color_highlight_mic_on
+  end
+end)
 
--- awful.spawn.with_shell("pactl subscribe | rg \"Event 'change' on source\" && MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && if [[ $(pactl get-source-mute $MICSRC) = \"Mute: yes\" ]]; then awesome-client 'client.emit_signal(\"pulseevent\")'; fi &")
---
-
-mictoggle_script = [=[
+-- mictoggle_script watches for "change" events in pulseaudio event stream.
+-- Upon a valid change, it checks the state of pulseaudio source "jack_in" and emits the respective awesome signal via awesome-client
+-- Notes on the script:
+-- since "pactl subscribe" is a stream, there's two things to incorporate:
+--   "--line-buffered" streams rg results, as rg never quits and therefore doesn't have an exit code
+--   not having an exit code means you can't chain with &&
+-- tried multiple receiving programs, but so far only "read line" works as desired
+-- "read line" reads on stdin while rg is still running
+MICTOGGLE_SCRIPT = [=[
 #!/bin/bash
+
 pactl subscribe | rg --line-buffered "Event 'change' on source" | \
 while read line ; do
   MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && echo $MICSRC
@@ -944,12 +939,13 @@ while read line ; do
 done
 ]=]
 
-awful.spawn.with_shell(mictoggle_script)
+awful.spawn.with_shell(MICTOGGLE_SCRIPT)
 
 
 
 run_once("picom")
-run_once("volumeicon")
+-- run_once("volumeicon")
+-- run_once("mictray")
 run_once("nm-applet")
 run_once("dunst")
 run_once("redshift-gtk","","/usr/bin/python3 /usr/bin/redshift-gtk")
@@ -958,7 +954,7 @@ run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
 run_once("/usr/bin/diodon")
-run_once("mictray")
+run_once("qjackctl")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 awful.spawn.with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")
