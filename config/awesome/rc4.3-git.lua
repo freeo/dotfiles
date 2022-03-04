@@ -604,11 +604,13 @@ awful.keyboard.append_global_keybindings({
     -- awful.key({ modkey,  "Control"}, "9", function () awful.spawn("xrandr --output DP-5 --off") end,
     --           {description = "turn off Toshiba", group = "xrandr"}),
 
+    -- rofi -combi-modi window,drun,ssh -theme solarized -font "hack 10" -show combi -icon-theme "Papirus" -show-icons
+
     -- APPLICATIONS
-    awful.key({ modkey,           }, "p", function () awful.spawn("rofi -show drun") end,
+    awful.key({ modkey,           }, "p", function () awful.spawn("rofi -show drun -show-icons") end,
               {description = "open rofi", group = "launcher"}),
     awful.key({ modkey,"Control"  }, "p", function () awful.spawn.with_shell(
-                "rofi -show p -modi p:rofi-power-menu") end,
+                "rofi -show p -modi p:/home/$USER/.config/rofi/rofi-power-menu/rofi-power-menu") end,
               {description = "rofi power menu", group = "launcher"}),
     awful.key({ modkey, "Control" }, "Escape", function () awful.spawn("xsecurelock") end,
               {description = "open rofi", group = "launcher"}),
