@@ -7,29 +7,12 @@ if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
   fortune | lolcat
 fi
 
+zi_home="${HOME}/.zi"
+source "${zi_home}/bin/zi.zsh"
 
-source ~/.zinit/bin/zinit.zsh
+autoload -Uz _zi
+(( ${+_comps} )) && _comps[zi]=_zi
 
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
-fi
-
-source "$HOME/.zinit/bin/zinit.zsh"
-
-# Load a few important annexes, without Turbo
-# (this is currently required for annexes)
-zinit light-mode for \
-    zinit-zsh/z-a-rust \
-    zinit-zsh/z-a-as-monitor \
-    zinit-zsh/z-a-patch-dl \
-    zinit-zsh/z-a-bin-gem-node
-
-### End of Zinit's installer chunk
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -37,8 +20,7 @@ zinit light-mode for \
 # export ZSH="$HOME/.oh-my-zsh"
 
 # p10k
-zinit ice depth=1; zinit light romkatv/powerlevel10k
-
+zi ice depth=1; zi light romkatv/powerlevel10k
 
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
 zstyle :compinstall filename '/home/freeo/.zshrc'
@@ -56,7 +38,6 @@ if [[ $TERM = "xterm-kitty" ]]; then
 fi
 
 # Common settings ###################
-export SHELL=/usr/bin/zsh
 export NVM_LAZY_LOAD=true # for zsh-nvm
 
 export AUTO_NOTIFY_THRESHOLD=10
@@ -135,8 +116,12 @@ say() {
 # Linux settings ###################
 # if ostype == Linux
 function linuxSettings () {
+  export SHELL=/usr/bin/zsh
   xset r rate 180 40
 
+  export EDITOR="snap run nvim"
+  export VISUAL="snap run nvim"
+ 
   # ra = reset audio
   alias ra="pulseaudio -k"
   # reset capslock to ctrl
@@ -173,55 +158,50 @@ export GREP_COLORS="1;97;102"
 # macOS settings ###################
 # if ostype == darwin
 function darwinSettings () {
+  export SHELL=/bin/zsh
   export PATH=/usr/local/bin:$PATH
-  . $(brew --prefix asdf)/asdf.sh
+  # . $(brew --prefix asdf)/asdf.sh
 
-  export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
-  export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
-  export PATH=$GRAALVM_HOME/bin:$PATH
+  export EDITOR=nvim
+  export VISUAL=nvim
+  # export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+  # export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-20.2.0/Contents/Home
+  # export PATH=$GRAALVM_HOME/bin:$PATH
   export PATH=~/go/bin:$PATH
   export PATH=/usr/local/opt/avr-gcc@7/bin:$PATH
 
   export GREP_COLOR=$GREP_COLORS
-
-  # successor: zoxide
+# successor: zoxide
   # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
 }
 
+zi light Tarrasch/zsh-bd
+zi light darvid/zsh-poetry
+zi light fdw/ranger-zoxide
+zi light lukechilds/zsh-nvm
+zi light zdharma/fast-syntax-highlighting
+zi light zimfw/archive
+zi light zimfw/git
+zi light zsh-users/zsh-autosuggestions
+
+# zi light zimfw/exa # creates bad aliases
 
 # Add wisely, as too many plugins slow down shell startup.
 case "$OSTYPE" in
   darwin*)
     # ...`
-    zinit light zsh-users/zsh-autosuggestions
-    zinit light darvid/zsh-poetry
-    zinit light lukechilds/zsh-nvm
-    zinit light zdharma/fast-syntax-highlighting
-    zinit light MichaelAquilina/zsh-auto-notify
-    zinit light Tarrasch/zsh-bd
-    zinit light zimfw/git
-    # zinit light zimfw/exa
-    zinit light zimfw/archive
+    zi light MichaelAquilina/zsh-auto-notify
 
     darwinSettings
   ;;
   linux*)
     # ...
-    zinit light zsh-users/zsh-autosuggestions
-    zinit light darvid/zsh-poetry
-    zinit light lukechilds/zsh-nvm
-    zinit light zdharma/fast-syntax-highlighting
-    # zinit light MichaelAquilina/zsh-auto-notify
+    # zi light MichaelAquilina/zsh-auto-notify
     # silence notify inside of emacs, as EVERY cmd triggers a notification!
     if [[ -z "$INSIDE_EMACS" ]]; then
-      zinit light marzocchi/zsh-notify
+      zi light marzocchi/zsh-notify
     fi
-    zinit light Tarrasch/zsh-bd
-    zinit light zimfw/git
-    # zinit light zimfw/exa
-    zinit light zimfw/archive
-    zinit light fdw/ranger-zoxide
     # plugins=(
     #   git
     #   # auto-notify
@@ -498,8 +478,6 @@ alias gs='git status'
 
 export LC_ALL=en_US.UTF-8
 
-export VISUAL="snap run nvim"
-export EDITOR="snap run nvim"
 export KUBE_EDITOR=nvim
 
 # alias jxl='jx get build logs'
@@ -716,3 +694,10 @@ ssh-add
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
 eval $(thefuck --alias)
+
+zi light-mode for \
+  z-shell/z-a-meta-plugins \
+  @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
+# examples here -> https://z-shell.pages.dev/docs/gallery/collection
+zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
+
