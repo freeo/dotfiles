@@ -20,7 +20,7 @@ autoload -Uz _zi
 # export ZSH="$HOME/.oh-my-zsh"
 
 # p10k
-zi ice depth=1; zi light romkatv/powerlevel10k
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
 zstyle :compinstall filename '/home/freeo/.zshrc'
@@ -119,8 +119,10 @@ function linuxSettings () {
   export SHELL=/usr/bin/zsh
   xset r rate 180 40
 
-  export EDITOR="snap run nvim"
-  export VISUAL="snap run nvim"
+  export EDITOR=nvim
+  export VISUAL=nvim
+  # export EDITOR="snap run nvim"
+  # export VISUAL="snap run nvim"
  
   # ra = reset audio
   alias ra="pulseaudio -k"
@@ -132,11 +134,14 @@ function linuxSettings () {
   alias chmod='chmod --preserve-root -v'
   alias chown='chown --preserve-root -v'
   
+
+  # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
+  # ---
   # tricking shells into scanning commands after sudo for other aliases as well
   # most notably: `sudo nvim`, where alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim'
-  alias sudo='sudo '
-  alias nvim="snap run nvim"
-  # alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
+  # alias sudo='sudo '
+  # alias nvim="snap run nvim"
+  alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
   # export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
@@ -701,3 +706,9 @@ zi light-mode for \
 # examples here -> https://z-shell.pages.dev/docs/gallery/collection
 zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
 
+zi light-mode for \
+  z-shell/z-a-meta-plugins \
+  @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
+# examples here -> https://z-shell.pages.dev/docs/gallery/collection
+zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
+alias argopass2="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"

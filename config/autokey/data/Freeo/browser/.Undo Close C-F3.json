@@ -1,0 +1,30 @@
+{
+    "type": "script",
+    "description": "Undo Close C-F3",
+    "store": {},
+    "modes": [
+        3
+    ],
+    "usageCount": 0,
+    "prompt": false,
+    "omitTrigger": false,
+    "showInTrayMenu": false,
+    "abbreviation": {
+        "abbreviations": [],
+        "backspace": true,
+        "ignoreCase": false,
+        "immediate": false,
+        "triggerInside": false,
+        "wordChars": "[\\w]"
+    },
+    "hotkey": {
+        "modifiers": [
+            "<ctrl>"
+        ],
+        "hotKey": "<f3>"
+    },
+    "filter": {
+        "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser",
+        "isRecursive": false
+    }
+}

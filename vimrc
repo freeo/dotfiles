@@ -173,7 +173,7 @@ if !exists('g:vscode')
   Plug 'octol/vim-cpp-enhanced-highlight'
   Plug 'leafgarland/typescript-vim'
   Plug 'pangloss/vim-javascript'
-  Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
+  " Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
   Plug 'hashivim/vim-terraform'
   if has("win64")
     Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'

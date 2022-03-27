@@ -865,7 +865,9 @@ screen.connect_signal("arrange", function (s)
     for _, c in pairs(s.clients) do
         -- if (max or only_one) and not c.floating or c.maximized then
         if (only_one) and not c.floating or c.maximized then
-            c.border_width = 0
+            -- workaround until top bar color shows micstate
+            -- c.border_width = 0
+            c.border_width = 8
         else
             c.border_width = beautiful.border_width
         end

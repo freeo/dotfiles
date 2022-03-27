@@ -1,0 +1,28 @@
+{
+    "type": "script",
+    "description": "Close F3",
+    "store": {},
+    "modes": [
+        3
+    ],
+    "usageCount": 20,
+    "prompt": false,
+    "omitTrigger": false,
+    "showInTrayMenu": false,
+    "abbreviation": {
+        "abbreviations": [],
+        "backspace": true,
+        "ignoreCase": false,
+        "immediate": false,
+        "triggerInside": false,
+        "wordChars": "[\\w]"
+    },
+    "hotkey": {
+        "modifiers": [],
+        "hotKey": "<f3>"
+    },
+    "filter": {
+        "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser",
+        "isRecursive": false
+    }
+}

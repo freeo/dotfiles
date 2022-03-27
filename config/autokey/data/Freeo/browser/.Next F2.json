@@ -1,0 +1,28 @@
+{
+    "type": "script",
+    "description": "Next F2",
+    "store": {},
+    "modes": [
+        3
+    ],
+    "usageCount": 349,
+    "prompt": false,
+    "omitTrigger": false,
+    "showInTrayMenu": false,
+    "abbreviation": {
+        "abbreviations": [],
+        "backspace": true,
+        "ignoreCase": false,
+        "immediate": false,
+        "triggerInside": false,
+        "wordChars": "[\\w]"
+    },
+    "hotkey": {
+        "modifiers": [],
+        "hotKey": "<f2>"
+    },
+    "filter": {
+        "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser",
+        "isRecursive": false
+    }
+}
