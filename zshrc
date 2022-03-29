@@ -68,41 +68,6 @@ zle -N skind
 # C-/ equals ^_
 bindkey -s "^_" "skind\n"
 
-# emacs-vterm
-
-if [[ "$INSIDE_EMACS" = 'vterm' ]] \
-    && [[ -n ${EMACS_VTERM_PATH} ]] \
-    && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh ]]; then
-  source ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh
-
-# TODO NOTE: Undo this line, which breaks zsh-autosuggest
-# file: ~/.emacs.d/.local/straight/repos/emacs-libvterm/etc/emacs-vterm-zsh.sh
-# add-zsh-hook -Uz chpwd (){ print -Pn "\e]2;%m:%2~\a" }
-
-  # for gruvbox-light
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#a89984" #dark4
-  # ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#000088,bold"
-
-  # this line doesn't work due to p10k owning "PROMPT"
-  #   PROMPT=$PROMPT:'%{$(vterm_prompt_end)%}'
-  # and needs to be replaced with this function, which is registered in
-  # `~/.p10k.zsh` as simply "trackdir", "prompt_" is ignored
-  function prompt_trackdir() {
-    # the icon is required as a workaround! vterm_prompt_end doesn't work in an empty segment
-    # the icon is just a simple way to fill the segment.
-    p10k segment -i "" -t "%{$(vterm_prompt_end)%}"
-  }
-
-  # 😇😈✂✏
-  # ❯01❮
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=''
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😈'
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION='VIS✂'
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIOWR_CONTENT_EXPANSION='RWR✏'
-
-  # typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=50
-
-fi
 
 
 find_file() {
@@ -216,6 +181,45 @@ case "$OSTYPE" in
     linuxSettings
   ;;
 esac
+
+
+# emacs-vterm
+
+if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+    && [[ -n ${EMACS_VTERM_PATH} ]] \
+    && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh ]]; then
+  source ${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh
+
+# TODO NOTE: Undo this line, which breaks zsh-autosuggest
+# file: ~/.emacs.d/.local/straight/repos/emacs-libvterm/etc/emacs-vterm-zsh.sh
+# add-zsh-hook -Uz chpwd (){ print -Pn "\e]2;%m:%2~\a" }
+
+  # for gruvbox-light
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#a89984" #dark4
+  # ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#000088,bold"
+
+  # this line doesn't work due to p10k owning "PROMPT"
+  #   PROMPT=$PROMPT:'%{$(vterm_prompt_end)%}'
+  # and needs to be replaced with this function, which is registered in
+  # `~/.p10k.zsh` as simply "trackdir", "prompt_" is ignored
+  function prompt_trackdir() {
+    # the icon is required as a workaround! vterm_prompt_end doesn't work in an empty segment
+    # the icon is just a simple way to fill the segment.
+    p10k segment -i "" -t "%{$(vterm_prompt_end)%}"
+  }
+
+  # 😇😈✂✏
+  # ❯01❮
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION=''
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😈'
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIVIS_CONTENT_EXPANSION='VIS✂'
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIOWR_CONTENT_EXPANSION='RWR✏'
+
+  # typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=50
+  export EDITOR=emacsclient
+
+fi
+
 
 # Git aliases, additionally on top of zimfw/git
 # upper case f for same shortcut, as magit uses
@@ -712,3 +716,7 @@ zi light-mode for \
 # examples here -> https://z-shell.pages.dev/docs/gallery/collection
 zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
 alias argopass2="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
+
+
+export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
+export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
