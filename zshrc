@@ -3,6 +3,9 @@
 # NOTE: Last line of this script is necessary to know when to stop
 # zmodload zsh/zprof 
 
+# don't execute the rest of this .zshrc if connecting via emacs TRAMP
+[[ $TERM == "tramp" ]] && unsetopt zle && PS1='$ ' && return
+
 if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
   fortune | lolcat
 fi
@@ -24,6 +27,8 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
 zstyle :compinstall filename '/home/freeo/.zshrc'
+
+
 
 if [[ $TERM = "xterm-kitty" ]]; then
   # BLOCK & LINE tested in Linux and macOS
@@ -88,7 +93,7 @@ function linuxSettings () {
   export VISUAL=nvim
   # export EDITOR="snap run nvim"
   # export VISUAL="snap run nvim"
- 
+
   # ra = reset audio
   alias ra="pulseaudio -k"
   # reset capslock to ctrl
@@ -98,7 +103,7 @@ function linuxSettings () {
 
   alias chmod='chmod --preserve-root -v'
   alias chown='chown --preserve-root -v'
-  
+
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -146,14 +151,14 @@ function darwinSettings () {
 
 }
 
-zi light Tarrasch/zsh-bd
-zi light darvid/zsh-poetry
-zi light fdw/ranger-zoxide
-zi light lukechilds/zsh-nvm
-zi light zdharma/fast-syntax-highlighting
-zi light zimfw/archive
-zi light zimfw/git
-zi light zsh-users/zsh-autosuggestions
+zinit light Tarrasch/zsh-bd
+zinit light darvid/zsh-poetry
+zinit light fdw/ranger-zoxide
+zinit light lukechilds/zsh-nvm
+zinit light zdharma/fast-syntax-highlighting
+zinit light zimfw/archive
+zinit light zimfw/git
+zinit light zsh-users/zsh-autosuggestions
 
 # zi light zimfw/exa # creates bad aliases
 
@@ -161,7 +166,7 @@ zi light zsh-users/zsh-autosuggestions
 case "$OSTYPE" in
   darwin*)
     # ...`
-    zi light MichaelAquilina/zsh-auto-notify
+    zinit light MichaelAquilina/zsh-auto-notify
 
     darwinSettings
   ;;
@@ -170,7 +175,7 @@ case "$OSTYPE" in
     # zi light MichaelAquilina/zsh-auto-notify
     # silence notify inside of emacs, as EVERY cmd triggers a notification!
     if [[ -z "$INSIDE_EMACS" ]]; then
-      zi light marzocchi/zsh-notify
+      zinit light marzocchi/zsh-notify
     fi
     # plugins=(
     #   git
@@ -326,6 +331,8 @@ SAVEHIST=1000000   # maximum number of items for the history file
 # Fuzzy Finder needs to be loaded *after* ZLE, otherwise it won't be available on
 # startup, but only after manually sourcing this .zshrc
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# NOTE: run this if the file above doesn't exist:
+# $(brew --prefix)/opt/fzf/install
 
 # https://dougblack.io/words/zsh-vi-mode.html
 # bindkey -v
@@ -334,6 +341,8 @@ bindkey '^N' down-history
 
 bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
+#TRAMP XXX
+
 # bindkey '^w' backward-kill-word
 
 # function zle-line-init zle-keymap-select {
@@ -696,21 +705,17 @@ eval `ssh-agent -s`
 ssh-add
 # https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
 
-# PROFILING endpoint:
-# zprof
-
-
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
 eval $(thefuck --alias)
 
-zi light-mode for \
+zinit light-mode for \
   z-shell/z-a-meta-plugins \
   @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
 # examples here -> https://z-shell.pages.dev/docs/gallery/collection
 zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
 
-zi light-mode for \
+zinit light-mode for \
   z-shell/z-a-meta-plugins \
   @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
 # examples here -> https://z-shell.pages.dev/docs/gallery/collection
@@ -720,3 +725,8 @@ alias argopass2="kubectl -n argocd get secret argocd-initial-admin-secret -o jso
 
 export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
 export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
+
+source /Users/freeo/.config/broot/launcher/bash/br
+
+# PROFILING endpoint:
+# zprof
