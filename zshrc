@@ -124,6 +124,8 @@ function linuxSettings () {
   export PATH=$PATH:/usr/local/go/bin
   export PATH=$PATH:$XDG_CONFIG_HOME/rofi/rofi-power-menu
 
+  export PATH=$PATH:$HOME/go/bin
+
   # since I started with tiling window managers (currently awesome)
 }
 
@@ -222,6 +224,9 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
 
   # typeset -g POWERLEVEL9K_PROMPT_CHAR_BACKGROUND=50
   export EDITOR=emacsclient
+  export VISUAL=emacsclient
+  export GIT_EDITOR=emacsclient
+
 
 fi
 

@@ -471,6 +471,16 @@ helm-ff-fuzzy-matching t
 ;;  '(livedown-port 2001)     ; port for livedown server
 ;;  '(livedown-browser nil))  ; browser to use
 
+(setq tramp-terminal-type "tramp")
+
+(defun sshx-freeo-mba ()
+  (interactive)
+  (find-file "/sshx:freeo@freeo-mba:/Users/freeo/"))
+
+(defun sshx-freeo-pop-os ()
+  (interactive)
+  (find-file "/sshx:freeo@pop-os.local:/home/freeo/"))
+
 (defun durr ()
   (interactive)
   (evil-quit))
