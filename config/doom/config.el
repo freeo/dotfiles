@@ -1,4 +1,4 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+1;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
@@ -113,11 +113,7 @@
 
         (:prefix-map ("o" . "open")
        :desc "vterm at path of current file" "t" #'vterm
-       )
-        (:prefix-map ("o" . "open")
        :desc "vterm here current frame" "o" #'+vterm/here
-       )
-        (:prefix-map ("o" . "open")
        :desc "vterm toggle" "T" #'+vterm/toggle
        )
        (:prefix-map ("TAB" . "workspace")
@@ -128,27 +124,58 @@
        )
         (:prefix-map ("s" . "search")
        :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
+       :desc "search current PWD" "c" #'helm-rg
        )
-        (:prefix-map ("s" . "search")
-       :desc "search current PWD" "c" #'helm-rg)
 
+       (:prefix-map ("b" . "buffer")
+       :desc "Harpoon add file" "h" 'harpoon-add-file
+       )
 )
 
 
-;; (projectile-switch-project-by-name "/home/freeo/bmwcode/")
-;; (projectile-switch-project-by-name "~/bmwcode/")
+;; (map! :leader "b h" 'harpoon-add-file)
 
-;; helm-projectile-switch-project
-;; projectile-switch-project-by-name
+;; And the vanilla commands
+(map! :leader
+      (:prefix-map ("j" . "harpoon")
+       "c" 'harpoon-clear
+       "f" 'harpoon-toggle-file
+       )
+      "1" 'harpoon-go-to-1
+      "2" 'harpoon-go-to-2
+      "3" 'harpoon-go-to-3
+      "4" 'harpoon-go-to-4
+      "5" 'harpoon-go-to-5
+      "6" 'harpoon-go-to-6
+      "7" 'harpoon-go-to-7
+      "8" 'harpoon-go-to-8
+      "9" 'harpoon-go-to-9
+      )
 
 
-;; (setq foreground vterm-color-red)
-;
+;; (map! :leader "r 1" (cmd! (find-file "~/bmw/wb_bmw.org")))
+(map! :leader
+      :desc "wb_bmw.org"
+      "r 1" (cmd! (+workspace/switch-to "main")
+                  (find-file-other-window "~/bmw/wb_bmw.org")
+                  )
+      :desc "todo.org"
+      "r 2" (cmd!
+             (+workspace/switch-to "main")
+             (find-file-other-window "~/bmw/todo.org")
+             )
+      :desc ".zshrc"
+      "r 3" (cmd!
+             (+workspace/switch-to "dotfiles")
+             (find-file-other-window "~/dotfiles/zshrc")
+             )
+      :desc "config DOOM"
+      "r 4" (cmd!
+             (+workspace/switch-to "dotfiles")
+             (find-file-other-window "~/dotfiles/config/doom/config.el")
+             )
+      )
 
-;; evilnc-comment-operator (start end type))
-;; (map! :C-t)
-;; (+workspace/new &optional NAME CLONE-P)
-;; (define-key! evil-normal-state-map (kbd "C-t" 'evilnc-comment-operator))
 
 ;; (map! :n "C-t"   #'evilnc-comment-operator)
 (map! :n "C-t"   #'comment-line
@@ -176,8 +203,26 @@
       :n "C-s"   #'avy-goto-char-2
       :n "C-f"   #'avy-goto-char-timer
       :n "C-S-<return>"   #'new-vterm-s-split
+      :n "C-SPC" #'harpoon-quick-menu-hydra
+      :n "C-q" #'evil-visual-block
+      :n "g q" #'+format:region     ;; swap gQ with gq
+      :n "g Q" #'evil-fill-and-move
       )
 
+;; (projectile-switch-project-by-name "/home/freeo/bmwcode/")
+;; (projectile-switch-project-by-name "~/bmwcode/")
+
+;; helm-projectile-switch-project
+;; projectile-switch-project-by-name
+
+
+;; (setq foreground vterm-color-red)
+;
+
+;; evilnc-comment-operator (start end type))
+;; (map! :C-t)
+;; (+workspace/new &optional NAME CLONE-P)
+;; (define-key! evil-normal-state-map (kbd "C-t" 'evilnc-comment-operator))
 
 ;; (defvar ranger-normal-mode-map
 ;; (ranger-pop-eshell &optional ARG)
@@ -194,6 +239,16 @@
         :n "C-S-l" #'+workspace/switch-right
         :n "C-S-<return>"   #'new-vterm-s-split
 )
+
+;; previous map alone doesn't override the default mapping unfortunately.
+(map! :map org-mode-map
+        "C-S-<return>"   #'new-vterm-s-split
+)
+
+;; evil-org-mode-map <insert-state> C-S-<return>
+;; evil-org-mode-map <normal-state> C-S-<return>
+;; org-mode-map C-S-<return>
+;; org-mode-map C-S-RET
 
 ;; not working
 ;; (map! (:after evil-window-map
@@ -284,7 +339,7 @@ helm-ff-fuzzy-matching t
 (setq super-save-auto-save-when-idle t)
 (setq auto-save-default nil)
 (setq ivy-use-virtual-buffers t)
-(setq ivy-count-format "(%d/%d) ")
+(setq ivy-count-format "(wb_bmw%d/%d) ")
 
 (setq ivy-re-builders-alist
       '((t . ivy--regex-fuzzy)))
@@ -408,7 +463,7 @@ helm-ff-fuzzy-matching t
 
 
 (use-package k8s-mode
-  :ensure t
+  ;; :ensure t
   :hook (k8s-mode . yas-minor-mode))
 
 ;; Set indent offset
@@ -481,6 +536,13 @@ helm-ff-fuzzy-matching t
   (interactive)
   (find-file "/sshx:freeo@pop-os.local:/home/freeo/"))
 
-(defun durr ()
-  (interactive)
-  (evil-quit))
+
+(use-package! kubernetes
+  :commands (kubernetes-overview)
+  :config
+  (setq kubernetes-poll-frequency 3600
+        kubernetes-redraw-frequency 3600))
+
+(use-package! kubernetes-evil
+  :after kubernetes)
+

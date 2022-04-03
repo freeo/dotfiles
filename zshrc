@@ -513,6 +513,7 @@ export KUBE_EDITOR=nvim
 
 # zsh-autosuggestions
 bindkey '^[[Z' autosuggest-accept
+bindkey '^ ' forward-word
 
 export PATH=~/.poetry/bin:$PATH
 
@@ -727,9 +728,10 @@ zinit light-mode for \
 zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
 alias argopass2="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 
-
-export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
-export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
+# These SOPS variables override .sops.yaml
+# export SOPS_AZURE_KEYVAULT_URL="https://wakakeyvault..."
+# export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
+# export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
 
 source /Users/freeo/.config/broot/launcher/bash/br
 

@@ -67,3 +67,6 @@
 (package! emacs-livedown
  :recipe (:host github :repo "shime/emacs-livedown"))
 
+(package! password-store)
+(package! kubernetes-evil)
+(package! harpoon)
