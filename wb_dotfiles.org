@@ -1,0 +1,4 @@
+
+Fix ultra weird git recursive error in
+/Users/freeo/dotfiles/config/autokey/data/Freeo/umlaute
+git update-index --assume-unchanged <file-list>
