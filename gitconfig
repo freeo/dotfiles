@@ -8,6 +8,7 @@
 [core]
 	editor = nvim
 	pager = delta
+	excludesfile = ~/.gitignore
 # [includeIf "gitdir:github/"]
   # path = .gitconfig-github
 [includeIf "gitdir:bmwcode/"]

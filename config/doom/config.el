@@ -133,8 +133,6 @@
 )
 
 
-;; (map! :leader "b h" 'harpoon-add-file)
-
 ;; And the vanilla commands
 (map! :leader
       (:prefix-map ("j" . "harpoon")
@@ -152,6 +150,10 @@
       "9" 'harpoon-go-to-9
       )
 
+;; (defun global-hot-bookmark(workspace, filename)
+  ;; (+workspace/switch-to workspace)
+                  ;; (find-file-other-window "~/bmw/wb_bmw.org")
+                  ;; )
 
 ;; (map! :leader "r 1" (cmd! (find-file "~/bmw/wb_bmw.org")))
 (map! :leader
@@ -159,6 +161,7 @@
       "r 1" (cmd! (+workspace/switch-to "main")
                   (find-file-other-window "~/bmw/wb_bmw.org")
                   )
+
       :desc "todo.org"
       "r 2" (cmd!
              (+workspace/switch-to "main")
@@ -173,6 +176,11 @@
       "r 4" (cmd!
              (+workspace/switch-to "dotfiles")
              (find-file-other-window "~/dotfiles/config/doom/config.el")
+             )
+      :desc "awesome.rc"
+      "r 5" (cmd!
+             (+workspace/switch-to "dotfiles")
+             (find-file-other-window "~/dotfiles/config/awesome/rc4.3-git.lua")
              )
       )
 

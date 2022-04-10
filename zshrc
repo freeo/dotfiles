@@ -6,9 +6,13 @@
 # don't execute the rest of this .zshrc if connecting via emacs TRAMP
 [[ $TERM == "tramp" ]] && unsetopt zle && PS1='$ ' && return
 
+# https://unix.stackexchange.com/questions/608538/how-to-use-256-colors-for-background-color-in-terminal
+print -rP '%K{#303030}'
+
 if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
   fortune | lolcat
 fi
+# echoti setab [%?%p1%{8}%<%t4%p1%d%e%p1%{16}%<%t10%p1%{8}%-%d%e48;5;%p1%d%;m
 
 zi_home="${HOME}/.zi"
 source "${zi_home}/bin/zi.zsh"
@@ -151,7 +155,10 @@ function darwinSettings () {
 # successor: zoxide
   # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
+
 }
+
+source $HOME/.config/broot/launcher/bash/br
 
 zinit light Tarrasch/zsh-bd
 zinit light darvid/zsh-poetry
@@ -161,6 +168,8 @@ zinit light zdharma/fast-syntax-highlighting
 zinit light zimfw/archive
 zinit light zimfw/git
 zinit light zsh-users/zsh-autosuggestions
+zinit ice wait'1' lucid
+zinit light mellbourn/zabb
 
 # zi light zimfw/exa # creates bad aliases
 
@@ -432,6 +441,26 @@ function vi-yank-xclip {
 zle -N vi-yank-xclip
 bindkey -M vicmd 'y' vi-yank-xclip
 
+# https://doronbehar.com/articles/ZSH-easter-eggs/
+autoload -Uz url-quote-magic
+zle -N self-insert url-quote-magic
+
+autoload -U select-bracketed
+zle -N select-bracketed
+for m in visual viopp; do
+    for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+        bindkey -M $m $c select-bracketed
+    done
+done
+
+autoload -U select-quoted
+zle -N select-quoted
+for m in visual viopp; do
+    for c in {a,i}{\',\",\`}; do
+        bindkey -M $m $c select-quoted
+    done
+done
+
 
 export KEYTIMEOUT=6
 
@@ -440,7 +469,7 @@ zstyle ':notify:*' error-sound "/usr/share/sounds/gnome/default/alerts/bark.ogg"
 zstyle ':notify:*' success-sound "/home/freeo/.local/share/sounds/Enchanted/stereo/bell.ogg"
 # Enchanged sound theme: https://www.gnome-look.org/p/1332121
 # included system fallback: zstyle ':notify:*' success-sound "/usr/share/sounds/freedesktop/stereo/message.oga"
-zstyle ':notify:*' expire-time 50
+zstyle ':notify:*' expire-time 3000
 zstyle ':notify:*' command-complete-timeout 4
 zstyle ':notify:*' enable-on-ssh yes
 zstyle ':notify:*' blacklist-regex 'find|git|ranger|sk'
@@ -670,6 +699,8 @@ eval "$(zoxide init zsh)"
 
 alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..." && z '
 alias kd="kitty +kitten diff"
+alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
+alias pkg-config="/usr/bin/pkg-config"
 
 source $HOME/.cargo/env
 # function timer () {
@@ -698,7 +729,6 @@ rcd() {
 bindkey -s "^o" "rcd\n"
 
 
-source /home/freeo/.config/broot/launcher/bash/br
 
 bindkey -s "^p" "br\n"
 
@@ -707,33 +737,27 @@ function virtcam () {
   sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
 }
 
-eval `ssh-agent -s`
-ssh-add
+eval `ssh-agent -s` > /dev/null 2>&1
+ssh-add $HOME/.ssh/id_ed25519 > /dev/null 2>&1
+ssh-add $HOME/.ssh/id_bmw > /dev/null 2>&1
 # https://superuser.com/questions/284374/ssh-keys-ssh-agent-bash-and-ssh-add
 
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
 eval $(thefuck --alias)
 
-zinit light-mode for \
-  z-shell/z-a-meta-plugins \
-  @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
-# examples here -> https://z-shell.pages.dev/docs/gallery/collection
-zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
+# zinit light-mode for \
+#   z-shell/z-a-meta-plugins \
+#   @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
+# # examples here -> https://z-shell.pages.dev/docs/gallery/collection
+# zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
 
-zinit light-mode for \
-  z-shell/z-a-meta-plugins \
-  @annexes # <- https://z-shell.pages.dev/docs/ecosystem/annexes
-# examples here -> https://z-shell.pages.dev/docs/gallery/collection
-zicompinit # <- https://z-shell.pages.dev/docs/gallery/collection#minimal
-alias argopass2="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 
 # These SOPS variables override .sops.yaml
 # export SOPS_AZURE_KEYVAULT_URL="https://wakakeyvault..."
 # export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
 # export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
 
-source /Users/freeo/.config/broot/launcher/bash/br
 
 # PROFILING endpoint:
 # zprof

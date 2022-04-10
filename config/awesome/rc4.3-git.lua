@@ -18,6 +18,8 @@ local naughty = require("naughty")
 local ruled = require("ruled")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
+local lain = require("lain")
+
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
@@ -46,11 +48,12 @@ end)
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "xresources/theme.lua")
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "kalisi/theme.lua")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "kalisi/theme.lua")
+beautiful.column_count = 3
 
 -- @DOC_DEFAULT_APPLICATIONS@
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
-editor = os.getenv("EDITOR") or "nano"
+editor = os.getenv("EDITOR") or "vi"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -827,6 +830,7 @@ naughty.connect_signal("request::display", function(n)
     naughty.layout.box { notification = n }
 end)
 
+
 -- }}}
 
 -- Enable sloppy focus, so that focus follows mouse.
@@ -881,6 +885,7 @@ end)
 
 client.connect_signal("unfocus", function(c)
   c.border_color = beautiful.border_normal
+  c.opacity = 0.95
 end)
 
 
@@ -948,10 +953,10 @@ awful.spawn.with_shell(MICTOGGLE_SCRIPT)
 
 
 run_once("picom")
--- run_once("volumeicon")
+run_once("volumeicon")
 -- run_once("mictray")
 run_once("nm-applet")
-run_once("dunst")
+run_once("dunst") -- if I don't run this, naughty (from awesome) takes over notifications
 run_once("redshift-gtk","","/usr/bin/python3 /usr/bin/redshift-gtk")
 run_once("autokey","","/usr/bin/python3 /usr/bin/autokey")
 run_once("emote","", "python3 /snap/emote/19/bin/emote")
@@ -969,3 +974,20 @@ awful.spawn.with_shell("xset r rate 180 40")
 awful.spawn.with_shell("eval `ssh-agent -s`")
 awful.spawn.with_shell("ssh-add")
 
+
+-- Naughty Config
+
+naughty.config.defaults.timeout          = 5
+naughty.config.defaults.screen           = 1
+naughty.config.defaults.position         = "top_middle"
+naughty.config.defaults.margin           = 10
+--naughty.config.default_preset.height           = 50
+--naughty.config.default_preset.width            = 100
+naughty.config.defaults.gap              = 1
+naughty.config.defaults.ontop            = true
+naughty.config.defaults.icon_size        = 16
+naughty.config.defaults.fg               = '#ffffff'
+naughty.config.defaults.bg               = beautiful.bg_normal
+naughty.config.defaults.border_width     = 2
+naughty.config.defaults.hover_timeout    = nil
+naughty.config.presets.normal.border_color     = beautiful.fg_focus
