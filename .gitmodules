@@ -1,0 +1,6 @@
+[submodule "config/awesome/awesome-sharedtags"]
+	path = config/awesome/awesome-sharedtags
+	url = git@github.com:Drauthius/awesome-sharedtags.git
+[submodule "config/awesome/bling"]
+	path = config/awesome/bling
+	url = https://github.com/BlingCorp/bling.git

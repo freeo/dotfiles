@@ -113,8 +113,9 @@ local editor=machi.editor.create()
 -- Table of layouts to cover with awful.layout.inc, order matters.
 tag.connect_signal("request::default_layouts", function()
     awful.layout.append_default_layouts({
-        awful.layout.suit.tile,
+        -- awful.layout.suit.tile,
         kalisi.layout.tile49wide,
+        kalisi.layout.vertical,
         bling.layout.mstab, -- nice for toshiba
         bling.layout.centered,
         bling.layout.vertical,
