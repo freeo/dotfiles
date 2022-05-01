@@ -137,6 +137,8 @@ if !exists('g:vscode')
   Plug 'folke/which-key.nvim'
   Plug 'shime/vim-livedown'
 
+  Plug 'fourjay/vim-password-store'
+
   if has('nvim')
     " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
     " Plug 'wilywampa/vim-ipython' " vs iron.nvim

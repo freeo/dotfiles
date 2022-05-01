@@ -49,6 +49,8 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
+(package! benchmark-init)
+
 (package! fzf)
 (package! super-save)
 (package! jsonnet-mode)
@@ -70,3 +72,5 @@
 (package! password-store)
 (package! kubernetes-evil)
 (package! harpoon)
+
+(package! autothemer)

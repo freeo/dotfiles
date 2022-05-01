@@ -38,8 +38,9 @@
 
 (global-subword-mode 1)                           ; Iterate through CamelCase words
 
-
-
+;; enable word-wrap (almost) everywhere
+(+global-word-wrap-mode +1)
+(setq +word-wrap-extra-indent 2)
 
 ;; (use-package! mixed-pitch
   ;; :hook
@@ -53,7 +54,8 @@
 ;;       doom-unicode-font (font-spec :family "GoMono Nerd Font Mono" :size 16)
 ;;       doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
 ;;       ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
-(setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
+(setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
+;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
       ;; mixed-pitch-face (font-spec :family "Lexend Exa" :size 16 :weight 'light )
       ;; doom-variable-pitch-font (font-spec :family "Noto Serif" :size 16 :weight 'extra-bold)
@@ -64,12 +66,17 @@
 ;;       doom-unicode-font (font-spec :family "Cousine Nerd Font Mono" :size 16)
 ;;       doom-big-font (font-spec :family "Cousine Nerd Font Mono" :size 20 ))
 
-      ;; doom-serif-font (font-spec :family "IBM Plex Mono" :weight 'light))
+
+
+;; (push "/home/freeo/.config/doom/theme-source/" custom-theme-load-path )
+
+
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-gruvbox-light)
+;; (setq doom-theme 'doom-gruvbox-light)
+(setq doom-theme 'doom-opera-light)
 ;; (setq doom-theme 'doom-solarized-light) ;; underscorce in markdown cmds sometimes UNREADABLE
 ;; (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'flatui) ;; modeline and tabline are too dominant
@@ -80,7 +87,9 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
+;; (setq display-line-numbers-type 'relative)
+(setq display-line-numbers-type nil)
+;; (setq global-display-line-numbers-mode nil)
 
 ;; Prevents some cases of Emacs flickering
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
@@ -427,7 +436,7 @@ helm-ff-fuzzy-matching t
 
 
 ;; Start LSP Mode and YASnippet mode
-(add-hook 'go-mode-hook #'lsp-deferred)
+;; (add-hook 'go-mode-hook #'lsp-deferred)
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
 
@@ -554,3 +563,16 @@ helm-ff-fuzzy-matching t
 (use-package! kubernetes-evil
   :after kubernetes)
 
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (require 'dap-node)
+  (dap-node-setup))
+
+;; increase width, so that breakpoints are clearly visible/clickable
+(after! git-gutter-fringe
+  (fringe-mode '12))
+;; for the future: entrypoint for increasing git fringe bitmaps:
+;; https://github.com/hlissner/doom-emacs/issues/2246

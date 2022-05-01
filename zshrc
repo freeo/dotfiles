@@ -755,8 +755,10 @@ eval $(thefuck --alias)
 
 # These SOPS variables override .sops.yaml
 # export SOPS_AZURE_KEYVAULT_URL="https://wakakeyvault..."
-# export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
-# export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
+function enableage () {
+  export SOPS_AGE_KEY_FILE=~/secrets/freeo.agekey
+  export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
+}
 
 
 # PROFILING endpoint:
