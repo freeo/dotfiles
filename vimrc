@@ -1232,7 +1232,9 @@ function! JumpToNextPlaceholder()
 endfunction
 
 nnoremap <M-p> :call JumpToNextPlaceholder()<CR>a
+nnoremap π :call JumpToNextPlaceholder()<CR>a
 inoremap <M-p> <ESC>:call JumpToNextPlaceholder()<CR>a
+inoremap π <ESC>:call JumpToNextPlaceholder()<CR>a
 
 " Insert Placeholder
 
