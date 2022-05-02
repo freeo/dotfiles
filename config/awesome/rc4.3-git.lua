@@ -124,7 +124,7 @@ tag.connect_signal("request::default_layouts", function()
         -- machi.default_layout,
 
         -- awful.layout.suit.floating,
-        -- awful.layout.suit.max,
+        awful.layout.suit.max,
         --
         -- awful.layout.suit.tile.left,
         -- awful.layout.suit.tile.bottom,
@@ -772,7 +772,8 @@ ruled.client.connect_signal("request::rules", function()
             class    = {
                 "Arandr", "Blueman-manager", "Gpick", "Kruler", "Sxiv",
                 "Tor Browser", "Wpa_gui", "veromix", "xtightvncviewer",
-                "QjackCtl", "Autokey", "Emote", "Signal"
+                "QjackCtl", "Autokey", "Emote", "Signal", "colorpicker",
+                "Gnome-calculator"
             },
             -- Note that the name property shown in xprop might be set slightly after creation of the client
             -- and the name shown there might not match defined rules here.
@@ -1001,6 +1002,7 @@ run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")
 run_once("/usr/bin/diodon")
+run_once("emacs --daemon")
 run_once("qjackctl")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440

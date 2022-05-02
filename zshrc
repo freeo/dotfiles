@@ -701,6 +701,7 @@ alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
+alias emx="emacsclient -c -a 'emacs'"
 
 source $HOME/.cargo/env
 # function timer () {
@@ -760,6 +761,28 @@ function enableage () {
   export SOPS_AGE_RECIPIENTS=$(cat ~/secrets/freeo.agekey | rg "public key" | cut -c 15-)
 }
 
+function sync_mba () {
+  if [[ hostname -eq "pop-os" ]]; then
+    SRC=freeo@freeo-mba:/Users/freeo/cloudkoloss
+    TRG=~/
+  elif [[ hostname -eq "freeo-mba" ]]; then
+    SRC=freeo@pop-os:/home/freeo/cloudkoloss
+    TRG=~/
+  rsync -av -e ssh $SRC $TRG
+  fi
+}
+
+# WIP
+function notifyinminutes () {
+  if [[ -z $1 ]]; then
+    echo 'usage: notifyinminutes "message" 5 '
+    echo 'will create a "message" popup via notify-send in 5 minutes'
+  else
+    # echo 'notify-send -t 60000 --icon="/home/freeo/icons/alarm-clock.jpg" "$1"' | at now +$2 minutes
+    echo 'notify-send -t 60000 "$1"' | at now +$2 minutes
+  fi
+}
 
 # PROFILING endpoint:
 # zprof
+

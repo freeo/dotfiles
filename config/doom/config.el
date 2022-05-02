@@ -74,9 +74,10 @@
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
+;; `load-theme' function.
+(setq doom-theme 'kalisi-light)
 ;; (setq doom-theme 'doom-gruvbox-light)
-(setq doom-theme 'doom-opera-light)
+;; (setq doom-theme 'doom-opera-light)
 ;; (setq doom-theme 'doom-solarized-light) ;; underscorce in markdown cmds sometimes UNREADABLE
 ;; (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'flatui) ;; modeline and tabline are too dominant
@@ -166,15 +167,15 @@
 
 ;; (map! :leader "r 1" (cmd! (find-file "~/bmw/wb_bmw.org")))
 (map! :leader
-      :desc "wb_bmw.org"
+      :desc "wb_ck.org"
       "r 1" (cmd! (+workspace/switch-to "main")
-                  (find-file-other-window "~/bmw/wb_bmw.org")
+                  (find-file-other-window "~/cloudkoloss/wb_ck.org")
                   )
 
       :desc "todo.org"
       "r 2" (cmd!
              (+workspace/switch-to "main")
-             (find-file-other-window "~/bmw/todo.org")
+             (find-file-other-window "~/foam-workbench/todo.org")
              )
       :desc ".zshrc"
       "r 3" (cmd!
