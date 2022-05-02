@@ -32,24 +32,37 @@ determine the exact padding."
 (def-doom-theme kalisi-light
   "A light theme in tribute for a queen"
 
+ ;; E9E9E9
+ ;; D0D0D0
+ ;; E0E0E0
+ ;; C0CCD0
+ ;; 9EA6B0
+ ;; 585C6C
+ ;; 4E4E4E
+ ;; 3A3A3A
+ ;; 303030
+ ;; 1E1E33
+ ;; 0F1019
+ ;; 0D0E16
+
 ;;;; Colors
   ;; name        default   256         16
-  ; ((bg         '("#F5F5F9" "color-255" "black"        ))
-  ((bg         '("#FAFAFA" "color-255" "black"        ))
-   (bg-alt     '("#E9E9E9" "color-254" "brightblack"  ))
-   (base0      '("#D0D0D0" "color-188" "black"        ))
-   (base1      '("#E0E0E0" "color-188" "brightblack"  ))
-   (base2      '("#C0CCD0" "color-152" "brightblack"  ))
-   (base3      '("#9EA6B0" "color-103" "brightblack"  ))
-   (base4      '("#585C6C" "color-60"  "brightblack"  ))
-   (base5      '("#4E4E4E" "color-239" "brightblack"  ))
-   (base6      '("#3A3A3A" "color-237" "white"        ))
-   (base7      '("#303030" "color-236" "white"        ))
-   (base8      '("#1E1E33" "color-236" "brightwhite"  ))
-   (fg         '("#0F1019" "color-234" "brightwhite"  ))
-   (fg-alt     '("#0D0E16" "color-233" "brightwhite"  ))
+  ((bg         '("#FFFFFF" "color-255" "black"        ))
+   (bg-alt     '("#eeeeee" "color-254" "brightblack"  ))
+   (base0      '("#fafafa" "color-188" "black"        ))
+   (base1      '("#f5f5f5" "color-188" "brightblack"  ))
+   (base2      '("#eeeeee" "color-152" "brightblack"  ))
+   (base3      '("#e0e0e0" "color-103" "brightblack"  ))
+   (base4      '("#bdbdbd" "color-60"  "brightblack"  ))
+   (base5      '("#9e9e9e" "color-239" "brightblack"  ))
+   (base6      '("#757575" "color-237" "white"        ))
+   (base7      '("#616161" "color-236" "white"        ))
+   (base8      '("#424242" "color-236" "brightwhite"  ))
+   (fg         '("#2a2a2a" "color-234" "brightwhite"  ))
+   (fg-alt     '("#454545" "color-233" "brightwhite"  ))
 
    (black      '("#000000" "color-0"   "black"        ))
+   (white      '("#FFFFFF" "color-255"   "white"        ))
 
    (grey       base5)
    (grey-blue  '("#70a0d0" "color-110"  "brightblack" ))
@@ -76,16 +89,25 @@ determine the exact padding."
    (blue-pale         '("#0070c0" "color-214" "blue"    ))
    (blue-pale-dark    '("#0060a0" "color-24"  "blue"    ))
 
-   (green-pale-bright '("#C9F0C4" "color-70"  "green"   ))
-   (blue-pale-bright  '("#9EA2FF" "color-24"  "blue"    ))
-   (red-pale-bright   '("#FF8787" "color-160" "red"     ))
+   (green-vc-added    '("#93DA1E" "color-70"  "green"   ))
+   (violet-vc-changed '("#8660FF" "color-24"  "blue"    ))
+   (red-vc-deleted    '("#E36C42" "color-160" "red"     ))
+
+   (green-dark        '("#296E00" "color-160" "green"   ))
+   (green-highlight   '("#A7DA1E" "color-160" "green"   ))
+   (green-bg-bright   '("#EAFFB0" "color-160" "green"   ))
+   ;; (green-highlight   '("#B8EA00" "color-160" "green"   ))
+
+   (IncSearch         '("#B8EA00" "color-16" "green"    ))
+   (MatchParen        '("#FFD030" "color-16" "orange"   ))
 
 
 ;;;; face categories -- required for all themes
-   (highlight      teal)
-   (vertical-bar   base0)
-   (selection      bg-blue)
-   (builtin        pink)
+   (highlight      green-highlight)
+   (vertical-bar   base2)
+   ;; (selection      bg-blue)
+   (selection      green-bg-bright)
+   (builtin        dark-blue)
    (comments       (if doom-kalisi-light-brighter-comments pink grey-blue))
    (doc-comments   (doom-darken (if doom-kalisi-light-brighter-comments pink grey-blue) 0.25))
    (constants      blue-intense)
@@ -97,13 +119,15 @@ determine the exact padding."
    (strings        blue-pale-dark)
    (variables      black)
    (numbers        blue-pale)
-   (region         pink)
+   (region         bg-blue)
    (error          red)
    (warning        orange)
    (success        green)
-   (vc-modified    blue-pale-bright)
-   (vc-added       green-pale-bright)
-   (vc-deleted     red-pale-bright)
+   (vc-modified    violet-vc-changed)
+   (vc-added       green-vc-added)
+   (vc-deleted     red-vc-deleted)
+
+
 
    ;; custom categories
    (hidden bg)
@@ -140,12 +164,13 @@ determine the exact padding."
     :background modeline-bg-inactive :foreground modeline-fg-alt
     :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive)))
    (mode-line-emphasis
-    :foreground (if -modeline-dark base8 highlight))
+    ;; :foreground (if -modeline-dark base8 highlight))
+    :foreground (if -modeline-dark base8 green))
 
    ;;;; elscreen
    (elscreen-tab-other-screen-face :background bg-blue :foreground fg-alt)
    ;;;; doom-modeline
-   (doom-modeline-bar :background (if -modeline-dark modeline-bg highlight))
+   (doom-modeline-bar :background (if -modeline-dark modeline-bg base5))
    (doom-modeline-buffer-file :inherit 'mode-line-buffer-id :weight 'bold)
    (doom-modeline-buffer-path :inherit 'mode-line-emphasis :weight 'bold)
    (doom-modeline-buffer-project-root :foreground green :weight 'bold)
@@ -256,7 +281,26 @@ determine the exact padding."
    (treemacs-root-face :foreground strings :weight 'bold :height 1.2)
    ;;;; whitespace <built-in>
    (whitespace-indentation :inherit 'default)
-   (whitespace-big-indent :inherit 'default))
+   (whitespace-big-indent :inherit 'default)
+
+   ;; (lsp-lens-mouse-face :foreground red)
+   ;; (lsp-face-highlight-textual :foreground pink)
+   ;; (lsp-ui-doc-url :foreground pink)
+   ;; (lsp-ui-sideline-code-action :foreground pink)
+   (link :foreground green-dark :underline t)
+
+   ;; modeline search counter: e.g. 1 of 4: 1/4
+  (doom-modeline-panel :foreground black :background base2)
+  (evil-ex-search :foreground black :background IncSearch)
+  (evil-ex-lazy-highlight :foreground black :background green-bg-bright)
+  (helm-match :foreground black :background green-bg-bright)
+  (helm-selection :foreground black :background bg)
+  (helm-M-x-key :foreground blue-pale-dark :underline t)
+  (show-paren-match :foreground white :background MatchParen)
+
+
+   )
+
 
   ;;;; Base theme variable overrides-
   ;; ()
