@@ -762,13 +762,11 @@ function enableage () {
 }
 
 function sync_mba () {
-  if [[ hostname -eq "pop-os" ]]; then
-    SRC=freeo@freeo-mba:/Users/freeo/cloudkoloss
-    TRG=~/
-  elif [[ hostname -eq "freeo-mba" ]]; then
-    SRC=freeo@pop-os:/home/freeo/cloudkoloss
-    TRG=~/
-  rsync -av -e ssh $SRC $TRG
+  HOSTNAME=$(hostname)
+  if [[ $HOSTNAME == "pop-os" ]]; then
+    osync.sh ~/.config/osync/popos-to-mba.conf
+  elif [[ $HOSTNAME == freeo-mba* ]]; then
+    osync.sh ~/.config/osync/mba-to-popos.conf
   fi
 }
 
