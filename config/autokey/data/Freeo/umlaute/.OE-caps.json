@@ -1,11 +1,11 @@
 {
     "type": "script",
-    "description": "AE",
+    "description": "OE-caps",
     "store": {},
     "modes": [
         3
     ],
-    "usageCount": 12,
+    "usageCount": 15,
     "prompt": false,
     "omitTrigger": false,
     "showInTrayMenu": false,
@@ -22,7 +22,7 @@
             "<alt>",
             "<shift>"
         ],
-        "hotKey": "'"
+        "hotKey": ";"
     },
     "filter": {
         "regex": null,
