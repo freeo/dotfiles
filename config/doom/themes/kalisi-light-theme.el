@@ -324,6 +324,7 @@ determine the exact padding."
   (ansi-color-bright-white :foreground grey :background base4)
   (ansi-color-white :foreground base8 :background base4)
 
+  (whitespace-empty :background bg)
 
 
   (highlight-indent-guides-character-face :foreground pink :background bg)

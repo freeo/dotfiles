@@ -25,7 +25,7 @@
 ;; (setq doom-font (font-spec :family "Cousine Nerd Font Mono" :size
 
 (after! so-long
-  (setq so-long-threshold 1000))
+  (setq so-long-threshold 10000))
 
 (setq undo-limit 80000000                         ; Raise undo-limit to 80Mb
       evil-want-fine-undo t                       ; By default while in insert all changes are one big blob. Be more granular
@@ -43,9 +43,9 @@
 (setq +word-wrap-extra-indent 2)
 
 ;; (use-package! mixed-pitch
-  ;; :hook
-  ;; If you want it in all text modes:
-  ;; (text-mode . mixed-pitch-mode))
+;; :hook
+;; If you want it in all text modes:
+;; (text-mode . mixed-pitch-mode))
 
 ;; (setq doom-font (font-spec :family "GoMono Nerd Font Mono" :size 16 )
 ;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16)
@@ -55,8 +55,8 @@
 ;;       doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
 ;;       ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
 (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
-;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
-;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
+      ;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
+      ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
       ;; mixed-pitch-face (font-spec :family "Lexend Exa" :size 16 :weight 'light )
       ;; doom-variable-pitch-font (font-spec :family "Noto Serif" :size 16 :weight 'extra-bold)
@@ -71,6 +71,8 @@
 
 ;; (push "/home/freeo/.config/doom/theme-source/" custom-theme-load-path )
 
+
+(setq-default tab-width 2)
 
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
@@ -116,55 +118,64 @@
 ;; disable quitting prompt y/n
 (setq confirm-kill-emacs nil)
 
+;; yasnippet
+(yas-global-mode 1)
+
+
 (map! :leader
 
-       :desc "kill buffer" "k" #'kill-current-buffer
-       :desc "insert date header" "t" #'insert-current-date
-       :desc "zoxide travel" "z" #'zoxide-travel
+      :desc "kill buffer" "k" #'kill-current-buffer
+      :desc "zoxide travel" "z" #'zoxide-travel
 
-        (:prefix-map ("o" . "open")
+      (:prefix-map ("o" . "open")
        :desc "vterm at path of current file" "t" #'vterm
        :desc "vterm here current frame" "o" #'+vterm/here
        :desc "vterm toggle" "T" #'+vterm/toggle
        )
-       (:prefix-map ("TAB" . "workspace")
+      (:prefix-map ("TAB" . "workspace")
        :desc "kill workspace, consistent binding" "k" #'+workspace/delete
        :desc "kill workspace, consistent binding" "h" #'+workspace/switch-left
        :desc "kill workspace, consistent binding" "l" #'+workspace/switch-right
        ;; :desc "kill workspace, consistent binding" "l" #'+workspace/load ;; default for "l"
        )
-        (:prefix-map ("s" . "search")
+      (:prefix-map ("s" . "search")
        :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
        :desc "search current PWD" "c" #'helm-rg
        )
 
-       (:prefix-map ("b" . "buffer")
+      (:prefix-map ("b" . "buffer")
        :desc "Harpoon add file" "h" 'harpoon-add-file
        )
-)
+
+      (:prefix-map ("t" . "toggles")
+       ;; :desc "insert date header" "t" #'insert-current-date
+       :desc "Line Numbers" "l" 'doom/toggle-line-numbers
+       )
+
+      )
 
 
 ;; And the vanilla commands
-(map! :leader
-      (:prefix-map ("j" . "harpoon")
-       "c" 'harpoon-clear
-       "f" 'harpoon-toggle-file
-       )
-      "1" 'harpoon-go-to-1
-      "2" 'harpoon-go-to-2
-      "3" 'harpoon-go-to-3
-      "4" 'harpoon-go-to-4
-      "5" 'harpoon-go-to-5
-      "6" 'harpoon-go-to-6
-      "7" 'harpoon-go-to-7
-      "8" 'harpoon-go-to-8
-      "9" 'harpoon-go-to-9
-      )
+      (map! :leader
+            (:prefix-map ("j" . "harpoon")
+             "c" 'harpoon-clear
+             "f" 'harpoon-toggle-file
+             )
+            "1" 'harpoon-go-to-1
+            "2" 'harpoon-go-to-2
+            "3" 'harpoon-go-to-3
+            "4" 'harpoon-go-to-4
+            "5" 'harpoon-go-to-5
+            "6" 'harpoon-go-to-6
+            "7" 'harpoon-go-to-7
+            "8" 'harpoon-go-to-8
+            "9" 'harpoon-go-to-9
+            )
 
 ;; (defun global-hot-bookmark(workspace, filename)
-  ;; (+workspace/switch-to workspace)
-                  ;; (find-file-other-window "~/bmw/wb_bmw.org")
-                  ;; )
+;; (+workspace/switch-to workspace)
+;; (find-file-other-window "~/bmw/wb_bmw.org")
+;; )
 
 ;; (map! :leader "r 1" (cmd! (find-file "~/bmw/wb_bmw.org")))
 (map! :leader
@@ -192,6 +203,12 @@
       "r 5" (cmd!
              (+workspace/switch-to "dotfiles")
              (find-file-other-window "~/dotfiles/config/awesome/rc4.3-git.lua")
+             )
+
+      :desc "kalisi"
+      "r 6" (cmd!
+             (+workspace/switch-to "dotfiles")
+             (find-file-other-window "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
              )
       )
 
@@ -236,7 +253,7 @@
 
 
 ;; (setq foreground vterm-color-red)
-;
+                                        ;
 
 ;; evilnc-comment-operator (start end type))
 ;; (map! :C-t)
@@ -254,15 +271,15 @@
 ;; conditions (after! :after) but I didn't realize until later, that
 ;; evil-org-mode-map exists
 (map! :map evil-org-mode-map
-        :n "C-S-h" #'+workspace/switch-left
-        :n "C-S-l" #'+workspace/switch-right
-        :n "C-S-<return>"   #'new-vterm-s-split
-)
+      :n "C-S-h" #'+workspace/switch-left
+      :n "C-S-l" #'+workspace/switch-right
+      :n "C-S-<return>"   #'new-vterm-s-split
+      )
 
 ;; previous map alone doesn't override the default mapping unfortunately.
 (map! :map org-mode-map
-        "C-S-<return>"   #'new-vterm-s-split
-)
+      "C-S-<return>"   #'new-vterm-s-split
+      )
 
 ;; evil-org-mode-map <insert-state> C-S-<return>
 ;; evil-org-mode-map <normal-state> C-S-<return>
@@ -329,17 +346,17 @@ helm-ff-fuzzy-matching t
 
 
 (setq helm-apropos-fuzzy-match t
-    helm-bookmark-show-location t
-    helm-buffers-fuzzy-matching t
-    helm-ff-fuzzy-matching t
-    helm-file-cache-fuzzy-match t
-    helm-flx-for-helm-locate t
-    helm-imenu-fuzzy-match t
-    helm-lisp-fuzzy-completion t
-    helm-locate-fuzzy-match t
-    helm-projectile-fuzzy-match t
-    helm-recentf-fuzzy-match t
-    helm-semantic-fuzzy-match t)
+      helm-bookmark-show-location t
+      helm-buffers-fuzzy-matching t
+      helm-ff-fuzzy-matching t
+      helm-file-cache-fuzzy-match t
+      helm-flx-for-helm-locate t
+      helm-imenu-fuzzy-match t
+      helm-lisp-fuzzy-completion t
+      helm-locate-fuzzy-match t
+      helm-projectile-fuzzy-match t
+      helm-recentf-fuzzy-match t
+      helm-semantic-fuzzy-match t)
 
 (setq evil-insert-state-cursor '(bar "#ff0000")
       evil-visual-state-cursor '(box "#0033aa")
@@ -348,7 +365,7 @@ helm-ff-fuzzy-matching t
 (use-package vterm
   :config
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-)
+  )
 
 
 ;; evil-normal-state-map C-t
@@ -418,7 +435,7 @@ helm-ff-fuzzy-matching t
 
 
 (setq fancy-splash-image
-        (expand-file-name "freeo_clean.png" doom-private-dir))
+      (expand-file-name "freeo_clean.png" doom-private-dir))
 
 
 ;; Go LSP
@@ -493,22 +510,23 @@ helm-ff-fuzzy-matching t
 (setq k8s-site-docs-version "v1.3")
 ;; The browser funtion to browse the docs site. Default is `browse-url-browser-function`
 ;; (setq k8s-search-documentation-browser-function nil)
-; Should be a X11 browser
+                                        ; Should be a X11 browser
 (setq k8s-search-documentation-browser-function (quote browse-url-firefox))
 
 
-; Lua LSP
-;
+                                        ; Lua LSP
+                                        ;
 ;; (add-hook 'lua-mode-hook #'lsp) ; old
 (add-hook 'lua-local-vars-hook #'lsp!) ; from newest doom docshares
 
-(defun insert-current-date () (interactive)
-  (setq today (shell-command-to-string "echo -n $(date '+%m%d %A')"))
-  (insert (format "* %-15s *** *** *** *** *** ***" today)))
+;; moved to yasnippets (in org-mode folder)
+;; (defun insert-current-date () (interactive)
+;;        (setq today (shell-command-to-string "echo -n $(date '+%m%d %A')"))
+;;        (insert (format "* %-15s *** *** *** *** *** ***" today)))
 
 ;; (format "%-8s #############" "Wednesday")
 
-; magit ediff default instead of underneath diff
+                                        ; magit ediff default instead of underneath diff
 (setq magit-ediff-dwim-show-on-hunks t)
 
 ;; https://www.dschapman.com/notes/33f4867d-dbe9-4c4d-8b0a-d28ad6376128
@@ -532,7 +550,7 @@ helm-ff-fuzzy-matching t
   (evil-window-split) (evil-window-down 1) (+vterm/here nil))
 
 ;; (use-package impatient-showdown
-  ;; :hook (markdown-mode . impatient-showdown-mode))
+;; :hook (markdown-mode . impatient-showdown-mode))
 
 (defcustom impatient-showdown-markdown-background-color "#fafafa"
   "For display markdown background color."
@@ -555,6 +573,9 @@ helm-ff-fuzzy-matching t
   (interactive)
   (find-file "/sshx:freeo@pop-os.local:/home/freeo/"))
 
+(defun kalisi-reload ()
+  (interactive)
+  (load-theme 'kalisi-light))
 
 (use-package! kubernetes
   :commands (kubernetes-overview)
@@ -578,3 +599,25 @@ helm-ff-fuzzy-matching t
   (fringe-mode '12))
 ;; for the future: entrypoint for increasing git fringe bitmaps:
 ;; https://github.com/hlissner/doom-emacs/issues/2246
+
+;; Autoformatting async after save
+;; https://github.com/radian-software/apheleia
+(apheleia-global-mode +1)
+
+(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+;; careful: enforces 4 spaces! bites itself a little with my default: tab-width 2
+(add-hook 'json-mode-hook #'aggressive-indent-mode)
+
+(add-hook 'yas-minor-mode-hook
+          (lambda()
+            (yas-activate-extra-mode 'fundamental-mode)))
+
+(defun json2yaml ()
+  (interactive)
+  (shell-command
+   (concat "yq -P -i " buffer-file-name)))
+
+(defun yaml2json ()
+  (interactive)
+  (shell-command
+   (concat "yq -o=json -i " buffer-file-name)))

@@ -74,3 +74,6 @@
 (package! harpoon)
 
 (package! autothemer)
+
+(package! apheleia)
+(package! aggressive-indent)
