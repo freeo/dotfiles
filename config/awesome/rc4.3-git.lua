@@ -140,24 +140,42 @@ tag.connect_signal("request::default_layouts", function()
 end)
 -- }}}
 
+
+function run_once(prg,arg_string,pname,screen)
+    if not prg then
+        do return nil end
+    end
+    if not pname then
+        pname = prg
+    end
+    if not arg_string then
+        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. ")")
+    else
+        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. " " .. arg_string .. ")")
+    end
+end
+
+
 -- {{{ Wallpaper
 -- @DOC_WALLPAPER@
 screen.connect_signal("request::wallpaper", function(s)
-    awful.wallpaper {
-        screen = s,
-        widget = {
-            {
-                image     = beautiful.wallpaper,
-                upscale   = true,
-                downscale = true,
-                widget    = wibox.widget.imagebox,
-            },
-            valign = "center",
-            halign = "center",
-            tiled  = false,
-            widget = wibox.container.tile,
-        }
-    }
+
+    run_once("nitrogen","--restore &")
+    -- awful.wallpaper {
+    --     screen = s,
+    --     widget = {
+    --         {
+    --             image     = beautiful.wallpaper,
+    --             upscale   = true,
+    --             downscale = true,
+    --             widget    = wibox.widget.imagebox,
+    --         },
+    --         valign = "center",
+    --         halign = "center",
+    --         tiled  = false,
+    --         widget = wibox.container.tile,
+    --     }
+    -- }
 end)
 -- }}}
 
@@ -932,19 +950,6 @@ end)
 -- Autostart
 
 -- https://www.reddit.com/r/awesomewm/comments/k3wkb2/how_can_i_stop_extra_startup_background_programs/
-function run_once(prg,arg_string,pname,screen)
-    if not prg then
-        do return nil end
-    end
-    if not pname then
-        pname = prg
-    end
-    if not arg_string then
-        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. ")")
-    else
-        awful.spawn.with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. " " .. arg_string .. ")")
-    end
-end
 
 -- pgrep -f -x "/usr/bin/python3 /usr/bin/redshift-gtk"
 -- if [[ $(pactl get-source-mute 7) = "Mute: no" ]]; then echo "muted"; fi

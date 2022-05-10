@@ -1,6 +1,10 @@
 ;;; doom-kalisi-light-theme.el --- Kalisi light theme -*- lexical-binding: t; no-byte-compile: t; -*-
 (require 'doom-themes)
 
+;; Dev Instructions:
+;; Full list of all used faces (highlight groups)
+;; M-x list-faces-display
+
 ;;; Variables
 (defgroup doom-kalisi-light-theme nil
   "Options for the `doom-kalisi-light' theme."
@@ -297,8 +301,32 @@ determine the exact padding."
   (helm-selection :foreground black :background bg)
   (helm-M-x-key :foreground blue-pale-dark :underline t)
   (show-paren-match :foreground white :background MatchParen)
+  (vertical-border :foreground base4 )
+  (centaur-tabs-default :foreground base6)
+  (tab-bar :foreground base6)
+
+  (vterm               :foreground fg)
+  (vterm-color-black   :foreground black   :background black)
+  (vterm-color-red     :background red     :foreground red)
+  (vterm-color-green   :background green   :foreground green)
+  (vterm-color-yellow  :background yellow  :foreground yellow)
+  (vterm-color-blue    :background blue    :foreground blue)
+  (vterm-color-magenta :background magenta :foreground magenta)
+  (vterm-color-cyan    :background cyan    :foreground cyan)
+  (vterm-color-white   :foreground grey    :background grey)
 
 
+;; ansi-color-names-vector is a variable defined in ansi-color.el.gz.
+;; ["#FFFFFF" "#D80000" "#66b600" "#AF8700" "#1177dd" "#AE01E2" "#007687" "#2a2a2a"]
+
+  (term-color-black :foreground black :background base6)
+  (term-color-bright-white :foreground grey :background base4)
+  (ansi-color-bright-white :foreground grey :background base4)
+  (ansi-color-white :foreground base8 :background base4)
+
+
+
+  (highlight-indent-guides-character-face :foreground pink :background bg)
    )
 
 
