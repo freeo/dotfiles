@@ -156,61 +156,22 @@
 
 
 ;; And the vanilla commands
-      (map! :leader
-            (:prefix-map ("j" . "harpoon")
-             "c" 'harpoon-clear
-             "f" 'harpoon-toggle-file
-             )
-            "1" 'harpoon-go-to-1
-            "2" 'harpoon-go-to-2
-            "3" 'harpoon-go-to-3
-            "4" 'harpoon-go-to-4
-            "5" 'harpoon-go-to-5
-            "6" 'harpoon-go-to-6
-            "7" 'harpoon-go-to-7
-            "8" 'harpoon-go-to-8
-            "9" 'harpoon-go-to-9
-            )
-
-;; (defun global-hot-bookmark(workspace, filename)
-;; (+workspace/switch-to workspace)
-;; (find-file-other-window "~/bmw/wb_bmw.org")
-;; )
-
-;; (map! :leader "r 1" (cmd! (find-file "~/bmw/wb_bmw.org")))
 (map! :leader
-      :desc "wb_ck.org"
-      "r 1" (cmd! (+workspace/switch-to "main")
-                  (find-file-other-window "~/cloudkoloss/wb_ck.org")
-                  )
-
-      :desc "todo.org"
-      "r 2" (cmd!
-             (+workspace/switch-to "main")
-             (find-file-other-window "~/foam-workbench/todo.org")
-             )
-      :desc ".zshrc"
-      "r 3" (cmd!
-             (+workspace/switch-to "dotfiles")
-             (find-file-other-window "~/dotfiles/zshrc")
-             )
-      :desc "config DOOM"
-      "r 4" (cmd!
-             (+workspace/switch-to "dotfiles")
-             (find-file-other-window "~/dotfiles/config/doom/config.el")
-             )
-      :desc "awesome.rc"
-      "r 5" (cmd!
-             (+workspace/switch-to "dotfiles")
-             (find-file-other-window "~/dotfiles/config/awesome/rc4.3-git.lua")
-             )
-
-      :desc "kalisi"
-      "r 6" (cmd!
-             (+workspace/switch-to "dotfiles")
-             (find-file-other-window "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
-             )
+      (:prefix-map ("j" . "harpoon")
+       "c" 'harpoon-clear
+       "f" 'harpoon-toggle-file
+       )
+      "1" 'harpoon-go-to-1
+      "2" 'harpoon-go-to-2
+      "3" 'harpoon-go-to-3
+      "4" 'harpoon-go-to-4
+      "5" 'harpoon-go-to-5
+      "6" 'harpoon-go-to-6
+      "7" 'harpoon-go-to-7
+      "8" 'harpoon-go-to-8
+      "9" 'harpoon-go-to-9
       )
+
 
 
 ;; (map! :n "C-t"   #'evilnc-comment-operator)
@@ -244,6 +205,79 @@
       :n "g q" #'+format:region     ;; swap gQ with gq
       :n "g Q" #'evil-fill-and-move
       )
+
+
+(defun global-hot-bookmark (workspace filename)
+  ;; (message workspace filename)
+  (+workspace/switch-to workspace)
+;; (with-current-buffer
+        ;; (message current-buffer)
+  ;; (if (string= buffer-file-name (expand-file-name filename)) (message "is equal")
+  ;;       (message "not equal")
+      ;; (find-file-other-window filename)
+      (find-file filename)
+      ;; ( filename)
+      ;; )
+  )
+
+;; (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")
+;; (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
+;; (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")
+
+;; (projectile-switch-project-by-name "~/cloudkoloss/")
+;; (projectile-switch-project-by-name "~/cloudkoloss/cksk_sveltekit/")
+;; (projectile-switch-project
+
+(map! :leader "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")))
+(map! :leader "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")))
+(map! :leader "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc")))
+(map! :leader "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el")))
+(map! :leader "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua")))
+(map! :leader "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
+
+
+
+;; (map! :leader "r 1" (cmd! (find-file "~/cloudkoloss/wb_ck.org")))
+;; (map! :leader "r 2" (cmd! (find-file "~/foam-workbench/todo.org")))
+;; (map! :leader "r 3" (cmd! (find-file "~/dotfiles/zshrc")))
+;; (map! :leader "r 4" (cmd! (find-file "~/dotfiles/config/doom/config.el")))
+;; (map! :leader "r 5" (cmd! (find-file "~/dotfiles/config/awesome/rc4.3-git.lua")))
+;; (map! :leader "r 6" (cmd! (find-file "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
+
+;; (map! :leader
+;;       :desc "wb_ck.org"
+;;       "r 1" (cmd! (+workspace/switch-to "main")
+;;                   (find-file-other-window "~/cloudkoloss/wb_ck.org")
+;;                   )
+
+;;       :desc "todo.org"
+;;       "r 2" (cmd!
+;;              (+workspace/switch-to "main")
+;;              (find-file-other-window "~/foam-workbench/todo.org")
+;;              )
+;;       :desc ".zshrc"
+;;       "r 3" (cmd!
+;;              (+workspace/switch-to "dotfiles")
+;;              (find-file-other-window "~/dotfiles/zshrc")
+;;              )
+;;       :desc "config DOOM"
+;;       "r 4" (cmd!
+;;              (+workspace/switch-to "dotfiles")
+;;              (find-file-other-window "~/dotfiles/config/doom/config.el")
+;;              )
+;;       :desc "awesome.rc"
+;;       "r 5" (cmd!
+;;              (+workspace/switch-to "dotfiles")
+;;              (find-file-other-window "~/dotfiles/config/awesome/rc4.3-git.lua")
+;;              )
+
+;;       :desc "kalisi"
+;;       "r 6" (cmd!
+;;              (+workspace/switch-to "dotfiles")
+;;              (find-file-other-window "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
+;;              )
+;;       )
+
 
 ;; (projectile-switch-project-by-name "/home/freeo/bmwcode/")
 ;; (projectile-switch-project-by-name "~/bmwcode/")
