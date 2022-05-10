@@ -1,0 +1,4 @@
+# key: t/
+# name: today_tag
+# --
+`(format "* %-15s *** *** *** *** *** ***" (shell-command-to-string "echo -n $(date '+%m%d %A')"))`
