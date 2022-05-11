@@ -77,3 +77,4 @@
 
 (package! apheleia)
 (package! aggressive-indent)
+(package! company-tabnine)

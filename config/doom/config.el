@@ -207,17 +207,33 @@
       )
 
 
+;; (defun global-hot-bookmark (workspace filename)
+;;   (+workspace/switch-to workspace)
+;;   ;; (message buffer-file-name (car (+workspace-buffer-list)))
+;;   (message "%s %s" (car (+workspace-buffer-list)) (cdr (+workspace-buffer-list)))
+;;   ;; (message "%s" (format "%s" +workspace-buffer-list))
+;;   )
+;;
+
+;; (with-current-buffer
+;; (message buffer-file-name (window-buffer))
+;; (message buffer-file-name)
+;; (message buffer-file-name (car (+workspace-buffer-list)))
+;; (message current-buffer)
+;;
+
 (defun global-hot-bookmark (workspace filename)
   ;; (message workspace filename)
+  ;; (with-current-buffer (window-buffer)
   (+workspace/switch-to workspace)
-;; (with-current-buffer
-        ;; (message current-buffer)
-  ;; (if (string= buffer-file-name (expand-file-name filename)) (message "is equal")
-  ;;       (message "not equal")
-      ;; (find-file-other-window filename)
-      (find-file filename)
-      ;; ( filename)
-      ;; )
+  (run-with-timer 0 nil (lambda (filename)
+                          (if (string= buffer-file-name (expand-file-name filename)) ()
+                            ;; (message "not equal")
+                            (find-file-other-window filename)
+                            ;; (find-file filename)
+                            )
+                          ) filename
+                            )
   )
 
 ;; (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")
@@ -228,13 +244,21 @@
 ;; (projectile-switch-project-by-name "~/cloudkoloss/cksk_sveltekit/")
 ;; (projectile-switch-project
 
-(map! :leader "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")))
-(map! :leader "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")))
-(map! :leader "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc")))
-(map! :leader "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el")))
-(map! :leader "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua")))
-(map! :leader "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
+;; (map! :leader "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")))
+;; (map! :leader "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")))
+;; (map! :leader "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el")))
+;; (map! :leader "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc")))
+;; (map! :leader "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua")))
+;; (map! :leader "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
 
+(map! :leader
+      :desc "wb_ck.org"       "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org"))
+      :desc "todo.org"        "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org"))
+      :desc "doom config.el"  "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
+      :desc ".zshrc"          "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
+      :desc "awesome.rc"      "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
+      :desc "kalisi.el"       "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el"))
+      )
 
 
 ;; (map! :leader "r 1" (cmd! (find-file "~/cloudkoloss/wb_ck.org")))
@@ -655,3 +679,11 @@ helm-ff-fuzzy-matching t
   (interactive)
   (shell-command
    (concat "yq -o=json -i " buffer-file-name)))
+
+;; https://github.com/TommyX12/company-tabnine
+(use-package company-tabnine :ensure t)
+(add-to-list 'company-backends #'company-tabnine)
+;; Trigger completion immediately.
+(setq company-idle-delay 0)
+;; Number the candidates (use M-1, M-2 etc to select completions).
+(setq company-show-numbers t)
