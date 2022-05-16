@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: EuroSymbol
+# key: EUR
+# condition: t
+# --
+€
