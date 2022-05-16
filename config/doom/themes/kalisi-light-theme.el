@@ -36,18 +36,18 @@ determine the exact padding."
 (def-doom-theme kalisi-light
   "A light theme in tribute for a queen"
 
- ;; E9E9E9
- ;; D0D0D0
- ;; E0E0E0
- ;; C0CCD0
- ;; 9EA6B0
- ;; 585C6C
- ;; 4E4E4E
- ;; 3A3A3A
- ;; 303030
- ;; 1E1E33
- ;; 0F1019
- ;; 0D0E16
+  ;; E9E9E9
+  ;; D0D0D0
+  ;; E0E0E0
+  ;; C0CCD0
+  ;; 9EA6B0
+  ;; 585C6C
+  ;; 4E4E4E
+  ;; 3A3A3A
+  ;; 303030
+  ;; 1E1E33
+  ;; 0F1019
+  ;; 0D0E16
 
 ;;;; Colors
   ;; name        default   256         16
@@ -85,6 +85,7 @@ determine the exact padding."
    (pink       '("#FF00AA" "color-91"  "brightmagenta"))
 
    (bg-blue    '("#d0eeff" "color-153"   "blue"         ))
+   (blue-dark  '("#274aac" "color-25"    "blue"         ))
    (dark-blue  '("#274aac" "color-25"    "blue"         ))
    (bg-cyan    '("#D5FAFF" "color-195"   "cyan"         ))
    (dark-cyan  bg-cyan)
@@ -107,18 +108,19 @@ determine the exact padding."
 
 
 ;;;; face categories -- required for all themes
+   ;; (highlight      red)
    (highlight      green-highlight)
    (vertical-bar   base2)
    ;; (selection      bg-blue)
    (selection      green-bg-bright)
-   (builtin        dark-blue)
+   (builtin        blue-dark)
    (comments       (if doom-kalisi-light-brighter-comments pink grey-blue))
    (doc-comments   (doom-darken (if doom-kalisi-light-brighter-comments pink grey-blue) 0.25))
    (constants      blue-intense)
    (functions      blue)
    (keywords       green)
    (methods        blue)
-   (operators      dark-blue)
+   (operators      blue-dark)
    (type           magenta)
    (strings        blue-pale-dark)
    (variables      black)
@@ -157,7 +159,7 @@ determine the exact padding."
 
   ;;;; Base theme face overrides
   (((font-lock-comment-face &override)
-    :slant 'italic
+    ;; :slant 'italic
     :background (if doom-kalisi-light-comment-bg (doom-darken bg 0.05)))
    ((line-number &override) :foreground base4)
    ((line-number-current-line &override) :foreground orange)
@@ -269,7 +271,7 @@ determine the exact padding."
    ((markdown-code-face &override) :background (doom-lighten base3 0.05))
    ;;;; org <built-in>
    ((org-block &override) :background bg-alt)
-   ((org-block-begin-line &override) :background bg :slant 'italic)
+   ((org-block-begin-line &override) :background bg )
    ((org-quote &override) :background base1)
    (org-hide :foreground hidden)
    ;;;; solaire-mode
@@ -291,43 +293,44 @@ determine the exact padding."
    ;; (lsp-face-highlight-textual :foreground pink)
    ;; (lsp-ui-doc-url :foreground pink)
    ;; (lsp-ui-sideline-code-action :foreground pink)
-   (link :foreground green-dark :underline t)
+   (link :foreground blue-dark :underline t)
+   (org-link :foreground blue-dark :underline t)
 
    ;; modeline search counter: e.g. 1 of 4: 1/4
-  (doom-modeline-panel :foreground black :background base2)
-  (evil-ex-search :foreground black :background IncSearch)
-  (evil-ex-lazy-highlight :foreground black :background green-bg-bright)
-  (helm-match :foreground black :background green-bg-bright)
-  (helm-selection :foreground black :background bg)
-  (helm-M-x-key :foreground blue-pale-dark :underline t)
-  (show-paren-match :foreground white :background MatchParen)
-  (vertical-border :foreground base4 )
-  (centaur-tabs-default :foreground base6)
-  (tab-bar :foreground base6)
+   (doom-modeline-panel :foreground black :background base2)
+   (evil-ex-search :foreground black :background IncSearch)
+   (evil-ex-lazy-highlight :foreground black :background green-bg-bright)
+   (helm-match :foreground black :background green-bg-bright)
+   (helm-selection :foreground black :background bg)
+   (helm-M-x-key :foreground blue-pale-dark :underline t)
+   (show-paren-match :foreground white :background MatchParen)
+   (vertical-border :foreground base4 )
+   (centaur-tabs-default :foreground base6)
+   (tab-bar :foreground base6)
 
-  (vterm               :foreground fg)
-  (vterm-color-black   :foreground black   :background black)
-  (vterm-color-red     :background red     :foreground red)
-  (vterm-color-green   :background green   :foreground green)
-  (vterm-color-yellow  :background yellow  :foreground yellow)
-  (vterm-color-blue    :background blue    :foreground blue)
-  (vterm-color-magenta :background magenta :foreground magenta)
-  (vterm-color-cyan    :background cyan    :foreground cyan)
-  (vterm-color-white   :foreground grey    :background grey)
-
-
-;; ansi-color-names-vector is a variable defined in ansi-color.el.gz.
-;; ["#FFFFFF" "#D80000" "#66b600" "#AF8700" "#1177dd" "#AE01E2" "#007687" "#2a2a2a"]
-
-  (term-color-black :foreground black :background base6)
-  (term-color-bright-white :foreground grey :background base4)
-  (ansi-color-bright-white :foreground grey :background base4)
-  (ansi-color-white :foreground base8 :background base4)
-
-  (whitespace-empty :background bg)
+   (vterm               :foreground fg)
+   (vterm-color-black   :foreground black   :background black)
+   (vterm-color-red     :background red     :foreground red)
+   (vterm-color-green   :background green   :foreground green)
+   (vterm-color-yellow  :background yellow  :foreground yellow)
+   (vterm-color-blue    :background blue    :foreground blue)
+   (vterm-color-magenta :background magenta :foreground magenta)
+   (vterm-color-cyan    :background cyan    :foreground cyan)
+   (vterm-color-white   :foreground grey    :background grey)
 
 
-  (highlight-indent-guides-character-face :foreground pink :background bg)
+   ;; ansi-color-names-vector is a variable defined in ansi-color.el.gz.
+   ;; ["#FFFFFF" "#D80000" "#66b600" "#AF8700" "#1177dd" "#AE01E2" "#007687" "#2a2a2a"]
+
+   (term-color-black :foreground black :background base6)
+   (term-color-bright-white :foreground grey :background base4)
+   (ansi-color-bright-white :foreground grey :background base4)
+   (ansi-color-white :foreground base8 :background base4)
+
+   (whitespace-empty :background bg)
+
+
+   (highlight-indent-guides-character-face :foreground pink :background bg)
    )
 
 

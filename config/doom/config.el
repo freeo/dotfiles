@@ -42,32 +42,38 @@
 (+global-word-wrap-mode +1)
 (setq +word-wrap-extra-indent 2)
 
-;; (use-package! mixed-pitch
-;; :hook
-;; If you want it in all text modes:
-;; (text-mode . mixed-pitch-mode))
+;; (use-package! mixed-pitch)
+;;
+(use-package! mixed-pitch
+  :hook
+  If you want it in all text modes:
+  (text-mode . mixed-pitch-mode))
 
 ;; (setq doom-font (font-spec :family "GoMono Nerd Font Mono" :size 16 )
 ;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16)
-;;       ;; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC Semibold" :size 16)
 ;;       ;; doom-variable-pitch-font (font-spec :family "Ubuntu" :size 16)
 ;;       doom-unicode-font (font-spec :family "GoMono Nerd Font Mono" :size 16)
 ;;       doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
 ;;       ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
-(setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16 )
+      ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
       ;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
-      doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
-      ;; mixed-pitch-face (font-spec :family "Lexend Exa" :size 16 :weight 'light )
-      ;; doom-variable-pitch-font (font-spec :family "Noto Serif" :size 16 :weight 'extra-bold)
-      doom-unicode-font (font-spec :family "FiraCode Nerd Font Mono" :size 16)
-      doom-big-font (font-spec :family "FiraCode Nerd Font Mono" :size 20 ))
+      doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :weight 'light )
+      ;; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
+      ;; Noto Serif CJK SC Semibold :weight 'light
+      ;; mixed-pitch-face (font-spec :family "Lexend" :size 16 :weight 'light )
+      doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
+      doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 20 :weight 'bold))
 ;; (setq doom-font (font-spec :family "Cousine Nerd Font Mono" :size 16 )
-;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :style "ExtraLight" )
-;;       doom-unicode-font (font-spec :family "Cousine Nerd Font Mono" :size 16)
-;;       doom-big-font (font-spec :family "Cousine Nerd Font Mono" :size 20 ))
 
-
+                                        ; (use-package font-lock
+                                        ;   :defer t
+                                        ;   :custom-face
+                                        ;   (font-lock-comment-face ((t (:inherit font-lock-comment-face :italic nil))))
+                                        ;   ;; (font-lock-doc-face ((t (:inherit font-lock-doc-face :italic t))))
+                                        ;   ;; (font-lock-string-face ((t (:inherit font-lock-string-face :italic t))))
+                                        ;   )
 
 ;; (push "/home/freeo/.config/doom/theme-source/" custom-theme-load-path )
 
@@ -122,6 +128,23 @@
 (yas-global-mode 1)
 
 
+(defun global-hot-bookmark (workspace filename)
+  ;; (message workspace filename)
+  ;; (with-current-buffer (window-buffer)
+  (+workspace/switch-to workspace)
+  (run-with-timer 0 nil (lambda (filename)
+                          (if (string= buffer-file-name (expand-file-name filename)) ()
+                            ;; (message "not equal")
+                            (find-file-other-window filename)
+                            ;; (find-file filename)
+                            )
+                          ) filename
+                            )
+  )
+
+
+
+
 (map! :leader
 
       :desc "kill buffer" "k" #'kill-current-buffer
@@ -152,6 +175,15 @@
        :desc "Line Numbers" "l" 'doom/toggle-line-numbers
        )
 
+      (:prefix-map ("r" . "Alrrrrighty Then!")
+       :desc "refactor anzu" "r" 'anzu-replace-at-cursor-thing
+       :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org"))
+       :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org"))
+       :desc "hot:doom config.el"  "3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
+       :desc "hot:.zshrc"          "4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
+       :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
+       :desc "hot:kalisi.el"       "6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el"))
+       )
       )
 
 
@@ -204,114 +236,41 @@
       :n "C-q" #'evil-visual-block
       :n "g q" #'+format:region     ;; swap gQ with gq
       :n "g Q" #'evil-fill-and-move
+      :n "g j" #'evil-next-visual-line
+      :n "g k" #'evil-previous-visual-line
       )
 
+(define-key
+  evil-insert-state-map (kbd "M-d") 'evil-multiedit-toggle-marker-here)
 
+(define-key! ranger-mode-map "C-h" 'evil-window-left)
+(define-key! ranger-mode-map "C-j" 'evil-window-down)
+(define-key! ranger-mode-map "C-k" 'evil-window-up)
+(define-key! ranger-mode-map "C-l" 'evil-window-right)
+
+(setq ranger-show-hidden t)
+(setq ranger-hide-cursor t)
+
+;; TODO create github doom issue: fix update of buffer-file-name in +workspace/switch
+;;
 ;; (defun global-hot-bookmark (workspace filename)
 ;;   (+workspace/switch-to workspace)
 ;;   ;; (message buffer-file-name (car (+workspace-buffer-list)))
 ;;   (message "%s %s" (car (+workspace-buffer-list)) (cdr (+workspace-buffer-list)))
 ;;   ;; (message "%s" (format "%s" +workspace-buffer-list))
 ;;   )
-;;
 
 ;; (with-current-buffer
 ;; (message buffer-file-name (window-buffer))
 ;; (message buffer-file-name)
 ;; (message buffer-file-name (car (+workspace-buffer-list)))
 ;; (message current-buffer)
-;;
 
-(defun global-hot-bookmark (workspace filename)
-  ;; (message workspace filename)
-  ;; (with-current-buffer (window-buffer)
-  (+workspace/switch-to workspace)
-  (run-with-timer 0 nil (lambda (filename)
-                          (if (string= buffer-file-name (expand-file-name filename)) ()
-                            ;; (message "not equal")
-                            (find-file-other-window filename)
-                            ;; (find-file filename)
-                            )
-                          ) filename
-                            )
-  )
-
-;; (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")
-;; (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
-;; (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")
-
-;; (projectile-switch-project-by-name "~/cloudkoloss/")
-;; (projectile-switch-project-by-name "~/cloudkoloss/cksk_sveltekit/")
-;; (projectile-switch-project
-
-;; (map! :leader "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org")))
-;; (map! :leader "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org")))
-;; (map! :leader "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el")))
-;; (map! :leader "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc")))
-;; (map! :leader "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua")))
-;; (map! :leader "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
-
-(map! :leader
-      :desc "wb_ck.org"       "r 1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org"))
-      :desc "todo.org"        "r 2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org"))
-      :desc "doom config.el"  "r 3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
-      :desc ".zshrc"          "r 4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
-      :desc "awesome.rc"      "r 5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
-      :desc "kalisi.el"       "r 6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el"))
-      )
-
-
-;; (map! :leader "r 1" (cmd! (find-file "~/cloudkoloss/wb_ck.org")))
-;; (map! :leader "r 2" (cmd! (find-file "~/foam-workbench/todo.org")))
-;; (map! :leader "r 3" (cmd! (find-file "~/dotfiles/zshrc")))
-;; (map! :leader "r 4" (cmd! (find-file "~/dotfiles/config/doom/config.el")))
-;; (map! :leader "r 5" (cmd! (find-file "~/dotfiles/config/awesome/rc4.3-git.lua")))
-;; (map! :leader "r 6" (cmd! (find-file "~/dotfiles/config/doom/themes/kalisi-light-theme.el")))
-
-;; (map! :leader
-;;       :desc "wb_ck.org"
-;;       "r 1" (cmd! (+workspace/switch-to "main")
-;;                   (find-file-other-window "~/cloudkoloss/wb_ck.org")
-;;                   )
-
-;;       :desc "todo.org"
-;;       "r 2" (cmd!
-;;              (+workspace/switch-to "main")
-;;              (find-file-other-window "~/foam-workbench/todo.org")
-;;              )
-;;       :desc ".zshrc"
-;;       "r 3" (cmd!
-;;              (+workspace/switch-to "dotfiles")
-;;              (find-file-other-window "~/dotfiles/zshrc")
-;;              )
-;;       :desc "config DOOM"
-;;       "r 4" (cmd!
-;;              (+workspace/switch-to "dotfiles")
-;;              (find-file-other-window "~/dotfiles/config/doom/config.el")
-;;              )
-;;       :desc "awesome.rc"
-;;       "r 5" (cmd!
-;;              (+workspace/switch-to "dotfiles")
-;;              (find-file-other-window "~/dotfiles/config/awesome/rc4.3-git.lua")
-;;              )
-
-;;       :desc "kalisi"
-;;       "r 6" (cmd!
-;;              (+workspace/switch-to "dotfiles")
-;;              (find-file-other-window "~/dotfiles/config/doom/themes/kalisi-light-theme.el")
-;;              )
-;;       )
-
-
-;; (projectile-switch-project-by-name "/home/freeo/bmwcode/")
-;; (projectile-switch-project-by-name "~/bmwcode/")
 
 ;; helm-projectile-switch-project
 ;; projectile-switch-project-by-name
 
-
 ;; (setq foreground vterm-color-red)
-                                        ;
 
 ;; evilnc-comment-operator (start end type))
 ;; (map! :C-t)
@@ -687,3 +646,10 @@ helm-ff-fuzzy-matching t
 (setq company-idle-delay 0)
 ;; Number the candidates (use M-1, M-2 etc to select completions).
 (setq company-show-numbers t)
+
+(setq org-hide-emphasis-markers t)
+
+(add-hook 'org-mode-hook 'org-appear-mode)
+(setq org-appear-autolinks t)
+(setq org-appear-autolinks t)
+(setq org-appear-autoentities t)
