@@ -714,6 +714,15 @@ source $HOME/.cargo/env
 
 # /home/freeo/.emacs.d/.local/straight/build-28.0.60/vterm/etc/emacs-vterm-zsh.sh
 
+# Preventing nested ranger instances
+ranger() {
+    if [ -z "$RANGER_LEVEL" ]; then
+        /usr/bin/ranger "$@"
+    else
+        exit
+    fi
+}
+
 # ranger_cd
 rcd() {
     temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
