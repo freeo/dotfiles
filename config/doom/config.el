@@ -452,8 +452,8 @@ helm-ff-fuzzy-matching t
 
 
 (setq fancy-splash-image
-      (expand-file-name "freeo_clean.png" doom-private-dir))
-
+      (expand-file-name "cloudkoloss-v2-black-300.png" doom-private-dir))
+;; freeo_clean.png
 
 ;; Go LSP
 (require 'lsp-mode)

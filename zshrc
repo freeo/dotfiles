@@ -714,10 +714,12 @@ source $HOME/.cargo/env
 
 # /home/freeo/.emacs.d/.local/straight/build-28.0.60/vterm/etc/emacs-vterm-zsh.sh
 
-# Preventing nested ranger instances
+## Preventing nested ranger instances
+unset -f ranger 2>/dev/null   # suppress first run, only required when running sz in same session
+RANGER_BIN=$(which ranger)
 ranger() {
     if [ -z "$RANGER_LEVEL" ]; then
-        /usr/bin/ranger "$@"
+        $RANGER_BIN "$@"
     else
         exit
     fi
