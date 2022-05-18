@@ -1,0 +1,151 @@
+{
+	"title": "Sticky L-CMD",
+	"rules": [
+		{
+			"description": "Sticky CMD-Tab to CTRL-Tab",
+			"manipulators": [
+				{
+					"type": "basic",
+					"from": {
+						"key_code": "tab",
+						"modifiers": {
+							"optional": [
+								"shift"
+							]
+						}
+					},
+					"to": [
+						{
+							"key_code": "tab"
+						}
+					],
+					"conditions": [
+						{
+							"type": "variable_if",
+							"name": "left_control pressed",
+							"value": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"description": "Sticky CTRL Variable",
+			"manipulators": [
+				{
+					"type": "basic",
+					"from": {
+						"key_code": "left_control",
+						"modifiers": {
+							"optional": [
+								"shift"
+							]
+						}
+					},
+					"to": [
+						{
+							"set_variable": {
+								"name": "left_control pressed",
+								"value": 1
+							}
+						},
+						{
+							"key_code": "left_command"
+						}
+					],
+					"to_delayed_action": {
+						"to_if_invoked": [
+							{
+								"set_variable": {
+									"name": "left_control pressed",
+									"value": 0
+								}
+							}
+						],
+						"to_if_canceled": [
+							{
+								"set_variable": {
+									"name": "left_control pressed",
+									"value": 0
+								}
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"description": "Sticky CTRL-Tab to CMD-Tab",
+			"manipulators": [
+				{
+					"type": "basic",
+					"from": {
+						"key_code": "tab",
+						"modifiers": {
+							"optional": [
+								"shift"
+							]
+						}
+					},
+					"to": [
+						{
+							"key_code": "tab"
+						}
+					],
+					"conditions": [
+						{
+							"type": "variable_if",
+							"name": "left_command pressed",
+							"value": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"description": "Sticky CMD Variable",
+			"manipulators": [
+				{
+					"type": "basic",
+					"from": {
+						"key_code": "left_command",
+						"modifiers": {
+							"optional": [
+								"shift"
+							]
+						}
+					},
+					"to": [
+						{
+							"set_variable": {
+								"name": "left_command pressed",
+								"value": 1
+							}
+						},
+						{
+							"key_code": "left_control"
+						}
+					],
+					"to_delayed_action": {
+						"to_if_invoked": [
+							{
+								"set_variable": {
+									"name": "left_command  pressed",
+									"value": 0
+								}
+							}
+						],
+						"to_if_canceled": [
+							{
+								"set_variable": {
+									"name": "left_command pressed",
+									"value": 0
+								}
+							}
+						]
+					}
+				}
+			]
+		}
+	]
+}
