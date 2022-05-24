@@ -1,7 +1,9 @@
 1;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
+;; Man must shape his tools lest they shape him.
+;; — Arthur Miller
+
+;; Remember, you do not need to run 'doom sync' after modifying this file!
 
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
@@ -454,6 +456,20 @@ helm-ff-fuzzy-matching t
 (setq fancy-splash-image
       (expand-file-name "cloudkoloss-v2-black-300.png" doom-private-dir))
 ;; freeo_clean.png
+;;
+;; (setq fancy-startup-text "\nMan must shape his tools lest they shape him.\n~Arthur Miller")
+;; (add-to-list '+doom-dashboard-functions '(lambda () "\nMan must shape his tools lest they shape him.\n~Arthur Miller"))
+
+;; (defun miller ()
+;;     return "\nMan must shape his tools lest they shape him.\n~Arthur Miller")
+
+;; (setq '+doom-dashboard-functions
+;;       (
+;;        doom-dashboard-widget-banner
+;;        miller
+;;        doom-dashboard-widget-shortmenu
+;;        doom-dashboard-widget-loaded
+;;        ))
 
 ;; Go LSP
 (require 'lsp-mode)
