@@ -217,6 +217,9 @@ local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
 
 -- @DOC_FOR_EACH_SCREEN@
 screen.connect_signal("request::desktop_decoration", function(s)
+
+    -- s.dpi = 144
+
     -- Each screen has its own tag table.
     -- awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
@@ -309,6 +312,8 @@ screen.connect_signal("request::desktop_decoration", function(s)
     }
 end)
 -- }}}
+
+-- beautiful.xresources.set_dpi (dpi[, s])
 
 -- {{{ Mouse bindings
 -- @DOC_ROOT_BUTTONS@
@@ -641,6 +646,9 @@ awful.keyboard.append_global_keybindings({
               -- {description = "debug", group = "debug"}),
     -- awful.key({ modkey,"Control"  }, "t", function () awful.spawn.with_shell( "echo 'durr: " .. gears.filesystem.get_themes_dir() .. "' >> ~/workbench/awesome.log") end,
     --           {description = "output to log", group = "debug"}),
+    --           screen.dpi
+    -- awful.key({ modkey,"Control"  }, "t", function () awful.spawn.with_shell( "echo 'dpi: " .. client.focus.screen.dpi .. "' >> ~/workbench/awesome.log") end,
+    --           {description = "output to log", group = "debug"}),
 
     -- DISPLAYS
     awful.key({ modkey,           }, "8", function () awful.screen.focus(1) end,
@@ -651,12 +659,12 @@ awful.keyboard.append_global_keybindings({
               {description = "Focus screen 3", group = "layout"}),
 
     -- VIDEO
-    awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
+    awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
               {description = "xrandr NeoG9+Toshiba", group = "xrandr"}),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
-    awful.key({ modkey,  "Control"}, "8", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120") end,
+    awful.key({ modkey,  "Control"}, "8", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144") end,
               {description = "toggle NeoG9", group = "xrandr"}),
-    awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180") end,
+    awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
               {description = "toggle Toshiba", group = "xrandr"}),
     -- awful.key({ modkey,  "Control"}, "8", function () awful.spawn("xrandr --output DP-0 --off") end,
     --           {description = "turn off NeoG9", group = "xrandr"}),
