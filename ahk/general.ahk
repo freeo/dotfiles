@@ -202,6 +202,7 @@ return
 
 ; # F-Media Keys #############################################################
 
+
 ; deactivate for baldur's gate
 ; #IfWinNotActive ahk_class SDL_app
 
@@ -247,6 +248,10 @@ return
 ; q::msgbox test
 ; Excel not working this way, research needed
 
+#IfWinActive ahk_group FruityLoops
+; swap p and r for less mouse&keyboard switches
+$r::p
+$p::r
 
 #IfWinActive ahk_group Browsers
 ; Prev Tab Left
