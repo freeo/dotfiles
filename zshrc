@@ -152,10 +152,10 @@ function darwinSettings () {
   export PATH=/usr/local/opt/avr-gcc@7/bin:$PATH
 
   export GREP_COLOR=$GREP_COLORS
-# successor: zoxide
+  # nvim: rnvimr (ranger-vim popup) workaround: fix Ctrl-V not requiring 2x presses
+  stty lnext undef
+  # successor: zoxide
   # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
-
-
 }
 
 source $HOME/.config/broot/launcher/bash/br
@@ -170,6 +170,7 @@ zinit light zimfw/git
 zinit light zsh-users/zsh-autosuggestions
 zinit ice wait'1' lucid
 zinit light mellbourn/zabb
+zinit load wfxr/forgit
 
 # zi light zimfw/exa # creates bad aliases
 
@@ -673,9 +674,13 @@ function git-branch-delete-interactive () {
 alias df='df -h'
 alias du='du -h'
 
-source ~/dotfiles/private/corp_vpn.sh
-source ~/dotfiles/private/variables_functions.sh
 
+if [[ $(hostname) = "pop-os" ]]; then
+  source ~/dotfiles/private/corp_vpn.sh
+  source ~/dotfiles/private/variables_functions.sh
+
+elif [[ $(hostname) == freeo-mba* ]]; then
+fi
 
 function updateprodip () {
   current_ips=$(az aks show -n $PRIVATE_CLUSTERNAME -g $PRIVATE_CLUSTER_RG | jq -r '.apiServerAccessProfile.authorizedIpRanges | join(",")')
@@ -703,7 +708,9 @@ alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o json
 alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
 
-source $HOME/.cargo/env
+if hash cargo 2>/dev/null ; then
+  source $HOME/.cargo/env
+fi
 # function timer () {
 # TIMER_TITLE="Default Timer Title"
 # TIMER_TITLE="Default Timer Text"

@@ -1403,18 +1403,27 @@ nnoremap [1;6I :bp<CR>
 " hide some files and remove stupid help
 let g:explHideFiles='^\.,.*\.sw[po]$,.*\.pyc$'
 let g:explDetailedHelp=0
-map <C-B> :Explore!<CR>
+" let g:rnvimr_vanilla = 1
+" map <C-B> :Explore!<CR>
 nmap - :RnvimrToggle<CR>
 " Make Ranger replace Netrw and be the file explorer
 let g:rnvimr_enable_ex = 1
-
 " Make Ranger to be hidden after picking a file
 let g:rnvimr_enable_picker = 1
-
 " Change the border's color
 let g:rnvimr_border_attr = {'fg': 7, 'bg': -1}
 " Link CursorLine into RnvimrNormal highlight in the Floating window
 highlight link RnvimrNormal CursorLine
+
+" Map Rnvimr action
+let g:rnvimr_action = {
+            \ '<C-t>': 'NvimEdit tabedit',
+            \ '<C-x>': 'NvimEdit split',
+            \ '<C-v>': 'NvimEdit vsplit',
+            \ 'gw': 'JumpNvimCwd',
+            \ 'yw': 'EmitRangerCwd'
+            \ }
+
 
 " http://emanuelduss.ch/2011/04/meine-konfigurationsdatei-fur-vim-vimrc/
 "
@@ -2018,6 +2027,8 @@ let g:python_highlight_file_headers_as_comments = 1
 "   F26=C-F2
 nnoremap <F25> :bprevious<CR>
 nnoremap <F26> :bnext<CR>
+" f25 doesn't work on MacOS, so here's another map, which isn't intiuitive though
+nnoremap <F27> :bprevious<CR>
 " nnoremap <F27> :!echo 7<CR>
 " nnoremap <F28> :!echo 8<CR>
 " nnoremap <F29> :!echo 9<CR>
