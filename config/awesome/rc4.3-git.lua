@@ -1024,7 +1024,7 @@ run_once("xbindkeys","&")
 run_once("/usr/bin/diodon")
 run_once("emacs --daemon")
 run_once("qjackctl")
-run_once("setxkbmap", "-option ctrl:nocaps")
+run_once("setxkbmap -option ctrl:nocaps")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 awful.spawn.with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")

@@ -799,6 +799,21 @@ function notifyinminutes () {
   fi
 }
 
+
+
+HASWACOM=$(xsetwacom --list devices | wc -l)
+if [[ $HASWACOM -gt 0 ]]; then
+  WACOM="Wacom Intuos4 6x9 Pen stylus"
+  # full display
+  # xsetwacom set $WACOM MapToOutput 5120x1440+0+0
+  # right half
+  # xsetwacom set $WACOM MapToOutput 2560x1440+2560+0
+  # left half
+  xsetwacom set $WACOM MapToOutput 2560x1440+0+0
+  # echo "Wacom set to left screen 2560x1440"
+fi
+
+
 # PROFILING endpoint:
 # zprof
 
