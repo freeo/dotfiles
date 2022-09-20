@@ -133,7 +133,6 @@ if !exists('g:vscode')
   Plug 'hrsh7th/nvim-cmp'
 
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-  Plug 'kevinhwang91/rnvimr'
   Plug 'folke/which-key.nvim'
   Plug 'shime/vim-livedown'
 
@@ -218,6 +217,11 @@ endif
 " Plug 'freeo/vim-makegreen'
 " Plug 'freeo/vim-ipython' " not working with newer ipython version
 
+if has('win32')
+  Plug 'obaland/vfiler.vim'
+else
+  Plug 'kevinhwang91/rnvimr'
+endif
 
 call plug#end()
 
@@ -1400,14 +1404,18 @@ nnoremap [1;6I :bp<CR>
 
 " File Browser
 " ------------
+if !has("win32")
+  let g:rnvimr_enable_ex = 1
+  nmap - :RnvimrToggle<CR>
+else
+  nmap - :VFiler<CR>
+end
 " hide some files and remove stupid help
 let g:explHideFiles='^\.,.*\.sw[po]$,.*\.pyc$'
 let g:explDetailedHelp=0
 " let g:rnvimr_vanilla = 1
 " map <C-B> :Explore!<CR>
-nmap - :RnvimrToggle<CR>
 " Make Ranger replace Netrw and be the file explorer
-let g:rnvimr_enable_ex = 1
 " Make Ranger to be hidden after picking a file
 let g:rnvimr_enable_picker = 1
 " Change the border's color
