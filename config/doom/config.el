@@ -669,3 +669,9 @@ helm-ff-fuzzy-matching t
 (setq org-appear-autolinks t)
 (setq org-appear-autolinks t)
 (setq org-appear-autoentities t)
+
+(add-hook 'org-mode-hook 'highlight-indent-guides-mode)
+;; (setq highlight-indent-guides-method 'column) ;; quite nice, but fill is fuller
+(setq highlight-indent-guides-method 'fill)
+;; (setq highlight-indent-guides-method 'bitmap) ;; 3rd place
+;; (setq highlight-indent-guides-method 'character) ;; default, bad influence on wrapped lines, also has gaps since it's not using full height
