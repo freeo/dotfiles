@@ -14,6 +14,8 @@ if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
 fi
 # echoti setab [%?%p1%{8}%<%t4%p1%d%e%p1%{16}%<%t10%p1%{8}%-%d%e48;5;%p1%d%;m
 
+# careful: zi not zinit
+# https://github.com/z-shell/zi
 zi_home="${HOME}/.zi"
 source "${zi_home}/bin/zi.zsh"
 
@@ -91,7 +93,10 @@ say() {
 # if ostype == Linux
 function linuxSettings () {
   export SHELL=/usr/bin/zsh
-  xset r rate 180 40
+  if hash xset 2>/dev/null ; then
+    xset r rate 180 40
+  fi
+
 
   export EDITOR=nvim
   export VISUAL=nvim
@@ -597,8 +602,10 @@ eval "$(direnv hook zsh)"
 # source <(manage completion)
 
 
-export PATH="$PATH:$(go env GOPATH)/bin"
-export GOPATH=$(go env GOPATH)
+if hash go 2>/dev/null ; then
+  export PATH="$PATH:$(go env GOPATH)/bin"
+  export GOPATH=$(go env GOPATH)
+fi
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
@@ -801,18 +808,19 @@ function notifyinminutes () {
 
 
 
-HASWACOM=$(xsetwacom --list devices | wc -l)
-if [[ $HASWACOM -gt 0 ]]; then
-  WACOM="Wacom Intuos4 6x9 Pen stylus"
-  # full display
-  # xsetwacom set $WACOM MapToOutput 5120x1440+0+0
-  # right half
-  # xsetwacom set $WACOM MapToOutput 2560x1440+2560+0
-  # left half
-  xsetwacom set $WACOM MapToOutput 2560x1440+0+0
-  # echo "Wacom set to left screen 2560x1440"
+if hash xsetwacom 2>/dev/null ; then
+  HASWACOM=$(xsetwacom --list devices | wc -l)
+  if [[ $HASWACOM -gt 0 ]]; then
+    WACOM="Wacom Intuos4 6x9 Pen stylus"
+    # full display
+    # xsetwacom set $WACOM MapToOutput 5120x1440+0+0
+    # right half
+    # xsetwacom set $WACOM MapToOutput 2560x1440+2560+0
+    # left half
+    xsetwacom set $WACOM MapToOutput 2560x1440+0+0
+    # echo "Wacom set to left screen 2560x1440"
+  fi
 fi
-
 
 # PROFILING endpoint:
 # zprof
