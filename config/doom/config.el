@@ -179,8 +179,8 @@
 
       (:prefix-map ("r" . "Alrrrrighty Then!")
        :desc "refactor anzu" "r" 'anzu-replace-at-cursor-thing
-       :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/cloudkoloss/wb_ck.org"))
-       :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/foam-workbench/todo.org"))
+       :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
+       :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
        :desc "hot:doom config.el"  "3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
        :desc "hot:.zshrc"          "4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
        :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
@@ -665,13 +665,17 @@ helm-ff-fuzzy-matching t
 
 (setq org-hide-emphasis-markers t)
 
-(add-hook 'org-mode-hook 'org-appear-mode)
-(setq org-appear-autolinks t)
-(setq org-appear-autolinks t)
-(setq org-appear-autoentities t)
 
+;; (add-hook! 'org-mode-hook (lambda () (setq highlight-indent-guides-mode t)))
 (add-hook 'org-mode-hook 'highlight-indent-guides-mode)
 ;; (setq highlight-indent-guides-method 'column) ;; quite nice, but fill is fuller
 (setq highlight-indent-guides-method 'fill)
 ;; (setq highlight-indent-guides-method 'bitmap) ;; 3rd place
 ;; (setq highlight-indent-guides-method 'character) ;; default, bad influence on wrapped lines, also has gaps since it's not using full height
+
+
+(add-hook 'org-mode-hook 'org-appear-mode)
+(setq org-appear-autolinks t)
+(setq org-appear-autolinks t)
+(setq org-appear-autoentities t)
+

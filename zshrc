@@ -94,9 +94,8 @@ say() {
 function linuxSettings () {
   export SHELL=/usr/bin/zsh
   if hash xset 2>/dev/null ; then
-    xset r rate 180 40
+    xset r rate 200 40
   fi
-
 
   export EDITOR=nvim
   export VISUAL=nvim
@@ -787,12 +786,13 @@ function enableage () {
 }
 
 function sync_mba () {
-  HOSTNAME=$(hostname)
-  if [[ $HOSTNAME == "pop-os" ]]; then
-    osync.sh ~/.config/osync/popos-to-mba.conf
-  elif [[ $HOSTNAME == freeo-mba* ]]; then
-    osync.sh ~/.config/osync/mba-to-popos.conf
-  fi
+  echo "pCloud!"
+  # HOSTNAME=$(hostname)
+  # if [[ $HOSTNAME == "pop-os" ]]; then
+  #   osync.sh ~/.config/osync/popos-to-mba.conf
+  # elif [[ $HOSTNAME == freeo-mba* ]]; then
+  #   osync.sh ~/.config/osync/mba-to-popos.conf
+  # fi
 }
 
 # WIP
