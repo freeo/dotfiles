@@ -679,3 +679,5 @@ helm-ff-fuzzy-matching t
 (setq org-appear-autolinks t)
 (setq org-appear-autoentities t)
 
+; disable auto completion (company) in org-mode
+(setq company-global-modes '(not org-mode))

@@ -4,3 +4,6 @@
 [submodule "config/awesome/bling"]
 	path = config/awesome/bling
 	url = https://github.com/BlingCorp/bling.git
+[submodule "config/rofi/rofi-power-menu"]
+	path = config/rofi/rofi-power-menu
+	url = git@github.com:jluttine/rofi-power-menu.git

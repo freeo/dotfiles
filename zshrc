@@ -682,8 +682,8 @@ alias du='du -h'
 
 
 if [[ $(hostname) = "pop-os" ]]; then
-  source ~/dotfiles/private/corp_vpn.sh
-  source ~/dotfiles/private/variables_functions.sh
+  source ~/dotfiles_private/corp_vpn.sh
+  source ~/dotfiles_private/variables_functions.sh
 
 elif [[ $(hostname) == freeo-mba* ]]; then
 fi
