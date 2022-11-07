@@ -209,9 +209,10 @@ determine the exact padding."
    (magit-cherry-equivalent :foreground magenta)
    (magit-cherry-unmatched :foreground orange)
    (magit-diff-added :foreground green :weight 'light)
-   (magit-diff-added-highlight :foreground green :weight 'bold)
+   ;; (magit-diff-added-highlight :foreground green :background "#ddffdd" :weight 'bold)
+   (magit-diff-added-highlight :foreground "#008700" :weight 'bold)
    (magit-diff-base :foreground fg :weight 'light)
-   (magit-diff-base-highlight :foreground fg :weight 'bold)
+   (magit-diff-base-highlight :foreground fg :background "#d0d0d0" :weight 'bold)
    (magit-diff-conflict-heading :foreground fg)
    (magit-diff-context :foreground fg :weight 'light)
    (magit-diff-context-highlight :foreground fg :weight 'bold)
@@ -225,7 +226,7 @@ determine the exact padding."
    (magit-diff-lines-boundary :background fg :foreground base2)
    (magit-diff-lines-heading :background fg :foreground base2)
    (magit-diff-removed :foreground red :weight 'light)
-   (magit-diff-removed-highlight :foreground red :weight 'bold)
+   (magit-diff-removed-highlight :foreground red :background "#FFEAD6" :weight 'bold)
    (magit-dimmed :foreground base8)
    (magit-hash :foreground cyan)
    (magit-item-highlight :background grey)
@@ -331,6 +332,37 @@ determine the exact padding."
 
 
    (highlight-indent-guides-character-face :foreground pink :background bg)
+
+   (outline-1 :foreground "#1177dd" :weight 'semi-bold)
+   (outline-2 :foreground "#66b600" :weight 'semi-bold)
+   (outline-3 :foreground "#8700af" :weight 'semi-bold)
+   (outline-4 :foreground "#0096a7" :weight 'semi-bold)
+
+   (org-highlight-1 :foreground "#8700af" :weight 'medium)
+   (org-highlight-2 :foreground "#66b600" :weight 'medium)
+
+   (org-code :foreground "#274aac" :background "#e6e6e6" :weight 'medium)
+
+   (highlight-indent-guides-even-face :background "#fafafa" )
+   (highlight-indent-guides-odd-face  :background "#f4f4f4" )
+   ;; (set-face-background 'highlight-indent-guides-odd-face "#f3f3f3")
+   ;; (set-face-background 'highlight-indent-guides-even-face "#f9f9f9")
+
+
+   ;; (magit-diff-file-heading-highlight :foreground "#1177dd" :background "#1177dd" :weight 'semi-bold)
+
+   (magit-diff-file-heading :foreground "#1070d0" :background "#c0c0c0" :weight 'bold)
+   (magit-diff-hunk-heading :foreground "#505050" :background "#e0e0e0" :weight 'semi-bold)
+   (magit-diff-hunk-heading-highlight :foreground "#1177dd" :background "#c0e0f0" :weight 'bold)
+
+   (magit-section-highlight :background "#e6e6e6" :weight 'semi-bold)
+   (magit-diff-revision-summary :foreground "#000000" :background "#d0d0d0" :weight 'bold)
+   (magit-diff-revision-summary-highlight :background "#e6e6e6" :weight 'semi-bold)
+
+   (diff-refine-added :foreground "#1daf00" :background "#F3FFEC" :weight 'semi-bold)
+   (diff-refine-changed :foreground "#303030" :background "#DFD1FF" :weight 'semi-bold)
+   (diff-refine-removed :foreground "#502020" :background "#FFE1E1" :weight 'semi-bold)
+
    )
 
 

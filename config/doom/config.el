@@ -207,7 +207,7 @@
       )
 
 
-
+;; main keybindings
 ;; (map! :n "C-t"   #'evilnc-comment-operator)
 (map! :n "C-t"   #'comment-line
       :n "C-/"   #'swiper
@@ -216,6 +216,8 @@
       :n "C-j" #'evil-window-down
       :n "C-k" #'evil-window-up
       :n "C-l" #'evil-window-right
+      :n "C-e" (cmd! (evil-scroll-line-down 3))
+      :n "C-y" (cmd! (evil-scroll-line-up 3))
       :n "C-m" #'electric-newline-and-maybe-indent
       :n "<f1>" #'centaur-tabs-backward
       :n "<f2>" #'centaur-tabs-forward
@@ -241,6 +243,7 @@
       :n "g j" #'evil-next-visual-line
       :n "g k" #'evil-previous-visual-line
       )
+
 
 (define-key
   evil-insert-state-map (kbd "M-d") 'evil-multiedit-toggle-marker-here)
@@ -317,7 +320,28 @@
 ;; SPC b k ;; (kill-current-buffer)
 ;; SPC b b ;; (+vertico/switch-workspace-buffer)
 ;; SPC f f ;; (+ivy/projectile-find-file)
-;;
+
+;; free up s/S in normal mode. Remapping alone isn't enough.
+(remove-hook 'doom-first-input-hook #'evil-snipe-mode)
+
+(evil-define-command my-evil-insert-char (count char)
+  (interactive "<c><C>")
+  (setq count (or count 1))
+  (insert (make-string count char)))
+
+(evil-define-command my-evil-append-char (count char)
+  (interactive "<c><C>")
+  (setq count (or count 1))
+  (when (not (eolp))
+    (forward-char))
+  (insert (make-string count char)))
+
+(with-eval-after-load 'evil-maps
+  (define-key evil-normal-state-map (kbd "s") 'my-evil-insert-char)
+  (define-key evil-normal-state-map (kbd "S") 'my-evil-append-char))
+
+
+
 ;; HELM
 ;; SPC h p ;; +default/search-project BUT helm still works! doesn't really make sense...
 ;;
@@ -387,12 +411,53 @@ helm-ff-fuzzy-matching t
   )
 
 
-;; evil-normal-state-map C-t
-;;
+
 ;; (auto-save-visited-mode 1)
-(super-save-mode +1)
+;; evil-normal-state-map C-t
+
+;; (use-package! super-save
+;;   :defer 1
+;;   :diminish super-save-mode
+;;   :config
+;;   (super-save-mode +1)
+
+;; (setq super-save-auto-save-when-idle t)
+;; (add-to-list 'super-save-triggers 'evil-window-next)
+;; (add-to-list 'super-save-triggers 'evil-window-prev)
+;; )
+
+
+(use-package! super-save
+  :ensure t
+  :config
+  (super-save-mode +1))
+
 (setq super-save-auto-save-when-idle t)
-(setq auto-save-default nil)
+(add-to-list 'super-save-triggers 'evil-window-next)
+(add-to-list 'super-save-triggers 'evil-window-prev)
+
+;; (setq super-save-auto-save-when-idle t)
+;; (setq auto-save-default nil)
+;; (setq auto-save-default t) ; since super-save doesnt work in org mode
+
+(add-hook! 'focus-out-hook (save-some-buffers t))
+
+;; automatically save buffers associated with files on buffer switch
+;; and on windows switch
+(defadvice switch-to-buffer (before save-buffer-now activate)
+  (when buffer-file-name (save-buffer)))
+(defadvice other-window (before other-window-now activate)
+  (when buffer-file-name (save-buffer)))
+(defadvice windmove-up (before other-window-now activate)
+  (when buffer-file-name (save-buffer)))
+(defadvice windmove-down (before other-window-now activate)
+  (when buffer-file-name (save-buffer)))
+(defadvice windmove-left (before other-window-now activate)
+  (when buffer-file-name (save-buffer)))
+(defadvice windmove-right (before other-window-now activate)
+  (when buffer-file-name (save-buffer)))
+
+
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(wb_bmw%d/%d) ")
 
@@ -663,6 +728,10 @@ helm-ff-fuzzy-matching t
 ;; Number the candidates (use M-1, M-2 etc to select completions).
 (setq company-show-numbers t)
 
+(setq company-global-modes '(not org-mode))
+
+(global-org-modern-mode)
+
 (setq org-hide-emphasis-markers t)
 
 
@@ -673,6 +742,7 @@ helm-ff-fuzzy-matching t
 ;; (setq highlight-indent-guides-method 'bitmap) ;; 3rd place
 ;; (setq highlight-indent-guides-method 'character) ;; default, bad influence on wrapped lines, also has gaps since it's not using full height
 
+(setq highlight-indent-guides-auto-enabled nil)
 
 (add-hook 'org-mode-hook 'org-appear-mode)
 (setq org-appear-autolinks t)
@@ -681,3 +751,59 @@ helm-ff-fuzzy-matching t
 
 ; disable auto completion (company) in org-mode
 (setq company-global-modes '(not org-mode))
+
+
+
+(defface org-bold
+  '((t :weight medium
+       ))
+  "Face for org-mode bold."
+  :group 'org-faces )
+
+(defface org-highlight-1
+  '((t
+     :foreground "#8700af"
+     ))
+  "Face for org-mode bold."
+  :group 'org-faces )
+
+
+(defface org-highlight-2
+  '((t
+     :foreground "#66b600"
+     ))
+  "Face for org-mode bold."
+  :group 'org-faces )
+
+(setq org-emphasis-alist
+      '(("*" org-bold)
+        ("/" italic)
+        ("_" underline)
+        ("=" org-verbatim verbatim)
+        ("~" org-code verbatim)
+        ("&" org-highlight-1)
+        ("$" org-highlight-2)
+        ("+" (:strike-through t))))
+
+
+
+(defun org-add-my-extra-fonts ()
+  "Add alert and overdue fonts."
+  (add-to-list 'org-font-lock-extra-keywords '("\\(\\$\\)\\([^\n\r\t]+\\)\\(\\$\\)" (1 '(face org-highlight-1 invisible t)) (2 'org-highlight-1 t) (3 '(face org-highlight-1 invisible t))) t)
+  (add-to-list 'org-font-lock-extra-keywords '("\\(%\\)\\([^\n\r\t]+\\)\\(%\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t))
+
+(add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
+
+
+;; (defun org-add-my-extra-markup ()
+;;   "Add highlight emphasis."
+;;   (interactive)
+;;   (add-to-list 'org-font-lock-extra-keywords
+;;                '("[^\\w]\\(!\\[^\n\r\t]+!\\)[^\\w]"
+;;                  (1 '(face org-highlight-1 invisible nil)))))
+
+;; (add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-markup)
+;; ;; (add-hook 'org-mode-hook #'org-add-my-extra-markup)
+
+
+(add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))

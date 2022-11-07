@@ -94,7 +94,7 @@ say() {
 function linuxSettings () {
   export SHELL=/usr/bin/zsh
   if hash xset 2>/dev/null ; then
-    xset r rate 200 40
+    xset r rate 220 40
   fi
 
   export EDITOR=nvim
@@ -333,10 +333,11 @@ setopt longlistjobs
 # shares .zsh_history among tabs. Try without for a while, what feels more natural
 # off seems more sensible
 # setopt sharehistory
+setopt autopushd
+# use with: cd -<tab>
 
 # from omz, not in use
 # alwaystoend
-# autopushd
 # completeinword
 # interactive
 # promptsubst

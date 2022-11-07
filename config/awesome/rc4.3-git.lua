@@ -60,6 +60,9 @@ local bling = require("bling")
 
 bling.module.flash_focus.enable()
 
+-- Volume Progress Bar
+require("widgets.volume-change")
+
 -- @DOC_DEFAULT_APPLICATIONS@
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
@@ -629,14 +632,23 @@ awful.keyboard.append_global_keybindings({
     -- awful.key({}, "XF86AudioLowerVolume", function() awful.spawn.with_shell(
     --             "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT -5%")
     --     end, {description = "Volume DECREASE jack_out", group = "Audio"}),
-    awful.key({}, "XF86AudioRaiseVolume", function() awful.spawn.with_shell(
+    awful.key({}, "XF86AudioRaiseVolume",
+        function()
+            awful.spawn.with_shell(
                 "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
+            awesome.emit_signal("volume_change")
         end, {description = "Volume INCREASE jack_out", group = "Audio"}),
-    awful.key({}, "XF86AudioLowerVolume", function() awful.spawn.with_shell(
+    awful.key({}, "XF86AudioLowerVolume",
+        function()
+            awful.spawn.with_shell(
                 "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT -5%")
+            awesome.emit_signal("volume_change")
         end, {description = "Volume DECREASE jack_out", group = "Audio"}),
-    awful.key({}, "XF86AudioMute", function() awful.spawn.with_shell(
+    awful.key({}, "XF86AudioMute",
+        function()
+            awful.spawn.with_shell(
                 "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-mute $JACKOUT toggle")
+            awesome.emit_signal("volume_change")
         end, {description = "Volume DECREASE jack_out", group = "Audio"}),
     -- awful.key({ modkey }, "Next", function() awful.spawn.with_shell( -- PAGE UP = Prior
     --             "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
@@ -701,14 +713,14 @@ awful.keyboard.append_global_keybindings({
     awful.key({ "Control", "Shift" }, 'b', function () awful.spawn("/usr/bin/diodon", {urgent = false, marked = false}) end,
         { description = 'clipboard manager', group = 'Applications' }),
 
-    awful.key({ modkey,    "Shift" }, 'u', function () awful.spawn("pcmanfm", {urgent = false, marked = false}) end,
+    awful.key({ modkey,    "Shift" }, 'u', function () awful.spawn("nautilus", {urgent = false, marked = false}) end,
         { description = 'File Manager', group = 'Applications' }),
 
     -- always last entry, no comma
     awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
         "flameshot gui"
         ) end,
-              {description = "Screenshot flameshot", group = "layout"})
+              {description = "Screenshot flameshot", group = "Applications"})
 })
 
 
@@ -1025,6 +1037,7 @@ run_once("/usr/bin/diodon")
 run_once("emacs --daemon")
 run_once("qjackctl")
 run_once("setxkbmap -option ctrl:nocaps")
+run_once("pcloud")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 awful.spawn.with_shell("xrandr --setmonitor VScreenLeft 2560/0x1440/1+0+0 none")

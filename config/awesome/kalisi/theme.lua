@@ -38,6 +38,10 @@ theme.border_color_normal = xrdb.color0
 theme.border_color_active = theme.bg_focus
 theme.border_color_marked = xrdb.color10
 
+theme.hud_slider_fg = "#7e5edc"
+theme.hud_slider_bg = "#462E6E"
+
+
 -- There are other variable sets
 -- overriding the default one when
 -- defined, the sets are:

@@ -49,7 +49,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! benchmark-init)
+;; (package! benchmark-init)
 
 (package! fzf)
 (package! super-save)
@@ -79,3 +79,5 @@
 (package! aggressive-indent)
 (package! company-tabnine)
 (package! org-appear)
+(package! org-modern)
+(package! magit-delta)

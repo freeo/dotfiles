@@ -1156,8 +1156,15 @@ if exists('g:neovide')
 endif
 
 syntax enable " Syntax Colors
-set background=light
+
+" set background=light
 " set background=dark
+fun! s:set_bg(timer_id)
+    let &background = (strftime('%H') >= 07 && strftime('%H') < 19 ? 'light' : 'dark')
+endfun
+" call timer_start(1000 * 60, function('s:set_bg'), {'repeat': -1})
+call s:set_bg(0)  " Run on startup
+
 if !exists('g:vscode')
   colorscheme kalisi
   let g:airline_theme='kalisi'
