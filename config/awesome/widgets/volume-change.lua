@@ -35,7 +35,8 @@ local volume_adjust = wibox({
    width = offsetx*2,
    height = offsety,
    bg = beautiful.hud_panel_bg,
-   shape = gears.shape.rounded_rect,
+   -- shape = gears.shape.rounded_rect,
+   shape = gears.shape.rounded_bar,
    visible = false,
    ontop = true,
    opacity = 0.9
@@ -51,8 +52,8 @@ local volume_text = wibox.widget{
 
 local volume_bar = wibox.widget{
     widget = wibox.widget.progressbar,
-    -- shape = gears.shape.rounded_bar,
-    shape = gears.shape.rounded_rect,
+    shape = gears.shape.rounded_bar,
+    -- shape = gears.shape.rounded_rect,
     color = beautiful.hud_slider_fg,
     background_color = beautiful.hud_slider_bg,
     max_value = 100,
@@ -65,7 +66,7 @@ local volume_bar = wibox.widget{
 volume_adjust:setup {
   {
     wibox.container.margin(
-        volume_bar, dpi(10), dpi(10), dpi(10), dpi(10)
+        volume_bar, dpi(6), dpi(6), dpi(6), dpi(6)
     ),
     forced_height = offsety,
     forced_width = offsetx,
@@ -97,21 +98,23 @@ awesome.connect_signal("volume_change",
    function()
       -- set new volume value
       awful.spawn.easy_async_with_shell(
-         "amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
+          -- 0.1 was carefully tested: smaller values result in wrong display for fast changes
+         "sleep 0.1 && amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
          function(stdout)
             local volume_level = tonumber(stdout)
             if (volume_level == nil ) then
                return
             end
+            volume_adjust.screen = awful.screen.focused()
             volume_bar.value = volume_level
-            volume_text.markup = "<span foreground='#000000'><b>"..volume_level.."%</b></span>"
-            if (volume_level > 50) then
-               volume_icon:set_image(icon_dir .. "volume-high.png")
-            elseif (volume_level > 0) then
-               volume_icon:set_image(icon_dir .. "volume-low.png")
-            else
-               volume_icon:set_image(icon_dir .. "volume-off.png")
-            end
+            volume_text.markup = "<span foreground='#fafafa'><b>"..volume_level.."%</b></span>"
+            -- if (volume_level > 50) then
+            --    volume_icon:set_image(icon_dir .. "volume-high.png")
+            -- elseif (volume_level > 0) then
+            --    volume_icon:set_image(icon_dir .. "volume-low.png")
+            -- else
+            --    volume_icon:set_image(icon_dir .. "volume-off.png")
+            -- end
          end,
          false
       )
