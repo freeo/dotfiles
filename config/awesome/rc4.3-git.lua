@@ -635,19 +635,19 @@ awful.keyboard.append_global_keybindings({
     awful.key({}, "XF86AudioRaiseVolume",
         function()
             awful.spawn.with_shell(
-                "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
+                "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -f 1 | xargs) && pactl set-sink-volume $JACKOUT +5%")
             awesome.emit_signal("volume_change")
         end, {description = "Volume INCREASE jack_out", group = "Audio"}),
     awful.key({}, "XF86AudioLowerVolume",
         function()
             awful.spawn.with_shell(
-                "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT -5%")
+                "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -f 1 | xargs) && pactl set-sink-volume $JACKOUT -5%")
             awesome.emit_signal("volume_change")
         end, {description = "Volume DECREASE jack_out", group = "Audio"}),
     awful.key({}, "XF86AudioMute",
         function()
             awful.spawn.with_shell(
-                "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-mute $JACKOUT toggle")
+                "JACKOUT=$(pactl list short sinks | rg Focusrite | cut -f 1 | xargs) && pactl set-sink-mute $JACKOUT toggle")
             awesome.emit_signal("volume_change")
         end, {description = "Volume DECREASE jack_out", group = "Audio"}),
     -- awful.key({ modkey }, "Next", function() awful.spawn.with_shell( -- PAGE UP = Prior
@@ -705,16 +705,19 @@ awful.keyboard.append_global_keybindings({
     -- Philips Hue
     -- https://github.com/bahamas10/hue-cli
     -- awesome requires hue to be installed in the system node! nvm doesn't work and is hard to debug...
-    awful.key({ modkey, "Shift" }, "#34", function () awful.spawn.with_shell("/usr/local/bin/hue lights all on") end,
-              {description = "ON Hue Play Bars", group = "Hue"}),
-    awful.key({ modkey, "Shift" }, "#35", function () awful.spawn.with_shell("/usr/local/bin/hue lights all off") end,
-              {description = "OFF Hue Play Bars", group = "Hue"}),
+    -- awful.key({ modkey, "Shift" }, "#34", function () awful.spawn.with_shell("/usr/local/bin/hue lights all on") end,
+    --           {description = "ON Hue Play Bars", group = "Hue"}),
+    -- awful.key({ modkey, "Shift" }, "#35", function () awful.spawn.with_shell("/usr/local/bin/hue lights all off") end,
+    --           {description = "OFF Hue Play Bars", group = "Hue"}),
 
     awful.key({ "Control", "Shift" }, 'b', function () awful.spawn("/usr/bin/diodon", {urgent = false, marked = false}) end,
         { description = 'clipboard manager', group = 'Applications' }),
 
     awful.key({ modkey,    "Shift" }, 'u', function () awful.spawn("nautilus", {urgent = false, marked = false}) end,
         { description = 'File Manager', group = 'Applications' }),
+
+    awful.key({ modkey, "Control" }, "c", function () awful.spawn("/home/freeo/bin/Chrysalis-0.12.0.AppImage") end,
+              {description = "open Chrysalis", group = "Applications"}),
 
     -- always last entry, no comma
     awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
