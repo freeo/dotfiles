@@ -16,9 +16,9 @@
 
 ;; startup time debug benchmark
 ;;https://github.com/hlissner/doom-emacs/issues/4498
-(when doom-debug-p
-  (require 'benchmark-init)
-  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
+;; (when doom-debug-p
+;;   (require 'benchmark-init)
+;;   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 
 (doom! :input
        ;;chinese

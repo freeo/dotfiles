@@ -1,4 +1,4 @@
-1;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; Man must shape his tools lest they shape him.
 ;; — Arthur Miller
@@ -164,7 +164,11 @@
        ;; :desc "kill workspace, consistent binding" "l" #'+workspace/load ;; default for "l"
        )
       (:prefix-map ("s" . "search")
-       :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
+       ;; :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
+       :desc "search 2nd Brain" "0" (cmd! (setq projectile-switch-project-action #'+default/search-project)
+                                          (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam")
+                                          (setq projectile-switch-project-action #'projectile-find-file)
+                                          )
        :desc "search current PWD" "c" #'helm-rg
        )
 
@@ -175,6 +179,8 @@
       (:prefix-map ("t" . "toggles")
        ;; :desc "insert date header" "t" #'insert-current-date
        :desc "Line Numbers" "l" 'doom/toggle-line-numbers
+       :desc "Org Heading" "t" 'org-toggle-heading
+       :desc "Org Sidebar Tree" "r" 'org-sidebar-tree-toggle
        )
 
       (:prefix-map ("r" . "Alrrrrighty Then!")
@@ -186,6 +192,18 @@
        :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
        :desc "hot:kalisi.el"       "6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el"))
        )
+
+      (:prefix-map ("p" . "project")
+       ;; :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
+       :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam"))
+       )
+
+
+      (:prefix-map ("i" . "insert")
+       ;; :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
+       :desc "Killring" "y" (cmd! (helm-show-kill-ring))
+       )
+
       )
 
 
@@ -242,6 +260,10 @@
       :n "g Q" #'evil-fill-and-move
       :n "g j" #'evil-next-visual-line
       :n "g k" #'evil-previous-visual-line
+      :n "C-<" (cmd! (evil-window-decrease-width 10))
+      :n "C->" (cmd! (evil-window-increase-width 10))
+      :n "C-+" (cmd! (evil-window-decrease-height 3))
+      :n "C-_" (cmd! (evil-window-increase-height 3))
       )
 
 
@@ -292,16 +314,34 @@
 ;; map specifically for org-mode. Tested other maps (org-mode-map) and
 ;; conditions (after! :after) but I didn't realize until later, that
 ;; evil-org-mode-map exists
+;; months later: fuckin finally... after evil-org did it!
 (map! :map evil-org-mode-map
+      :after evil-org
       :n "C-S-h" #'+workspace/switch-left
       :n "C-S-l" #'+workspace/switch-right
       :n "C-S-<return>"   #'new-vterm-s-split
       )
 
+;; XXX delete soon
 ;; previous map alone doesn't override the default mapping unfortunately.
-(map! :map org-mode-map
-      "C-S-<return>"   #'new-vterm-s-split
-      )
+;; (map! :map org-mode-map
+;;       "C-S-<return>"   #'new-vterm-s-split
+;;       )
+
+;; (defun my/org-keybindings ()
+;;   (map! :map evil-org-mode-map
+;;         :n "C-S-h" #'+workspace/switch-left
+;;         :n "C-S-l" #'+workspace/switch-right
+;;         :n "C-S-<return>"   #'new-vterm-s-split
+;;         )
+;;   )
+;; (add-hook! org :append #'my/org-keybindings)
+
+
+;; (org-shiftleft &optional ARG)
+;; evil-org-mode-map <insert-state> C-S-h
+;; evil-org-mode-map <normal-state> C-S-h
+;; org-mode-map S-<left>
 
 ;; evil-org-mode-map <insert-state> C-S-<return>
 ;; evil-org-mode-map <normal-state> C-S-<return>
@@ -410,6 +450,7 @@ helm-ff-fuzzy-matching t
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   )
 
+(setq vterm-kill-buffer-on-exit t)
 
 
 ;; (auto-save-visited-mode 1)
@@ -430,6 +471,10 @@ helm-ff-fuzzy-matching t
 (use-package! super-save
   :ensure t
   :config
+  (super-save-mode +1))
+
+
+(after! org
   (super-save-mode +1))
 
 (setq super-save-auto-save-when-idle t)
@@ -785,25 +830,164 @@ helm-ff-fuzzy-matching t
         ("$" org-highlight-2)
         ("+" (:strike-through t))))
 
-
+;; This is an internal variable and actually shouldn't be used:
+;; org-font-lock-extra-keywords
+;; But especially for :tag: this is required, because the regular approach of font-lock-add-keywords doesn't work here. Probably because of the other regex overlays. Didn't investigate.
+;; Also required for the invisible chars
+;; bug: if I keep just the :tag: line, this kills :emoji:. If all 3 lines are active: it's just fine!
 
 (defun org-add-my-extra-fonts ()
   "Add alert and overdue fonts."
   (add-to-list 'org-font-lock-extra-keywords '("\\(\\$\\)\\([^\n\r\t]+\\)\\(\\$\\)" (1 '(face org-highlight-1 invisible t)) (2 'org-highlight-1 t) (3 '(face org-highlight-1 invisible t))) t)
-  (add-to-list 'org-font-lock-extra-keywords '("\\(%\\)\\([^\n\r\t]+\\)\\(%\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t))
+  (add-to-list 'org-font-lock-extra-keywords '("\\(%\\)\\([^\n\r\t]+\\)\\(%\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t)
+  (add-to-list 'org-font-lock-extra-keywords '("[[:blank:]]\\(:\\)\\([^\n\r\t]+\\)\\(:\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-modern-tag t) (3 '(face org-highlight-2 invisible t))) t)
+  )
 
 (add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-fonts)
 
-
-;; (defun org-add-my-extra-markup ()
-;;   "Add highlight emphasis."
-;;   (interactive)
-;;   (add-to-list 'org-font-lock-extra-keywords
-;;                '("[^\\w]\\(!\\[^\n\r\t]+!\\)[^\\w]"
-;;                  (1 '(face org-highlight-1 invisible nil)))))
-
-;; (add-hook 'org-font-lock-set-keywords-hook #'org-add-my-extra-markup)
-;; ;; (add-hook 'org-mode-hook #'org-add-my-extra-markup)
-
+(font-lock-add-keywords 'org-mode
+                        '(("\\(\\[[^\n\r\t]+?\\]\\)" 1 font-lock-comment-face prepend)) 'append)
+(font-lock-add-keywords 'org-mode
+                        '(("\\([[:blank:]]#[[:blank:]].+$\\)" 1 font-lock-comment-face prepend)) 'append)
 
 (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+
+;; tested: not invisible: %
+;; (font-lock-add-keywords 'org-mode
+;; '("\\(%\\)\\([^\n\r\t]+\\)\\(%\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t)
+;; (add-to-list 'org-font-lock-extra-keywords '("\\(\\$\\)\\([^\n\r\t]+\\)\\(\\$\\)" (1 '(face org-highlight-1 invisible t)) (2 'org-highlight-1 t) (3 '(face org-highlight-1 invisible t))) t)
+
+
+
+;; (require 'auto-dark)
+
+;; I did minor changes to this source:
+;; https://www.reddit.com/r/emacs/comments/th50v7/autodark_for_emacs_is_now_available_on_melpa/
+;; Only a temporary workaround until this issue is solved:
+;; https://github.com/doomemacs/doomemacs/issues/6027
+;; (defun gnome-dark-mode-enabled-p ()
+;;   "Check if frame is dark or not."
+;;   (if (executable-find "gsettings")
+;;       (thread-last "gsettings get org.gnome.desktop.interface color-scheme"
+;;                    shell-command-to-string
+;;                    string-trim-right
+;;                    (string-suffix-p "-dark'"))
+;;     (eq 'dark (frame-parameter nil 'background-mode))))
+
+;; (use-package dbus
+;;   ;; :straight nil
+;;   :when window-system
+;;   :requires (functions local-config)
+;;   :config
+;;   (defun gtk-theme-changed (path _ _)
+;;     "DBus handler to detect when the GTK theme has changed."
+;;     (when (string-equal path "/org/gnome/desktop/interface/color-scheme")
+
+;;       (message "old: got new value: %s" (car value))
+;;       (if (gnome-dark-mode-enabled-p)
+;;           (load-theme local-config-dark-theme t)
+;;         (load-theme local-config-light-theme t))
+;;       ))
+;;   (dbus-register-signal
+;;    :session
+;;    "ca.desrt.dconf"
+;;    "/ca/desrt/dconf/Writer/user"
+;;    "ca.desrt.dconf.Writer"
+;;    "Notify"
+;;    #'gtk-theme-changed))
+
+;; (use-package dbus
+;;   ;; :straight nil
+;;   :when window-system
+;;   :requires (functions local-config)
+;;   :config
+;;   )
+
+(require 'dbus)
+
+(setq local-config-dark-theme 'doom-gruvbox)
+(setq local-config-light-theme 'kalisi-light)
+
+(defun handler (value)
+  (message "current value %s" (car (car value))))
+
+(defun signal-handler (namespace key value)
+  (if (and
+       ;; (string-equal namespace "org.freedesktop.appearance")
+       (string-equal namespace "org.gnome.desktop.interface")
+       (string-equal key "color-scheme"))
+      ;; (message "got new value: %s" (car value))
+      ;; (message "got new value: %s" value)
+      ;; (if (= (car value) 1)
+      (setq durr (car value))  ;; using a temp variable lets me reuse it as often as I like
+    ;; (if (string-equal (car value) "prefer-dark")
+    (if (string-equal durr "prefer-dark")
+        (load-theme local-config-dark-theme t)
+      (load-theme local-config-light-theme t))
+    ;; (if (string-equal durr "prefer-dark") ;; 2nd access test
+    ;;     (message "eq dark")
+    ;;   (message "eq light"))
+    ;; (message "%s" durr) ;; 3rd access test
+    nil))
+
+
+
+(dbus-call-method-asynchronously
+ :session
+ "org.freedesktop.portal.Desktop"
+ "/org/freedesktop/portal/desktop"
+ "org.freedesktop.portal.Settings"
+ "Read"
+ #'handler
+ "org.freedesktop.appearance"
+ "color-scheme")
+
+(dbus-register-signal
+ :session
+ "org.freedesktop.portal.Desktop"
+ "/org/freedesktop/portal/desktop"
+ "org.freedesktop.portal.Settings"
+ "SettingChanged"
+ #'signal-handler)
+
+;; (dbus-introspect
+;;  :system "org.gnome.desktop.interface"
+;;  "/org/gnome/desktop/interface")
+
+;; (dbus-introspect-get-all-nodes :session "org.gnome.desktop.interface" "/")
+
+;; learn elisp: why is using "value" in the function above consuming the item like an iterator? It yields a different value on 2nd access! WHY?
+;; (defun hurr (durr)
+;;   (message "%s %s" (car durr) (car durr)))
+;; (setq murr '("light" "dark"))
+;; hurr(murr)
+
+                                        ; this macro was copied from here: https://stackoverflow.com/a/22418983/4921402
+(defmacro define-and-bind-quoted-text-object (name key start-regex end-regex)
+  (let ((inner-name (make-symbol (concat "evil-inner-" name)))
+        (outer-name (make-symbol (concat "evil-a-" name))))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key #',inner-name)
+       (define-key evil-outer-text-objects-map ,key #',outer-name))))
+
+(define-and-bind-quoted-text-object "pipe" "|" "|" "|")
+(define-and-bind-quoted-text-object "slash" "/" "/" "/")
+(define-and-bind-quoted-text-object "asterisk" "*" "*" "*")
+(define-and-bind-quoted-text-object "dollar" "$" "\\$" "\\$") ;; sometimes your have to escape the regex
+
+;; (defun org-sidebar-evil-bindings ()
+;;   (define-key! evil-normal-state-local-map
+;;     "RET" #'org-sidebar-tree-jump
+;;     "<return>" #'org-sidebar-tree-jump))
+;; (add-hook 'org-sidebar-window-after-display-hook #'org-sidebar-evil-bindings)
+
+(after! org-sidebar
+  (evil-set-initial-state 'org-sidebar-mode 'emacs))
+
+(setq org-sidebar-tree-jump-fn 'org-sidebar-tree-jump-source)
+
+

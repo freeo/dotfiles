@@ -363,6 +363,11 @@ determine the exact padding."
    (diff-refine-changed :foreground "#303030" :background "#DFD1FF" :weight 'semi-bold)
    (diff-refine-removed :foreground "#502020" :background "#FFE1E1" :weight 'semi-bold)
 
+   ;; (secondary-selection :background "#9e9e9e" )
+   (secondary-selection :background "#aeceae" )
+
+
+
    )
 
 

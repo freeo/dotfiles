@@ -81,3 +81,5 @@
 (package! org-appear)
 (package! org-modern)
 (package! magit-delta)
+;; (package! auto-dark)
+(package! org-sidebar)
