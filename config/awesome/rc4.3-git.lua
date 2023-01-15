@@ -3,7 +3,6 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
--- @DOC_REQUIRE_SECTION@
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -18,21 +17,10 @@ local naughty = require("naughty")
 local ruled = require("ruled")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
--- local lain = require("lain")
-local machi = require("layout-machi")
-local kalisi = require("kalisi")
-
--- Enable hotkeys help widget for VIM and other apps
--- when client with a matching name is opened:
-require("awful.hotkeys_popup.keys")
-
--- shared tags across monitors
-local sharedtags = require("awesome-sharedtags")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
--- @DOC_ERROR_HANDLING@
 naughty.connect_signal("request::display_error", function(message, startup)
     naughty.notification {
         urgency = "critical",
@@ -41,6 +29,17 @@ naughty.connect_signal("request::display_error", function(message, startup)
     }
 end)
 -- }}}
+
+-- Enable hotkeys help widget for VIM and other apps
+-- when client with a matching name is opened:
+require("awful.hotkeys_popup.keys")
+
+-- Custom modules
+local kalisi = require("kalisi")
+-- local lain = require("lain")
+-- shared tags across monitors
+local sharedtags = require("awesome-sharedtags")
+
 
 -- {{{ Variable definitions
 -- @DOC_LOAD_THEME@
@@ -53,8 +52,6 @@ beautiful.init(gears.filesystem.get_configuration_dir() .. "kalisi/theme.lua")
 beautiful.column_count = 3
 
 
--- must be after beautiful theme is loaded
-require("beautiful").layout_machi = machi.get_icon()
 -- https://blingcorp.github.io/bling/#/README
 local bling = require("bling")
 
@@ -99,6 +96,10 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 
+-- must be after beautiful theme is loaded
+local machi = require("layout-machi")
+
+require("beautiful").layout_machi = machi.get_icon()
 machi.layout.default_cmd = "111h"
 
 -- local layout_3col = machi.layout.create( {
@@ -610,8 +611,6 @@ function mic_border_reset()
 end
 
 
-
-
 -- Shortcuts by Freeo
 awful.keyboard.append_global_keybindings({
 
@@ -683,6 +682,8 @@ awful.keyboard.append_global_keybindings({
               {description = "Focus screen 3", group = "layout"}),
 
     -- VIDEO
+    -- XXX make this fallback save! Identify 5120x1440 monitor by xrandr output and use that instead of
+    -- possible dynamic values like DP-0,DP-4,DP-5 etc.
     awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
               {description = "xrandr NeoG9+Toshiba", group = "xrandr"}),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
@@ -724,7 +725,6 @@ awful.keyboard.append_global_keybindings({
 
     awful.key({ modkey, "Control" }, "c", function () awful.spawn("/home/freeo/bin/Chrysalis-0.12.0.AppImage") end,
               {description = "open Chrysalis", group = "Applications"}),
-
 
     -- always last entry, no comma
     awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
@@ -1052,7 +1052,7 @@ run_once("volumeicon")
 run_once("nm-applet")
 run_once("dunst") -- if I don't run this, naughty (from awesome) takes over notifications
 run_once("redshift-gtk","","/usr/bin/python3 /usr/bin/redshift-gtk")
-run_once("autokey","","/usr/bin/python3 /usr/bin/autokey")
+run_once("autokey-qt","","/usr/bin/python3 /usr/bin/autokey-qt")
 run_once("emote","", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen","--restore &")
 run_once("xbindkeys","&")

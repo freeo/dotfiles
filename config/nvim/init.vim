@@ -1762,7 +1762,7 @@ endfunction
 
 
 
-let g:startify_bookmarks = ['~/dotfiles/vimrc','~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
+let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.vim','~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
 " let g:startify_bookmarks = ['~/dotfiles/vimrc','C:/Users/arthur.jaron/Documents/viki','E:/GDrive/vocabulary.txt',g:vimfiles.'/plugged/vimtext-projectsens/syntax/text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 "
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]

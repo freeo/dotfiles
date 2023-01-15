@@ -121,6 +121,8 @@ function linuxSettings () {
   if [ $? -eq 0 ]; then
       alias draw.io="flatpak run com.jgraph.drawio.desktop"
   fi
+  
+  alias neog9='xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -128,7 +130,8 @@ function linuxSettings () {
   # most notably: `sudo nvim`, where alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim'
   # alias sudo='sudo '
   # alias nvim="snap run nvim"
-  alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
+  # XXX guard! what before linuxbrew?
+  # alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
 
@@ -147,6 +150,11 @@ function linuxSettings () {
   export PATH=$PATH:$XDG_CONFIG_HOME/rofi/rofi-power-menu
 
   export PATH=$PATH:$HOME/go/bin
+
+
+  if hash paru 2>/dev/null ; then
+    alias PS='sudo paru -S'
+  fi
 
   # since I started with tiling window managers (currently awesome)
 }
@@ -609,7 +617,10 @@ export PATH="$PATH:$HOME/flutter/bin"
 export PATH="$PATH:$HOME/.local/bin"
 # this pager has its downsides, especially shortcuts
 # export PAGER=most man ls
-export PAGER=nvimpager
+#
+if hash nvimpager 2>/dev/null ; then
+  export PAGER=nvimpager
+fi
 
 eval "$(direnv hook zsh)"
 
@@ -841,3 +852,5 @@ fi
 # PROFILING endpoint:
 # zprof
 
+
+source /home/freeo/.config/broot/launcher/bash/br
