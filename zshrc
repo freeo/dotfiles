@@ -94,7 +94,7 @@ say() {
 function linuxSettings () {
   export SHELL=/usr/bin/zsh
   if hash xset 2>/dev/null ; then
-    xset r rate 220 40
+    xset r rate 230 40
   fi
 
   export EDITOR=nvim
@@ -109,9 +109,18 @@ function linuxSettings () {
   alias win10h="systemctl hibernate --boot-loader-entry=Windows10.conf"
   alias win10="systemctl reboot --boot-loader-entry=Windows10.conf"
 
-  alias chmod='chmod --preserve-root -v'
-  alias chown='chown --preserve-root -v'
+  alias chmod="chmod --preserve-root -v"
+  alias chown="chown --preserve-root -v"
 
+  HASVLC=$(flatpak run org.videolan.VLC --version 2>/dev/null)
+  if [ $? -eq 0 ]; then
+      alias vlc="flatpak run org.videolan.VLC"
+  fi
+
+  HASDRAWIO=$(flatpak run com.jgraph.drawio.desktop --version 2>/dev/null)
+  if [ $? -eq 0 ]; then
+      alias draw.io="flatpak run com.jgraph.drawio.desktop"
+  fi
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -122,6 +131,11 @@ function linuxSettings () {
   alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
+
+  if hash btm 2>/dev/null ; then
+    alias htop=btm
+  fi
+
   # export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   # export JAVA_HOME=$GRAALVM_HOME
   export ANDROID_HOME=$HOME/Android/Sdk
@@ -754,9 +768,10 @@ rcd() {
 # bindkey ^o ranger-cd
 bindkey -s "^o" "rcd\n"
 
+bindkey -s "^p" "zi\n"
 
-
-bindkey -s "^p" "br\n"
+# broot
+# bindkey -s "^p" "br\n"
 
 function virtcam () {
   sudo modprobe -r v4l2loopback
