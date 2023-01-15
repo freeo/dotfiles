@@ -10,6 +10,7 @@ local wibox = require("wibox")
 local awful = require("awful")
 local gears = require("gears")
 local beautiful = require("beautiful")
+local naughty = require("naughty")
 local dpi = beautiful.xresources.apply_dpi
 
 local offsety = dpi(80)
@@ -30,7 +31,9 @@ local volume_icon = wibox.widget {
 -- create the volume_adjust component
 local volume_adjust = wibox({
    screen = awful.screen.focused(),
-   x = (screen.geometry.width/2) - offsetx,
+   -- x = (screen.geometry.width/2) - offsetx,
+   -- y = offsety,
+   x = offsetx,
    y = offsety,
    width = offsetx*2,
    height = offsety,
@@ -93,6 +96,18 @@ local hide_volume_adjust = gears.timer {
    end
 }
 
+
+-- client.connect_signal("focus", function(c)
+-- awful.client.screen.connect_signal("focus", function(c)
+awesome.connect_signal("screen_change", function()
+
+  volume_adjust.screen = awful.screen.focused()
+  volume_adjust.x = (screen.geometry.width/2) - offsetx
+  volume_adjust.y = offsety
+
+  -- naughty.notify({ title="Debug", text="screen:".. awful.screen.focused()  })
+end)
+
 -- show volume-adjust when "volume_change" signal is emitted
 awesome.connect_signal("volume_change",
    function()
@@ -105,7 +120,7 @@ awesome.connect_signal("volume_change",
             if (volume_level == nil ) then
                return
             end
-            volume_adjust.screen = awful.screen.focused()
+
             volume_bar.value = volume_level
             volume_text.markup = "<span foreground='#fafafa'><b>"..volume_level.."%</b></span>"
             -- if (volume_level > 50) then

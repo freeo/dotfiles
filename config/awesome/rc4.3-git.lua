@@ -60,8 +60,6 @@ local bling = require("bling")
 
 bling.module.flash_focus.enable()
 
--- Volume Progress Bar
-require("widgets.volume-change")
 
 -- @DOC_DEFAULT_APPLICATIONS@
 -- This is used later as the default terminal and editor to run.
@@ -612,6 +610,8 @@ function mic_border_reset()
 end
 
 
+
+
 -- Shortcuts by Freeo
 awful.keyboard.append_global_keybindings({
 
@@ -669,20 +669,26 @@ awful.keyboard.append_global_keybindings({
     --           {description = "output to log", group = "debug"}),
 
     -- DISPLAYS
-    awful.key({ modkey,           }, "8", function () awful.screen.focus(1) end,
+    awful.key({ modkey,           }, "8", function ()
+            awful.screen.focus(1)
+            awesome.emit_signal("screen_change")
+    end,
               {description = "Focus screen 1", group = "layout"}),
-    awful.key({ modkey,           }, "9", function () awful.screen.focus(2) end,
+    awful.key({ modkey,           }, "9", function ()
+            awful.screen.focus(2)
+            awesome.emit_signal("screen_change")
+    end,
               {description = "Focus screen 2", group = "layout"}),
     awful.key({ modkey,           }, "0", function () awful.screen.focus(2) end,
               {description = "Focus screen 3", group = "layout"}),
 
     -- VIDEO
-    awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
+    awful.key({ modkey,  "Control"}, "=", function () awful.spawn("xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
               {description = "xrandr NeoG9+Toshiba", group = "xrandr"}),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
-    awful.key({ modkey,  "Control"}, "8", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144") end,
+    awful.key({ modkey,  "Control"}, "8", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-4 >/dev/null && xrandr --output DP-4 --off || xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144") end,
               {description = "toggle NeoG9", group = "xrandr"}),
-    awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-5 >/dev/null && xrandr --output DP-5 --off || xrandr --output DP-5 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
+    awful.key({ modkey,  "Control"}, "9", function () awful.spawn.with_shell("xrandr --listactivemonitors | grep HDMI-0 >/dev/null && xrandr --output HDMI-0 --off || xrandr --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end,
               {description = "toggle Toshiba", group = "xrandr"}),
     -- awful.key({ modkey,  "Control"}, "8", function () awful.spawn("xrandr --output DP-0 --off") end,
     --           {description = "turn off NeoG9", group = "xrandr"}),
@@ -718,6 +724,7 @@ awful.keyboard.append_global_keybindings({
 
     awful.key({ modkey, "Control" }, "c", function () awful.spawn("/home/freeo/bin/Chrysalis-0.12.0.AppImage") end,
               {description = "open Chrysalis", group = "Applications"}),
+
 
     -- always last entry, no comma
     awful.key({ modkey, "Shift"   }, "4", function () awful.spawn.with_shell(
@@ -852,6 +859,19 @@ ruled.client.connect_signal("request::rules", function()
     -- 
     ruled.client.append_rule {
         rule       = { class = "QjackCtl"     },
+        properties = { tag = "bbb" }
+    }
+
+    ruled.client.append_rule {
+        rule       = { class = "pcloud"     },
+        properties = { tag = "bbb" }
+    }
+
+    -- Doesn't work, because the name is slightly different directly after startup, read here inn the examples
+    -- https://awesomewm.org/doc/api/sample%20files/rc.lua.html#
+    ruled.client.append_rule {
+        -- rule       = { class = "pcmanfm", name ="pCloudDrive", instance ="pCloudDrive" },
+        rule       = { name ="pCloudDrive", instance ="pCloudDrive" },
         properties = { tag = "bbb" }
     }
 end)
@@ -1068,3 +1088,29 @@ naughty.config.defaults.bg               = beautiful.bg_normal
 naughty.config.defaults.border_width     = 2
 naughty.config.defaults.hover_timeout    = nil
 naughty.config.presets.normal.border_color     = beautiful.fg_focus
+
+
+-------------------------
+-- Second Level Config --
+-------------------------
+
+local dictation = require("widgets.dictation")
+
+
+awful.keyboard.append_global_keybindings({
+
+    -- Dictation
+    awful.key{
+        modifiers = { modkey },
+        key = 'Prior',
+        on_press = function () dictation.Toggle() end,
+        description = 'Dictation Toggle',
+        group = 'Applications'
+    },
+
+})
+
+-- Development Level Config
+
+-- Volume Progress Bar
+require("widgets.volume-change")
