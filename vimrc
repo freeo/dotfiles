@@ -121,6 +121,7 @@ if !exists('g:vscode')
   Plug 'lambdalisue/fern.vim'
 
   Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'junegunn/fzf.vim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -137,6 +138,11 @@ if !exists('g:vscode')
   Plug 'shime/vim-livedown'
 
   Plug 'fourjay/vim-password-store'
+
+  Plug 'nanotee/zoxide.vim'
+  Plug 'liuchengxu/vim-clap'
+  Plug 'jvgrootveld/telescope-zoxide'
+
 
   if has('nvim')
     " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
@@ -322,7 +328,8 @@ lua <<EOF
   capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
   -- Enable the following language servers
-  local servers = { 'gopls', 'pyright', 'tsserver' }
+  -- local servers = { 'gopls', 'pyright', 'tsserver' }
+  local servers = { 'gopls', 'tsserver' }
   for _, lsp in ipairs(servers) do
       nvim_lsp[lsp].setup {
           on_attach = on_attach,
@@ -364,7 +371,7 @@ lua <<EOF
 
   require'lspconfig'.tsserver.setup{}
   require'lspconfig'.jsonnet_ls.setup{}
-  require'lspconfig'.pyright.setup{}
+  -- require'lspconfig'.pyright.setup{}
 
 
   -- require('lspconfig')['<YOUR_LSP_SERVER>'].setup {
@@ -440,6 +447,53 @@ lua <<EOF
       vim.lsp.buf.execute_command(action)
     end
   end
+EOF
+
+
+lua <<EOF
+
+local t = require("telescope")
+local z_utils = require("telescope._extensions.zoxide.utils")
+-- XXX telescope-zoxide not working! When I try running ':Telescope zoxide' it throws an error in Telescopes' command.lua
+-- revisit this in the future
+
+-- Configure the extension
+t.setup({
+  extensions = {
+    zoxide = {
+      prompt_title = "[ Walking on the shoulders of TJ ]",
+      mappings = {
+        default = {
+          after_action = function(selection)
+            print("Update to (" .. selection.z_score .. ") " .. selection.path)
+          end
+        },
+        ["<C-s>"] = {
+          before_action = function(selection) print("before C-s") end,
+          action = function(selection)
+            vim.cmd("edit " .. selection.path)
+          end
+        },
+        ["<C-q>"] = { action = z_utils.create_basic_command("split") },
+      },
+    },
+  },
+})
+
+-- Load the extension
+t.load_extension('zoxide')
+
+-- Add a mapping
+vim.keymap.set("n", "<leader>cd", t.extensions.zoxide.list)
+
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+vim.keymap.set('n', '<leader>ft', builtin.treesitter, {})
+vim.keymap.set('n', '<leader>fr', builtin.registers, {})
+
 EOF
 
 autocmd BufWritePre *.go lua goimports(1000)
