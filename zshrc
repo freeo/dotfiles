@@ -93,8 +93,13 @@ say() {
 # if ostype == Linux
 function linuxSettings () {
   export SHELL=/usr/bin/zsh
-  if hash xset 2>/dev/null ; then
+
+  function xset_rate_freeo() {
     xset r rate 230 40
+  }
+
+  if hash xset 2>/dev/null ; then
+    xset_rate_freeo
   fi
 
   export EDITOR=nvim
@@ -123,6 +128,7 @@ function linuxSettings () {
   fi
   
   alias neog9='xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
+  alias xboth='xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -154,6 +160,8 @@ function linuxSettings () {
 
   if hash paru 2>/dev/null ; then
     alias PS='sudo paru -S'
+    alias PA='paru -S'
+    alias PR='sudo paru -R'
   fi
 
   # since I started with tiling window managers (currently awesome)
@@ -375,6 +383,16 @@ SAVEHIST=1000000   # maximum number of items for the history file
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 # NOTE: run this if the file above doesn't exist:
 # $(brew --prefix)/opt/fzf/install
+#
+# Load key-bindings (pacman package provides this file), most notably CTRL-R
+FZFKEYBINDINGS=/usr/share/fzf/key-bindings.zsh
+[ -f $FZFKEYBINDINGS ] && source $FZFKEYBINDINGS
+# fallback if fzf not installed:
+if ! typeset -f fzf-history-widget &>/dev/null; then
+  bindkey '^r' history-incremental-search-backward
+fi
+
+bindkey '^s' history-incremental-search-forward
 
 # https://dougblack.io/words/zsh-vi-mode.html
 # bindkey -v
@@ -516,9 +534,6 @@ esac
 zstyle ':notify:*' error-title "wow such #fail"
 zstyle ':notify:*' success-title "very success. wow"
 
-# in use by fzf default keybindings
-# bindkey '^r' history-incremental-search-backward
-bindkey '^s' history-incremental-search-forward
 
 # interactive completion for jenkins x (zsh only)
 # source <(jx completion zsh)
@@ -741,7 +756,9 @@ alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
 
 if hash cargo 2>/dev/null ; then
-  source $HOME/.cargo/env
+  if test -f "$HOME/.cargo/env" ; then
+    source $HOME/.cargo/env
+  fi
 fi
 # function timer () {
 # TIMER_TITLE="Default Timer Title"
@@ -784,6 +801,17 @@ bindkey -s "^p" "zi\n"
 # broot
 # bindkey -s "^p" "br\n"
 
+function alias_expand {
+  if [[ $ZSH_VERSION ]]; then
+    # shellcheck disable=2154  # aliases referenced but not assigned
+    [ ${aliases[$1]+x} ] && printf '%s\n' "${aliases[$1]}" && return
+  else  # bash
+    [ "${BASH_ALIASES[$1]+x}" ] && printf '%s\n' "${BASH_ALIASES[$1]}" && return
+  fi
+  false  # Error: alias not defined
+}
+
+
 function virtcam () {
   sudo modprobe -r v4l2loopback
   sudo modprobe v4l2loopback devices=1 video_nr=13 card_label='OBS Virtual Camera' exclusive_caps=1
@@ -797,6 +825,11 @@ ssh-add $HOME/.ssh/id_bmw > /dev/null 2>&1
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
 eval $(thefuck --alias)
+
+if hash thefuck 2>/dev/null; then
+  alias fk=thefuck
+  alias doh=thefuck
+fi
 
 # zinit light-mode for \
 #   z-shell/z-a-meta-plugins \
@@ -822,7 +855,7 @@ function sync_mba () {
   # fi
 }
 
-# WIP
+# WIP, create awesomewm UI
 function notifyinminutes () {
   if [[ -z $1 ]]; then
     echo 'usage: notifyinminutes "message" 5 '

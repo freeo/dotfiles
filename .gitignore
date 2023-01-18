@@ -2,3 +2,4 @@
 # for each machine
 private/
 __pycache__/
+config/awesome/rc.lua

@@ -2810,7 +2810,19 @@ endif
 "       }
 "     }
 "     single_file_support = true
-"
+
+" SynStack: echoes the highlight group under the cursor
+function! SynStack()
+  if !exists("*synstack")
+    return
+  endif
+  echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+endfunc
+
+function! SynGroup()
+    let l:s = synID(line('.'), col('.'), 1)
+    echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
+endfun
 
 " echom "correct vimrc!"
 " End of my epic vimrc!
