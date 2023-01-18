@@ -1,11 +1,11 @@
 {
     "type": "script",
-    "description": "Prev F1",
+    "description": "Next F2",
     "store": {},
     "modes": [
         3
     ],
-    "usageCount": 372,
+    "usageCount": 0,
     "prompt": false,
     "omitTrigger": false,
     "showInTrayMenu": false,
@@ -19,7 +19,7 @@
     },
     "hotkey": {
         "modifiers": [],
-        "hotKey": "<f1>"
+        "hotKey": "<f2>"
     },
     "filter": {
         "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser",
