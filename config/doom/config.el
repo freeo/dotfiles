@@ -40,9 +40,6 @@
 
 (global-subword-mode 1)                           ; Iterate through CamelCase words
 
-;; enable word-wrap (almost) everywhere
-(+global-word-wrap-mode +1)
-(setq +word-wrap-extra-indent 2)
 
 ;; (use-package! mixed-pitch)
 ;;
@@ -463,13 +460,20 @@ helm-ff-fuzzy-matching t
 
 (setq vterm-kill-buffer-on-exit t)
 
+;; enable word-wrap (almost) everywhere
+;; MUST be after use-package vterm! Otherwise this will cause a memory leak on startup (if vterm-module isn't
+;; compiled yet) and therefore crash emx.
+(+global-word-wrap-mode +1)
+(setq +word-wrap-extra-indent 2)
+
 
 ;; (auto-save-visited-mode 1)
 ;; evil-normal-state-map C-t
 
-(add-hook 'evil-insert-state-exit-hook
-          (lambda ()
-            (call-interactively #'save-buffer)))
+; How can I be so fuckin stupid
+; (add-hook 'evil-insert-state-exit-hook
+;           (lambda ()
+;             (call-interactively #'save-buffer)))
 
 (use-package! super-save
   :ensure t
@@ -828,6 +832,9 @@ helm-ff-fuzzy-matching t
           (lambda()
             (yas-activate-extra-mode 'fundamental-mode)))
 
+;; https://github.com/mikefarah/yq
+;; arch: go-yq NOT yq!
+;; NOT https://github.com/kislyuk/yq
 (defun json2yaml ()
   (interactive)
   (shell-command
