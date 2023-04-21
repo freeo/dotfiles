@@ -62,7 +62,9 @@
       ;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :weight 'light )
-      ;; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
+      ; doom-variable-pitch-font (font-spec :family "ReadexPro" :size 16 :weight 'light )
+      ; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
+      ; doom-variable-pitch-font (font-spec :family "Liberation Serif" :size 16 )
       ;; Noto Serif CJK SC Semibold :weight 'light
       ;; mixed-pitch-face (font-spec :family "Lexend" :size 16 :weight 'light )
       doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
@@ -137,7 +139,11 @@
   (run-with-timer 0 nil (lambda (filename)
                           (if (string= buffer-file-name (expand-file-name filename)) ()
                             ;; (message "not equal")
-                            (find-file-other-window filename)
+                            ;; (if (string= (frame-parameter nil 'name) == " *Minibuf-1* - Doom Emacs"))
+                            (if (string= buffer-file-name nil)
+                                (find-file filename)
+                              (find-file-other-window filename)
+                              )
                             ;; (find-file filename)
                             )
                           ) filename
@@ -152,6 +158,10 @@
       :desc "kill buffer" "k" #'kill-current-buffer
       :desc "zoxide travel" "z" #'zoxide-travel
 
+      (:prefix-map ("f" . "")
+       :desc "file open 2nd Brain" "f" #'vterm
+       )
+
       (:prefix-map ("o" . "open")
        :desc "vterm at path of current file" "t" #'vterm
        :desc "vterm here current frame" "o" #'+vterm/here
@@ -159,8 +169,8 @@
        )
       (:prefix-map ("TAB" . "workspace")
        :desc "kill workspace, consistent binding" "k" #'+workspace/delete
-       :desc "kill workspace, consistent binding" "h" #'+workspace/switch-left
-       :desc "kill workspace, consistent binding" "l" #'+workspace/switch-right
+       :desc "left workspace, consistent binding" "h" #'+workspace/switch-left
+       :desc "right workspace, consistent binding" "l" #'+workspace/switch-right
        ;; :desc "kill workspace, consistent binding" "l" #'+workspace/load ;; default for "l"
        )
       (:prefix-map ("s" . "search")
@@ -186,7 +196,8 @@
       (:prefix-map ("r" . "Alrrrrighty Then!")
        :desc "refactor anzu" "r" 'anzu-replace-at-cursor-thing
        :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
-       :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
+       :desc "hot:website.org"       "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/website.org"))
+       ;; :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
        :desc "hot:doom config.el"  "3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
        :desc "hot:.zshrc"          "4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
        :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
@@ -456,17 +467,9 @@ helm-ff-fuzzy-matching t
 ;; (auto-save-visited-mode 1)
 ;; evil-normal-state-map C-t
 
-;; (use-package! super-save
-;;   :defer 1
-;;   :diminish super-save-mode
-;;   :config
-;;   (super-save-mode +1)
-
-;; (setq super-save-auto-save-when-idle t)
-;; (add-to-list 'super-save-triggers 'evil-window-next)
-;; (add-to-list 'super-save-triggers 'evil-window-prev)
-;; )
-
+(add-hook 'evil-insert-state-exit-hook
+          (lambda ()
+            (call-interactively #'save-buffer)))
 
 (use-package! super-save
   :ensure t
@@ -477,7 +480,9 @@ helm-ff-fuzzy-matching t
 (after! org
   (super-save-mode +1))
 
-(setq super-save-auto-save-when-idle t)
+;; this triggers ws-butler too often (removes trailing whitespace at cursor while typing)
+;; (setq super-save-auto-save-when-idle t)
+
 (add-to-list 'super-save-triggers 'evil-window-next)
 (add-to-list 'super-save-triggers 'evil-window-prev)
 
@@ -501,6 +506,11 @@ helm-ff-fuzzy-matching t
   (when buffer-file-name (save-buffer)))
 (defadvice windmove-right (before other-window-now activate)
   (when buffer-file-name (save-buffer)))
+;; xxx switching workspaces
+;; '+workspace/switch-left
+;; '+workspace/switch-right
+;; both use
+;; +workspace/cycle
 
 
 (setq ivy-use-virtual-buffers t)
@@ -564,7 +574,9 @@ helm-ff-fuzzy-matching t
 
 
 (setq fancy-splash-image
-      (expand-file-name "cloudkoloss-v2-black-300.png" doom-private-dir))
+      ;; (expand-file-name "cloudkoloss-v2-black-300.png" doom-private-dir))
+      (expand-file-name "CK Logo Crystal Gradient 300.png" doom-user-dir))
+
 ;; freeo_clean.png
 ;;
 ;; (setq fancy-startup-text "\nMan must shape his tools lest they shape him.\n~Arthur Miller")
@@ -670,7 +682,7 @@ helm-ff-fuzzy-matching t
 ;; (format "%-8s #############" "Wednesday")
 
                                         ; magit ediff default instead of underneath diff
-(setq magit-ediff-dwim-show-on-hunks t)
+;; (setq magit-ediff-dwim-show-on-hunks t)
 
 ;; https://www.dschapman.com/notes/33f4867d-dbe9-4c4d-8b0a-d28ad6376128
 
@@ -743,9 +755,70 @@ helm-ff-fuzzy-matching t
 ;; for the future: entrypoint for increasing git fringe bitmaps:
 ;; https://github.com/hlissner/doom-emacs/issues/2246
 
+;; In case I run into issues mentioned in this cfg snippet, here's the root url.
+;; Not using this cfg as is, because it throws errors
+;; https://github.dev/shouya/emacs.d
+;;
+;; (use-package apheleia
+;;   :ensure t
+;;   :config
+;;   ;; (add-to-list 'apheleia-formatters '(prettier . (npx "prettier" "--stdin-filepath" filepath "--use-tabs false" "--tab-width 8" )))
+
+;;   ;; (prettier "prettier" "--stdin-filepath" filepath "--use-tabs" "false" "--tab-width" "8")
+;;   ;; (prettier-css npx "prettier" "--stdin-filepath" filepath "--parser=css")
+
+;;   ;; (prettier npx "/home/freeo/pcloud/cksk/node_modules/.bin/prettier" "--stdin-filepath" filepath)
+;;   ;; "--use-tabs" "false" "--tab-width" "8"
+
+;;   ;; (setf (alist-get 'ocamlformat apheleia-formatters)
+;;   ;;       '("opam" "exec" "--" "ocamlformat" "--impl" "-"))
+;;   ;; (setf (alist-get 'prettier apheleia-formatters)
+;;   ;;       '(npx "/home/freeo/pcloud/cksk/node_modules/.bin/prettier" "--stdin-filepath" filepath ))
+
+;;   ;; sometimes apheleia erase the whole buffer, which is pretty annoying.
+;;   ;; fix it by detecting this scenario and simply doing no-op
+;;   (defun shou/fix-apheleia-accidental-deletion
+;;       (orig-fn old-buffer new-buffer callback)
+;;     (if (and (=  0 (buffer-size new-buffer))
+;;              (/= 0 (buffer-size old-buffer)))
+;;         ;; do not override anything
+;;         nil
+;;       (funcall orig-fn old-buffer new-buffer callback)))
+
+;;   (advice-add 'apheleia--create-rcs-patch :around #'shou/fix-apheleia-accidental-deletion)
+
+;;   ;; used in hooks to turn off apheleia mode for some modes
+;;   (defun shou/disable-apheleia-mode nil (apheleia-mode -1))
+
+;;   (apheleia-global-mode 1)
+;;   )
+;;
+;;
+
+(use-package apheleia
+  :config
+
+  ;; good example how to replace values in an alist - this seems to be a common config pattern
+  (setf (alist-get 'prettier apheleia-formatters)
+        '(npx "prettier" "--use-tabs" "true" "--stdin-filepath" filepath ))
+
+  ;; used in hooks to turn off apheleia mode for some modes
+  (defun shou/disable-apheleia-mode nil (apheleia-mode -1))
+
+  (apheleia-global-mode 1)
+  )
+
+;; (setf (alist-get 'prettier apheleia-formatters)
+;; '("prettier" "--stdin-filepath" "--stdin-filepath" "--use-tabs false" "--tab-width 8"))
+
 ;; Autoformatting async after save
 ;; https://github.com/radian-software/apheleia
-(apheleia-global-mode +1)
+;; (apheleia-global-mode +1)
+
+
+
+;; (prettier-html npx "prettier" "--stdin-filepath" filepath "--parser=html")
+;; (prettier . (npx "prettier" "--stdin-filepath" filepath))
 
 (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 ;; careful: enforces 4 spaces! bites itself a little with my default: tab-width 2
@@ -794,14 +867,15 @@ helm-ff-fuzzy-matching t
 (setq org-appear-autolinks t)
 (setq org-appear-autoentities t)
 
-; disable auto completion (company) in org-mode
+
+;; disable auto completion (company) in org-mode
 (setq company-global-modes '(not org-mode))
 
 
 
 (defface org-bold
   '((t :weight medium
-       ))
+     ))
   "Face for org-mode bold."
   :group 'org-faces )
 
@@ -850,6 +924,7 @@ helm-ff-fuzzy-matching t
 (font-lock-add-keywords 'org-mode
                         '(("\\([[:blank:]]#[[:blank:]].+$\\)" 1 font-lock-comment-face prepend)) 'append)
 
+;;magit diff
 (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
 
 ;; tested: not invisible: %
@@ -925,9 +1000,9 @@ helm-ff-fuzzy-matching t
         (load-theme local-config-dark-theme t)
       (load-theme local-config-light-theme t))
     ;; (if (string-equal durr "prefer-dark") ;; 2nd access test
-    ;;     (message "eq dark")
-    ;;   (message "eq light"))
-    ;; (message "%s" durr) ;; 3rd access test
+    ;; (message "eq dark")
+    ;; (message "eq light"))
+    (message "%s" durr) ;; 3rd access test
     nil))
 
 
@@ -942,6 +1017,8 @@ helm-ff-fuzzy-matching t
  "org.freedesktop.appearance"
  "color-scheme")
 
+;; Requires xdg-portal-desktop which provides the DBus Interace
+;; Also requires a backend, tested: xdg-portal-desktop-gtk
 (dbus-register-signal
  :session
  "org.freedesktop.portal.Desktop"
@@ -949,6 +1026,13 @@ helm-ff-fuzzy-matching t
  "org.freedesktop.portal.Settings"
  "SettingChanged"
  #'signal-handler)
+
+
+;; string "type='signal',interface='',path='/ca
+;; /desrt/dconf/Writer/user',arg0path='/org/gnome/desktop/interface/'"
+;; method return time=1675795353.914985 sender=org.freedesktop.DBus ->
+;; destination=:1.502 serial=3 reply_serial=2
+
 
 ;; (dbus-introspect
 ;;  :system "org.gnome.desktop.interface"
@@ -990,4 +1074,9 @@ helm-ff-fuzzy-matching t
 
 (setq org-sidebar-tree-jump-fn 'org-sidebar-tree-jump-source)
 
+(setq ispell-dictionary "de_DE")
 
+;; (set-file-template! "\\.svx$" :trigger "__" :mode 'web-mode)
+
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.svx\\'" . web-mode))
