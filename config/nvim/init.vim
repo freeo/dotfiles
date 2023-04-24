@@ -53,6 +53,11 @@ filetype off " required
 " set runtimepath+=$HOME/.vim/bundle/Vundle.vim
 " call vundle#rc('~/.vim/bundle')
 "
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
 call plug#begin('~/.vim/plugged')
  
@@ -133,6 +138,9 @@ if !exists('g:vscode')
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/nvim-cmp'
 
+  Plug 'mfussenegger/nvim-dap'
+  Plug 'mxsdev/nvim-dap-vscode-js'
+
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
   Plug 'folke/which-key.nvim'
   Plug 'shime/vim-livedown'
@@ -143,6 +151,7 @@ if !exists('g:vscode')
   Plug 'liuchengxu/vim-clap'
   Plug 'jvgrootveld/telescope-zoxide'
 
+  Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
   if has('nvim')
     " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
@@ -185,6 +194,8 @@ if !exists('g:vscode')
   if has("win64")
     Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
   endif
+  Plug 'evanleck/vim-svelte'
+
 endif
 " Bundle 'https://github.com/xolox/vim-easytags'
 " Bundle 'https://github.com/xolox/vim-misc'
@@ -234,190 +245,192 @@ call plug#end()
 set completeopt=menu,menuone,noselect
 
 lua <<EOF
-  -- Setup nvim-cmp.
-  local cmp = require'cmp'
+  if vim.g.vscode == nil then
+    -- Setup nvim-cmp.
+    local cmp = require'cmp'
 
-  cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-        -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
-      end,
-    },
-    mapping = {
-      ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-      ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-      ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-      ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-      ['<C-e>'] = cmp.mapping({
-        i = cmp.mapping.abort(),
-        c = cmp.mapping.close(),
-      }),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    },
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-      -- { name = 'luasnip' }, -- For luasnip users.
-      -- { name = 'ultisnips' }, -- For ultisnips users.
-      -- { name = 'snippy' }, -- For snippy users.
-    }, {
-      { name = 'buffer' },
+    cmp.setup({
+      snippet = {
+        -- REQUIRED - you must specify a snippet engine
+        expand = function(args)
+          vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+          -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+          -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
+        end,
+      },
+      mapping = {
+        ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+        ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+        ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+        ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+        ['<C-e>'] = cmp.mapping({
+          i = cmp.mapping.abort(),
+          c = cmp.mapping.close(),
+        }),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }),
+      },
+      sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+        { name = 'vsnip' }, -- For vsnip users.
+        -- { name = 'luasnip' }, -- For luasnip users.
+        -- { name = 'ultisnips' }, -- For ultisnips users.
+        -- { name = 'snippy' }, -- For snippy users.
+      }, {
+        { name = 'buffer' },
+      })
     })
-  })
 
-  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline('/', {
-    sources = {
-      { name = 'buffer' }
-    }
-  })
-
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline(':', {
-    sources = cmp.config.sources({
-      { name = 'path' }
-    }, {
-      { name = 'cmdline' }
-    })
-  })
-
-  -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
-  -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
-
-  vim.o.completeopt = 'menu,menuone,noselect'
-  -- Shared LSP settings
-  local nvim_lsp = require 'lspconfig'
-
-
-  local on_attach = function(_, bufnr)
-    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-
-    buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-    local opts = { noremap = true, silent = true }
-    buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-    buf_set_keymap('n', '<leader>o', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-    buf_set_keymap('n', '<Leader>K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-    buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-    buf_set_keymap('n', '<Leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-    buf_set_keymap('n', '<Leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-    buf_set_keymap('n', '<Leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-    buf_set_keymap('n', '<Leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-    buf_set_keymap('n', '<Leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-    buf_set_keymap('n', '<Leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-    buf_set_keymap('v', '<Leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
-    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-    buf_set_keymap('n', '<Leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-    buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-    buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-    buf_set_keymap('n', '<Leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
-    buf_set_keymap('n', '<Leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
-    vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
-  end
-
-
-  -- nvim-cmp supports additional completion capabilities
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
-
-  -- Enable the following language servers
-  -- local servers = { 'gopls', 'pyright', 'tsserver' }
-  local servers = { 'gopls', 'tsserver' }
-  for _, lsp in ipairs(servers) do
-      nvim_lsp[lsp].setup {
-          on_attach = on_attach,
-          capabilities = capabilities,
+    -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline('/', {
+      sources = {
+        { name = 'buffer' }
       }
-  end
+    })
+
+    -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline(':', {
+      sources = cmp.config.sources({
+        { name = 'path' }
+      }, {
+        { name = 'cmdline' }
+      })
+    })
+
+    -- Setup lspconfig.
+    local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+    -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+
+    vim.o.completeopt = 'menu,menuone,noselect'
+    -- Shared LSP settings
+    local nvim_lsp = require 'lspconfig'
 
 
-  require'lspconfig'.gopls.setup{}
---   require'lspconfig'.gopls.setup{
---
---     cmd = {"gopls", "serve"},
--- }
-  -- GOPLS {{{
-  -- require'lspconfig'.gopls.setup{
-  --   on_attach = on_attach_vim,
-  --   capabilities = capabilities,
-  --   cmd = {"gopls", "serve"},
-  --   settings = {
-  --     gopls = {
-  --       analyses = {
-  --         unusedparams = true,
-  --       },
-  --       staticcheck = true,
-  --       linksInHover = false,
-  --       codelens = {
-  --         generate = true,
-  --         gc_details = true,
-  --         regenerate_cgo = true,
-  --         tidy = true,
-  --         upgrade_depdendency = true,
-  --         vendor = true,
-  --       },
-  --       usePlaceholders = true,
-  --     },
-  --   }
-  -- }
+    local on_attach = function(_, bufnr)
+      local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+      local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+      buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+      local opts = { noremap = true, silent = true }
+      buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+      buf_set_keymap('n', '<leader>o', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+      buf_set_keymap('n', '<Leader>K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+      buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+      buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+      buf_set_keymap('n', '<Leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+      buf_set_keymap('n', '<Leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+      buf_set_keymap('n', '<Leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+      buf_set_keymap('n', '<Leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+      buf_set_keymap('n', '<Leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+      buf_set_keymap('n', '<Leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+      buf_set_keymap('v', '<Leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
+      buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+      buf_set_keymap('n', '<Leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+      buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+      buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+      buf_set_keymap('n', '<Leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+      buf_set_keymap('n', '<Leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+      vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
+    end
+
+
+    -- nvim-cmp supports additional completion capabilities
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+
+    -- Enable the following language servers
+    -- local servers = { 'gopls', 'pyright', 'tsserver' }
+    local servers = { 'gopls', 'tsserver' }
+    for _, lsp in ipairs(servers) do
+        nvim_lsp[lsp].setup {
+            on_attach = on_attach,
+            capabilities = capabilities,
+        }
+    end
+
+
+    require'lspconfig'.gopls.setup{}
+  --   require'lspconfig'.gopls.setup{
   --
-
-  require'lspconfig'.tsserver.setup{}
-  require'lspconfig'.jsonnet_ls.setup{}
-  -- require'lspconfig'.pyright.setup{}
-
-
-  -- require('lspconfig')['<YOUR_LSP_SERVER>'].setup {
-  --   capabilities = capabilities
+  --     cmd = {"gopls", "serve"},
   -- }
+    -- GOPLS {{{
+    -- require'lspconfig'.gopls.setup{
+    --   on_attach = on_attach_vim,
+    --   capabilities = capabilities,
+    --   cmd = {"gopls", "serve"},
+    --   settings = {
+    --     gopls = {
+    --       analyses = {
+    --         unusedparams = true,
+    --       },
+    --       staticcheck = true,
+    --       linksInHover = false,
+    --       codelens = {
+    --         generate = true,
+    --         gc_details = true,
+    --         regenerate_cgo = true,
+    --         tidy = true,
+    --         upgrade_depdendency = true,
+    --         vendor = true,
+    --       },
+    --       usePlaceholders = true,
+    --     },
+    --   }
+    -- }
+    --
 
+    -- require'lspconfig'.tsserver.setup{}
+    require'lspconfig'.jsonnet_ls.setup{}
+    -- require'lspconfig'.pyright.setup{}
+
+
+    -- require('lspconfig')['<YOUR_LSP_SERVER>'].setup {
+    --   capabilities = capabilities
+    -- }
+
+      require("which-key").setup {
+       spelling = {
+          enabled = false, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
+          suggestions = 20, -- how many suggestions should be shown in the list?
+        },
+       presets = {
+          operators = true, -- adds help for operators like d, y, ... and registers them for motion / text object completion
+          motions = true, -- adds help for motions
+          text_objects = true, -- help for text objects triggered after entering an operator
+          windows = true, -- default bindings on <c-w>
+          nav = true, -- misc bindings to work with windows
+          z = true, -- bindings for folds, spelling and others prefixed with z
+          g = true, -- bindings for prefixed with g
+        },
+      window = {
+        border = "none", -- none, single, double, shadow
+        position = "bottom", -- bottom, top
+        margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
+        padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
+        winblend = 0
+      },
+      layout = {
+        height = { min = 4, max = 25 }, -- min and max height of the columns
+        width = { min = 20, max = 50 }, -- min and max width of the columns
+        spacing = 3, -- spacing between columns
+        align = "left", -- align columns left, center or right
+      },
+      }
+
+
+
+  end
 EOF
 
-
-lua <<EOF
-  require("which-key").setup {
-   spelling = {
-      enabled = false, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
-      suggestions = 20, -- how many suggestions should be shown in the list?
-    },
-   presets = {
-      operators = true, -- adds help for operators like d, y, ... and registers them for motion / text object completion
-      motions = true, -- adds help for motions
-      text_objects = true, -- help for text objects triggered after entering an operator
-      windows = true, -- default bindings on <c-w>
-      nav = true, -- misc bindings to work with windows
-      z = true, -- bindings for folds, spelling and others prefixed with z
-      g = true, -- bindings for prefixed with g
-    },
-  window = {
-    border = "none", -- none, single, double, shadow
-    position = "bottom", -- bottom, top
-    margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
-    padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
-    winblend = 0
-  },
-  layout = {
-    height = { min = 4, max = 25 }, -- min and max height of the columns
-    width = { min = 20, max = 50 }, -- min and max width of the columns
-    spacing = 3, -- spacing between columns
-    align = "left", -- align columns left, center or right
-  },
-  }
-EOF
 
 " https://github.com/folke/which-key.nvim#%EF%B8%8F-configuration
 " set timeoutlen 500
 
 lua <<EOF
+if vim.g.vscode == nil then
   -- …
-
   function goimports(timeout_ms)
     local context = { only = { "source.organizeImports" } }
     vim.validate { context = { context, "t", true } }
@@ -447,10 +460,6 @@ lua <<EOF
       vim.lsp.buf.execute_command(action)
     end
   end
-EOF
-
-
-lua <<EOF
 
 local t = require("telescope")
 local z_utils = require("telescope._extensions.zoxide.utils")
@@ -494,6 +503,7 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 vim.keymap.set('n', '<leader>ft', builtin.treesitter, {})
 vim.keymap.set('n', '<leader>fr', builtin.registers, {})
 
+end
 EOF
 
 autocmd BufWritePre *.go lua goimports(1000)
@@ -512,7 +522,7 @@ else
     " deprecated: let g:python_host_prog = "/usr/bin/python"
     let g:python3_host_prog = "/usr/bin/python3"
   elseif has("mac")
-    " let g:python3_host_prog = "/Users/arthur.jaron/.pyenv/versions/neovim/bin/python"
+    " let g:python3_host_prog = "/Users/freeo/.pyenv/versions/neovim/bin/python"
     let g:python_host_prog = "/usr/bin/python"
     let g:python3_host_prog = "/usr/local/bin/python3"
   elseif has('win32')
@@ -733,10 +743,11 @@ set expandtab
 set wrap linebreak nolist
 " XXX new in 7.4.338, test thoroughly 
 
-try
-  set breakindent
-  catch E518
-endtry
+" 2023 04 14 still relevant?
+" try
+"   set breakindent
+"   catch E518
+" endtry
 
 " set textwidth=80
 set textwidth=110
@@ -829,7 +840,6 @@ inoremap  <BS>
 inoremap  <DEL>
 
 " let isfname=@,48-57,/,\,.,-,_,+,,,#,$,%,{,},[,],:,@-@,!,~,=
-" dirvish: invalid directory: 'C:/Users/arthur.jaron/OneDrive - Accenture/sherlock'
 
 
 
@@ -1113,8 +1123,9 @@ autocmd BufReadPost *
 
 " Buffers
 " Close the current buffer
-map <leader>q :Bclose<cr>
 map <leader>k :Bclose<cr>
+" Close
+map <leader>q :q!<cr>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Editing mappings
@@ -1271,12 +1282,13 @@ exec 'set backupdir='.g:vimfiles.'/backup'
 exec 'set dir='.g:vimfiles.'/swap'
 
 
+" 2023 04 14 still relevant?
 " Default Working Directory, not Win/System32
-try
-  cd E:/WorkDir/
-  catch E344
-  " XXX else?
-endtry
+" try
+"  cd E:/WorkDir/
+"  catch E344
+"  " XXX else?
+" endtry
 
 " Highlight NBSP
 " --------------
@@ -1763,7 +1775,6 @@ endfunction
 
 
 let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.vim','~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
-" let g:startify_bookmarks = ['~/dotfiles/vimrc','C:/Users/arthur.jaron/Documents/viki','E:/GDrive/vocabulary.txt',g:vimfiles.'/plugged/vimtext-projectsens/syntax/text.vim', g:vimfiles.'/temp.txt', g:vimfiles.'/leftoff.txt', g:vimfiles.'/gemvs.txt']
 "
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
@@ -2279,12 +2290,21 @@ endif
 
 
 " Multiple Cursors
+let g:VM_maps = {}
+let g:VM_maps["Undo"] = 'u'
+let g:VM_maps["Redo"] = '<C-r>'
+
+" emx equivalence: results in gzz to create multiple cursors
+let g:VM_leader = {'default': '\', 'visual': 'g', 'buffer': 'z'}
+let g:VM_maps["Visual Cursors"] = 'z'
+
+" Deprecated Multiple-Cursors:
 " https://github.com/terryma/vim-multiple-cursors
-let g:multi_cursor_use_default_mapping=0
-let g:multi_cursor_next_key='<C-m>'
-let g:multi_cursor_prev_key='<C-p>'
-let g:multi_cursor_skip_key='<C-x>'
-let g:multi_cursor_quit_key='<Esc>'
+" let g:multi_cursor_use_default_mapping=0
+" let g:multi_cursor_next_key='<C-m>'
+" let g:multi_cursor_prev_key='<C-p>'
+" let g:multi_cursor_skip_key='<C-x>'
+" let g:multi_cursor_quit_key='<Esc>'
 " let g:multi_cursor_start_key='<F6>'
 
 " Idee: S-H und S-L für line anfang und Ende, da ich das Standardmapping nie
@@ -2525,7 +2545,7 @@ function! CollectTasks()
 execute "redir @i"
 silent execute "g/ DOCS\\|todo\\|fixme\\|XXX\\|OPEN\\|PENDING\\|HOLD\\|INFO\\|DONE\\|PLAN\\|TODO\\|TASK\\|E-MAIL\\|TALK\\|MEETING\\|FEEDBACK\\|\\d\\{4}\\s---\\|NOTES"
 execute "redir end"
-execute "e C:/Users/arthur.jaron/Documents/TasklistOutput/tasklist_".  strftime("%Y-%m-%d %H-%M-%S").".txt"
+execute "e C:/Users/freeo/Documents/TasklistOutput/tasklist_".  strftime("%Y-%m-%d %H-%M-%S").".txt"
 execute 'normal "ip'
 endfunction
 
@@ -2559,10 +2579,6 @@ nmap <leader>t :call TodaySeparator()<CR>
 let g:ycm_auto_trigger = 0
 
 
-let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
-" let g:pacman_string = "C:/Users/arthur.jaron/AI/pacman/p1search/pacman.py -l mediumMaze -p SearchAgent -a fn=depthFirstSearch "
-" let g:pacman_string = "E:/AI/pacman/p1search/pacman.py -z 0.5 -l tinyMaze -p SearchAgent -a fn=depthFirstSearch "
-
 
 augroup pygroup
   autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
@@ -2585,8 +2601,8 @@ function! PyAutocmd()
     nmap <S-F9> :call SetWDToCurrentFile()<Bar>update<BAR>call system(shellescape("C:\\Program Files\\ConEmu\\ConEmu64.exe") ." /single -run py.exe -m ipdb " . expand('%:S') ." -cur_console:c:t:".expand('%:t'))<CR>
 
     " Workaround
-    let g:py_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py ". expand("%")
-    let g:ipdb_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat py -m ipdb ". expand("%")
+    let g:py_conemu = "c:/users/freeo/dotfiles/conemu_nvim_curconsole.bat py ". expand("%")
+    let g:ipdb_conemu = "c:/users/freeo/dotfiles/conemu_nvim_curconsole.bat py -m ipdb ". expand("%")
 
     " echom g:py_conemu
     " nmap <F9> :call jobstart(g:py_conemu)<CR>
@@ -2597,9 +2613,9 @@ function! PyAutocmd()
   " let g:py_conemu = "C:/Program Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
   " let g:py_conemu = "C:/Program\ Files/ConEmu/ConEmu64.exe /single -run ".expand("%")." -cur_console:c"
   " nmap <F9> :call jobstart(shellescape(''.g:py_conemu))<CR>
-  " nmap <F9> :call jobstart("c:/users/arthur.jaron/dotfiles/py_conemu.bat ". expand("%"))<CR>
+  " nmap <F9> :call jobstart("c:/users/freeo/dotfiles/py_conemu.bat ". expand("%"))<CR>
   " MANGLED with \v at several points, but works - without the mapping
-  " nmap <F9> :call jobstart(['c:/users/arthur.jaron/dotfiles/py_conemu.bat', expand("%")])<CR>
+  " nmap <F9> :call jobstart(['c:/users/freeo/dotfiles/py_conemu.bat', expand("%")])<CR>
   " nmap <F9> :execute "call jobstart(".g:py_conemu." ".expand(%).")"<CR>
   
   " NOT IN NEOVIM
@@ -2610,7 +2626,7 @@ function! PyAutocmd()
   endif
   " nmap <Enter> :execute '!start '.g:conemu.' py -m ipdb '. g:pacman_string .' -cur_console:c'<CR>
   " WORKING but dont do this for now - it's annoying
-  " nmap <Enter> :execute '!'.shellescape('C:/Users/arthur.jaron/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
+  " nmap <Enter> :execute '!'.shellescape('C:/Users/freeo/AI/pacman/p1search/CornersTiny_BFS.bat')<CR>
 endfunction
 " autocmd Filetype python nnoremap <buffer> <F9> :call SetWDToCurrentFile()<Bar>:update<Bar> execute '!start '.g:conemu.' py -3 '.shellescape(@%, 1).' -cur_console:c'<CR><CR>
 
@@ -2628,7 +2644,7 @@ function! CsharpAutocmd()
   silent call SetWDToCurrentFile()
   update
   let g:csc="C:\\Program Files\\Roslyn\\Microsoft.Net.Compilers.2.8.2\\tools\\csc.exe"
-  let g:csc_conemu = "c:/users/arthur.jaron/dotfiles/conemu_nvim_curconsole.bat ".g:csc." ". expand("%")
+  let g:csc_conemu = "c:/users/freeo/dotfiles/conemu_nvim_curconsole.bat ".g:csc." ". expand("%")
   " don't know exactly why this works in cmd.exe and nvim, but it does!
   " %1 contains "...Program Files..." and isn't in quotes
   echom g:csc_conemu
@@ -2824,8 +2840,49 @@ function! SynGroup()
     echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
 endfun
 
+
+
+
+lua <<EOF
+if vim.g.vscode == nil then
+require("dap-vscode-js").setup({
+  -- node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+  debugger_path = "/home/freeo/wb/vscode-js-debug", -- Path to vscode-js-debug installation.
+  -- debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+  adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' }, -- which adapters to register in nvim-dap
+  -- log_file_path = "(stdpath cache)/dap_vscode_js.log" -- Path for file logging
+  -- log_file_level = false -- Logging level for output to file. Set to false to disable file logging.
+  -- log_console_level = vim.log.levels.ERROR -- Logging level for output to console. Set to false to disable console output.
+})
+
+for _, language in ipairs({ "typescript", "javascript" }) do
+  require("dap").configurations[language] = {
+      {
+        type = "node-terminal",
+        request = "launch",
+        name = "SvelteKit VaVite ESM",
+        command = "pnpm vavite-loader vite dev --port 3000",
+        cwd = "${workspaceFolder}",
+      },
+      {
+        type = "pwa-node",
+        request = "launch",
+        name = "Launch file",
+        program = "${file}",
+        cwd = "${workspaceFolder}",
+      },
+      {
+        type = "pwa-node",
+        request = "attach",
+        name = "Attach",
+        processId = require'dap.utils'.pick_process,
+        cwd = "${workspaceFolder}",
+      }
+  }
+end
+
+end
+EOF
+
 " echom "correct vimrc!"
 " End of my epic vimrc!
-
-
-
