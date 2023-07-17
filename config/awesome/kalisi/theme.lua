@@ -53,6 +53,9 @@ theme.hud_slider_bg = "#462E6E"
 -- Example:
 --theme.taglist_bg_focus = "#ff0000"
 
+theme.tasklist_bg_normal   = "#303030"
+theme.tasklist_bg_minimize = "#606060"
+
 theme.tooltip_fg = theme.fg_normal
 theme.tooltip_bg = theme.bg_normal
 

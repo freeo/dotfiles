@@ -1,4 +1,4 @@
--- source and autho
+-- source and author
 -- https://raw.githubusercontent.com/1jss/awesome-lighter/main/awesome/components/volume-adjust.lua
 
 -- ===================================================================
@@ -15,7 +15,7 @@ local dpi = beautiful.xresources.apply_dpi
 
 local offsety = dpi(80)
 local offsetx = dpi(256)
-local screen = awful.screen.focused()
+-- local screen = awful.screen.focused()
 local icon_dir = gears.filesystem.get_configuration_dir() .. "/icons/volume/"
 
 
@@ -97,15 +97,38 @@ local hide_volume_adjust = gears.timer {
 }
 
 
+-- local tmpscreen = 3
+
 -- client.connect_signal("focus", function(c)
 -- awful.client.screen.connect_signal("focus", function(c)
 awesome.connect_signal("screen_change", function()
 
   volume_adjust.screen = awful.screen.focused()
-  volume_adjust.x = (screen.geometry.width/2) - offsetx
+  volume_adjust.x = (volume_adjust.screen.geometry.width/2) - offsetx
   volume_adjust.y = offsety
 
-  -- naughty.notify({ title="Debug", text="screen:".. awful.screen.focused()  })
+  awful.placement.top_left(volume_adjust, {
+      parent = awful.screen.focused(),
+      margins = { left = volume_adjust.x, top = volume_adjust.y },
+  })
+
+  -- if (tmpscreen == 1) then
+  --   volume_adjust.screen = 2
+  --   tmpscreen = 2
+  -- elseif (tmpscreen == 2) then
+  --   volume_adjust.screen = 1
+  --   tmpscreen = 1
+  -- else
+  --   volume_adjust.screen = 1
+  --   tmpscreen = 1
+  --   naughty.notify({ title="Debug Volume Adjust", text="init to screen 1" })
+  -- end
+
+  -- awful.placement.no_offscreen(volume_adjust, {screen})
+
+  -- naughty.notify({ title="Debug Volume Adjust", text="screen:  ".. tostring(awful.screen.focused()) .."\nvscreen: " .. tostring(volume_adjust.screen) })
+
+
 end)
 
 -- show volume-adjust when "volume_change" signal is emitted
@@ -114,7 +137,8 @@ awesome.connect_signal("volume_change",
       -- set new volume value
       awful.spawn.easy_async_with_shell(
           -- 0.1 was carefully tested: smaller values result in wrong display for fast changes
-         "sleep 0.1 && amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
+         "sleep 0.1 && amixer -D pulse sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
+         -- "sleep 0.1 && amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
          function(stdout)
             local volume_level = tonumber(stdout)
             if (volume_level == nil ) then

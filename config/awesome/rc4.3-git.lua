@@ -18,6 +18,8 @@ local ruled = require("ruled")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 
+awesome.set_preferred_icon_size(64)
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -50,7 +52,13 @@ local sharedtags = require("awesome-sharedtags")
 -- beautiful.init(gears.filesystem.get_themes_dir() .. "kalisi/theme.lua")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "kalisi/theme.lua")
 beautiful.column_count = 3
+beautiful.xresources.set_dpi(144)
 
+
+-- must be after beautiful.init()
+local revelation=require("awesome-revelation")
+revelation.init()
+-- https://github.com/guotsuan/awesome-revelation
 
 -- https://blingcorp.github.io/bling/#/README
 local bling = require("bling")
@@ -115,17 +123,17 @@ local editor = machi.editor.create()
 -- Table of layouts to cover with awful.layout.inc, order matters.
 tag.connect_signal("request::default_layouts", function()
     awful.layout.append_default_layouts({
-        awful.layout.suit.tile,
         kalisi.layout.tile49wide,
+        awful.layout.suit.tile,
         bling.layout.mstab, -- nice for toshiba
-        bling.layout.centered,
-        bling.layout.vertical,
+        -- bling.layout.centered,
+        -- bling.layout.vertical,
         -- bling.layout.equalarea, -- would be nice with some tweaks
-        bling.layout.deck,
+        -- bling.layout.deck,
         -- layout_3col,
         -- machi.default_layout,
 
-        -- awful.layout.suit.floating,
+        awful.layout.suit.floating,
         awful.layout.suit.max,
         --
         -- awful.layout.suit.tile.left,
@@ -143,6 +151,7 @@ end)
 -- }}}
 
 
+-- https://www.reddit.com/r/awesomewm/comments/k3wkb2/how_can_i_stop_extra_startup_background_programs/
 function run_once(prg, arg_string, pname, screen)
     if not prg then
         do return nil end
@@ -273,13 +282,46 @@ screen.connect_signal("request::desktop_decoration", function(s)
             awful.button({}, 3, function() awful.menu.client_list { theme = { width = 250 } } end),
             awful.button({}, 4, function() awful.client.focus.byidx(-1) end),
             awful.button({}, 5, function() awful.client.focus.byidx(1) end),
-        }
+        },
+        widget_template = {
+            {
+                {
+                    {
+                        {
+                            id     = "icon_role",
+                            widget = wibox.widget.imagebox,
+                        },
+                        margins = 2,
+                        widget  = wibox.container.margin,
+                    },
+                    {
+                        id     = "text_role",
+                        widget = wibox.widget.textbox,
+                    },
+                    layout = wibox.layout.fixed.horizontal,
+                    -- forced_width    = 148,
+                    -- forced_height   = 24,
+                },
+                left  = 15,
+                right = 5,
+                widget = wibox.container.margin
+            },
+            id     = "background_role",
+            widget = wibox.container.background,
+            forced_width = 300,
+        },
     }
+
+
+    -- function s.mytasklist.layout:fit(context, width, height)
+    --     return math.min(150, width), height
+    -- end
 
     -- @DOC_WIBAR@
     -- Create the wibox
     s.mywibox = awful.wibar {
         position = "top",
+        height = 32,
         screen   = s,
         -- @DOC_SETUP_WIDGETS@
         widget   = {
@@ -290,7 +332,11 @@ screen.connect_signal("request::desktop_decoration", function(s)
                 s.mytaglist,
                 s.mypromptbox,
             },
-            s.mytasklist, -- Middle widget
+            wibox.widget {-- Middle widget
+                    s.mytasklist,
+                    halign = "center",
+                    widget = wibox.container.place
+            },
             { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
                 wibox.widget.systray(),
@@ -306,7 +352,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
                 -- apt_widget(), -- bugged
                 mykeyboardlayout,
                 mytextclock,
-                widget_mic,
+                -- widget_mic,
                 s.mylayoutbox,
             },
         }
@@ -336,7 +382,7 @@ awful.keyboard.append_global_keybindings({
     -- {description = "show main menu", group = "awesome"}),
     awful.key({ modkey, "Shift" }, "r", awesome.restart,
         { description = "reload awesome", group = "awesome" }),
-    awful.key({ modkey, "Shift" }, "q", awesome.quit,
+    awful.key({ modkey, "Control", "Shift" }, "q", awesome.quit,
         { description = "quit awesome", group = "awesome" }),
     awful.key({ modkey, "Control", "Shift" }, "e",
         function()
@@ -348,6 +394,13 @@ awful.keyboard.append_global_keybindings({
             }
         end,
         { description = "lua execute prompt", group = "awesome" }),
+    awful.key({ "Mod1" }, "Escape", function ()
+        -- If you want to always position the menu on the same place set coordinates
+        awful.menu.menu_keys.down = { "Down", "Alt_L" }
+        awful.menu.clients({theme = { width = 250 }}, { keygrabber=true, coords={x=525, y=330} })
+    end,
+        {description = "client list", group = "awesome"}),
+
     awful.key({ modkey, }, "Return", function() awful.spawn(terminal) end,
         { description = "open terminal", group = "launcher" }),
     awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
@@ -415,10 +468,10 @@ awful.keyboard.append_global_keybindings({
         { description = "increase master width factor", group = "layout" }),
     awful.key({ modkey, }, "l", function() awful.tag.incmwfact(-0.05) end,
         { description = "decrease master width factor", group = "layout" }),
-    awful.key({ modkey, "Shift" }, "h", function() awful.tag.incnmaster(1, nil, true) end,
-        { description = "increase the number of master clients", group = "layout" }),
-    awful.key({ modkey, "Shift" }, "l", function() awful.tag.incnmaster(-1, nil, true) end,
-        { description = "decrease the number of master clients", group = "layout" }),
+    -- awful.key({ modkey, "Shift" }, "h", function() awful.tag.incnmaster(1, nil, true) end,
+    --     { description = "increase the number of master clients", group = "layout" }),
+    -- awful.key({ modkey, "Shift" }, "l", function() awful.tag.incnmaster(-1, nil, true) end,
+    --     { description = "decrease the number of master clients", group = "layout" }),
     awful.key({ modkey, "Control" }, "h", function() awful.tag.incncol(1, nil, true) end,
         { description = "increase the number of columns", group = "layout" }),
     awful.key({ modkey, "Control" }, "l", function() awful.tag.incncol(-1, nil, true) end,
@@ -427,6 +480,9 @@ awful.keyboard.append_global_keybindings({
         { description = "select next", group = "layout" }),
     awful.key({ modkey, "Shift" }, "space", function() awful.layout.inc(-1) end,
         { description = "select previous", group = "layout" }),
+
+    awful.key({ modkey, "Shift" }, "l", function () awful.client.incwfact(-0.05) end),
+    awful.key({ modkey, "Shift" }, "h", function () awful.client.incwfact( 0.05) end),
 })
 
 -- @DOC_NUMBER_KEYBINDINGS@
@@ -601,16 +657,24 @@ for i, _ in ipairs(tags) do
 end
 
 
-function mic_border_reset()
-    local c = client.focus
-    if c then
-        c.border_color         = "#7e5edc"
-        beautiful.border_focus = "#7e5edc"
-    end
-end
+
+local microphone = require("widgets.microphone")
 
 -- Keybindings by Freeo
 awful.keyboard.append_global_keybindings({
+
+    -- SYSTEM
+    awful.key({ "Ctrl","Alt_L" }, "Delete", function() awful.spawn.with_shell(
+            "sudo pkill -f '/usr/lib/Xorg'")
+    end, { description = "Kill Xorg", group = "System" }),
+
+    awful.key({ modkey,"Shift" }, "w", function() awful.spawn.with_shell(
+            "xkill")
+    end, { description = "xkill", group = "System" }),
+
+    -- LAYOUT
+    awful.key({ modkey,           }, "t",      revelation,
+        { description = "Revelation", group = "awesome" }),
 
     -- machi
     awful.key({ modkey, }, "/", function() editor.start_interactive(awful.screen.focused())
@@ -619,10 +683,14 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey, }, "Tab", function() machi.switcher.start()
     end, { description = "Machi Switcher", group = "machi" }),
 
+
     -- AUDIO
-    awful.key({ modkey, }, "6", function() awful.spawn.with_shell(
-            "MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && pactl set-source-mute $MICSRC toggle")
-    end, { description = "Toggle Mic: Jack Source ", group = "Audio" }),
+    awful.key{
+        modifiers = { modkey, },
+        key = "6",
+        on_press = function() microphone.Toggle() end,
+        description = "Toggle Mic: Jack Source ",
+        group = "Audio" },
     -- awful.key({}, "XF86AudioRaiseVolume", function() awful.spawn.with_shell(
     --             "JACKOUT=$(pactl list short sinks | rg jack_out | cut -c 1-2 | xargs) && pactl set-sink-volume $JACKOUT +5%")
     --     end, {description = "Volume INCREASE jack_out", group = "Audio"}),
@@ -683,15 +751,15 @@ awful.keyboard.append_global_keybindings({
     -- XXX make this fallback save! Identify 5120x1440 monitor by xrandr output and use that instead of
     -- possible dynamic values like DP-0,DP-4,DP-5 etc.
     awful.key({ modkey, "Control" }, "=",
-        function() awful.spawn("xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end
+        function() awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end
         ,
         { description = "xrandr NeoG9+Toshiba", group = "xrandr" }),
     awful.key({ modkey, "Control" }, "7",
-        function() awful.spawn("xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off") end,
+        function() awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off") end,
         { description = "only NeoG9", group = "xrandr" }),
     -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
     awful.key({ modkey, "Control" }, "8",
-        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-4 >/dev/null && xrandr --output DP-4 --off || xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144") end
+        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144") end
         ,
         { description = "toggle NeoG9", group = "xrandr" }),
     awful.key({ modkey, "Control" }, "9",
@@ -704,6 +772,12 @@ awful.keyboard.append_global_keybindings({
     --           {description = "turn off Toshiba", group = "xrandr"}),
 
     -- rofi -combi-modi window,drun,ssh -theme solarized -font "hack 10" -show combi -icon-theme "Papirus" -show-icons
+
+    -- AWM INTERNAL: client
+    --
+    -- doesn't work
+    -- awful.key({ modkey, 'Control' }, 't', awful.titlebar.toggle(client.focus),
+    --     { description = 'toggle title bar', group = 'client' }),
 
     -- APPLICATIONS
     awful.key({ modkey, }, "p", function() awful.spawn("rofi -show drun -show-icons") end,
@@ -729,9 +803,15 @@ awful.keyboard.append_global_keybindings({
     -- awful.key({ modkey, "Shift" }, "#35", function () awful.spawn.with_shell("/usr/local/bin/hue lights all off") end,
     --           {description = "OFF Hue Play Bars", group = "Hue"}),
 
-    awful.key({ "Control", "Shift" }, "b",
-        function() awful.spawn("/usr/bin/diodon", { urgent = false, marked = false }) end,
-        { description = 'clipboard manager', group = 'Applications' }),
+    -- awful.key({ "Control", "Shift" }, "b",
+    --     function() awful.spawn("/usr/bin/diodon", { urgent = false, marked = false }) end,
+    --     { description = 'clipboard manager', group = 'Applications' }),
+    -- awful.key({ "Control", "Shift" }, "b",
+    --     function() awful.spawn("/usr/bin/diodon", { urgent = false, marked = false }) end,
+    --     { description = 'clipboard manager', group = 'Applications' }),
+
+    -- awful.key({ modkey, "Shift" }, "u", function() awful.spawn("pcmanfm", { urgent = false, marked = false }) end,
+    --     { description = 'File Manager', group = 'Applications' }),
 
     awful.key({ modkey, "Shift" }, "u", function() awful.spawn("pcmanfm", { urgent = false, marked = false }) end,
         { description = 'File Manager', group = 'Applications' }),
@@ -739,12 +819,13 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey, "Control" }, "c", function() awful.spawn("/home/freeo/bin/Chrysalis-0.12.0.AppImage") end,
         { description = "open Chrysalis", group = "Applications" }),
 
+    awful.key({ modkey, "Shift" }, "4", function() awful.spawn.with_shell("flameshot gui") end,
+        { description = "Screenshot flameshot", group = "Applications" }),
+
     -- always last entry, no comma
-    awful.key({ modkey, "Shift" }, "4", function() awful.spawn.with_shell(
-            "flameshot gui"
-        )
-    end,
-        { description = "Screenshot flameshot", group = "Applications" })
+    awful.key({ modkey, "Shift" }, "5", function() awful.spawn("gpick", { urgent = false, marked = false }) end,
+        { description = 'File Manager', group = 'Applications' })
+
 })
 
 
@@ -772,8 +853,8 @@ client.connect_signal("request::default_keybindings", function()
                 c:raise()
             end,
             { description = "toggle fullscreen", group = "client" }),
-        awful.key({ modkey, "Shift" }, "c", function(c) c:kill() end,
-            { description = "close", group = "client" }),
+        -- awful.key({ modkey, "Shift" }, "c", function(c) c:kill() end,
+        --     { description = "close", group = "client" }),
         awful.key({ modkey, }, "w", function(c) c:kill() end,
             { description = "close", group = "client" }),
         awful.key({ modkey, "Control" }, "space", awful.client.floating.toggle,
@@ -840,7 +921,7 @@ ruled.client.connect_signal("request::rules", function()
             class    = {
                 "Arandr", "Blueman-manager", "Gpick", "Kruler", "Sxiv",
                 "Tor Browser", "Wpa_gui", "veromix", "xtightvncviewer",
-                "QjackCtl", "Autokey", "autokey-qt", "Emote", "Signal", "colorpicker",
+                "QjackCtl", "Autokey", "autokey-qt", "Emote", "colorpicker",
                 "Gnome-calculator"
             },
             -- Note that the name property shown in xprop might be set slightly after creation of the client
@@ -862,15 +943,26 @@ ruled.client.connect_signal("request::rules", function()
     ruled.client.append_rule {
         -- @DOC_CSD_TITLEBARS@
         id         = "titlebars",
-        rule_any   = { type = { "normal", "dialog" } },
-        properties = { titlebars_enabled = false }
+        -- rule_any   = { type = { "normal", "dialog" } },
+        rule_any   = { type = { "dialog" } },
+        properties = { titlebars_enabled = true }
     }
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- ruled.client.append_rule {
     --     rule       = { class = "Firefox"     },
     --     properties = { screen = 1, tag = "2" }
-    --
+
+    ruled.client.append_rule {
+        rule       = { class = "thunderbird" },
+        properties = { tag = "ggg" }
+    }
+
+    ruled.client.append_rule {
+        rule       = { class = "signal" },
+        properties = { tag = "ggg" }
+    }
+
     ruled.client.append_rule {
         rule       = { class = "QjackCtl" },
         properties = { tag = "bbb" }
@@ -883,6 +975,16 @@ ruled.client.connect_signal("request::rules", function()
 
     ruled.client.append_rule {
         rule       = { class = "autokey-qt" },
+        properties = { tag = "bbb" }
+    }
+
+    ruled.client.append_rule {
+        rule       = { class = "Solaar" },
+        properties = { tag = "bbb" }
+    }
+
+    ruled.client.append_rule {
+        rule       = { class = "Proton Mail Bridge" },
         properties = { tag = "bbb" }
     }
 
@@ -1010,83 +1112,61 @@ screen.connect_signal("arrange", function(s)
 end)
 
 client.connect_signal("focus", function(c)
-    c.opacity = 1
+    -- c.opacity = 1
     c.border_color = beautiful.border_focus
 end)
 
 client.connect_signal("unfocus", function(c)
     c.border_color = beautiful.border_normal
-    c.opacity = 0.95
+    -- transparency
+    -- c.opacity = 0.95
 end)
 
 
 
--- Autostart
 
--- https://www.reddit.com/r/awesomewm/comments/k3wkb2/how_can_i_stop_extra_startup_background_programs/
+
 
 -- pgrep -f -x "/usr/bin/python3 /usr/bin/redshift-gtk"
 -- if [[ $(pactl get-source-mute 7) = "Mute: no" ]]; then echo "muted"; fi
 
 
-client.connect_signal("jack_source_off", function()
-    mic_border_reset()
-end)
 
-client.connect_signal("jack_source_on", function()
-    local c = client.focus
-    if c then
-        -- local color_highlight_mic_on = "#B200FF"
-        local color_highlight_mic_on = "#DD00FF"
-        c.border_color               = color_highlight_mic_on
-        beautiful.border_focus       = color_highlight_mic_on
-    end
-end)
 
--- mictoggle_script watches for "change" events in pulseaudio event stream.
--- Upon a valid change, it checks the state of pulseaudio source "jack_in" and emits the respective awesome signal via awesome-client
--- Notes on the script:
--- since "pactl subscribe" is a stream, there's two things to incorporate:
---   "--line-buffered" streams rg results, as rg never quits and therefore doesn't have an exit code
---   not having an exit code means you can't chain with &&
--- tried multiple receiving programs, but so far only "read line" works as desired
--- "read line" reads on stdin while rg is still running
-MICTOGGLE_SCRIPT = [=[
-#!/bin/bash
-
-pactl subscribe | rg --line-buffered "Event 'change' on source" | \
-while read line ; do
-  MICSRC=$(pactl list short sources | rg jack_in | cut -c 1-2 | xargs) && echo $MICSRC
-  MUTE_STATUS=$(pactl get-source-mute $MICSRC)
-  if [[ $MUTE_STATUS = "Mute: yes" ]]; then
-    awesome-client 'client.emit_signal("jack_source_off")'
-  elif [[ $MUTE_STATUS = "Mute: no" ]]; then
-    awesome-client 'client.emit_signal("jack_source_on")'
-  fi
-done
-]=]
-
-awful.spawn.with_shell(MICTOGGLE_SCRIPT)
-
--- Autostart
+-------------------------
+-- Autostart -- Startup
+-------------------------
 -- AwesomeWM ignores ~/.config/autostart/*.desktop files!
 
 run_once("picom")
+-- run_once("picom --backend glx")
+-- run_once("compton --backend glx")
 run_once("volumeicon")
 -- run_once("mictray")
 run_once("nm-applet")
 run_once("dunst") -- if I don't run this, naughty (from awesome) takes over notifications
-run_once("redshift-gtk", "", "/usr/bin/python3 /usr/bin/redshift-gtk")
+-- run_once("redshift-gtk", "", "/usr/bin/python3 /usr/bin/redshift-gtk")
+run_once("redshift-gtk", "", "python3 /usr/bin/redshift-gtk")
 run_once("autokey-qt", "", "/usr/bin/python3 /usr/bin/autokey-qt")
 run_once("emote", "", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen", "--restore &")
 run_once("xbindkeys", "&")
-run_once("/usr/bin/diodon")
+-- run_once("/usr/bin/diodon")
+run_once("/usr/bin/copyq")
 run_once("emacs --daemon")
-run_once("qjackctl")
+-- run_once("qjackctl")
 run_once("setxkbmap -option ctrl:nocaps")
 run_once("pcloud")
 run_once("strawberry")
+run_once("solaar", "", "/usr/bin/python /usr/bin/solaar")
+run_once("thunderbird")
+run_once("protonmail-bridge")
+run_once("signal-desktop")
+
+
+run_once("emacs")
+run_once("/usr/lib/firefox/firefox")
+-- run_once("~/.config/emacs/bin/doom run","", "emacs")
 
 -- Virtual Screens for Neo G9 screen sharing in MS Teams: 2x 2560x1440 instead of 5120x1440
 -- XXX turn off temporarily to debug systray icons
@@ -1094,14 +1174,14 @@ run_once("strawberry")
 -- awful.spawn.with_shell("xrandr --setmonitor VScreenRight 2560/0x1440/1+2560+0 none")
 
 -- XXX
--- awful.spawn.with_shell("xset r rate 180 40")
+awful.spawn.with_shell("xset r rate 230 40")
 -- awful.spawn.with_shell("xset_rate_freeo")
 
 awful.spawn.with_shell("eval `ssh-agent -s`")
 awful.spawn.with_shell("ssh-add")
 
 
--- Naughty Config
+-- Naughty Config: Notifications
 
 naughty.config.defaults.timeout            = 5
 naughty.config.defaults.screen             = 1
@@ -1137,9 +1217,188 @@ awful.keyboard.append_global_keybindings({
         group = 'Applications'
     },
 
+    awful.key({ modkey, "Control", "Shift" }, "b", function() awful.spawn("bwmenu") end,
+        { description = "launch Bitwarden-Rofi", group = "launcher" }),
+
+
 })
 
 -- Development Level Config
 
 -- Volume Progress Bar
 require("widgets.volume-change")
+
+
+    -- awful.key({ modkey,"Control"  }, "t", function () awful.spawn.with_shell( "echo 'durr: " .. gears.filesystem.get_themes_dir() .. "' >> ~/workbench/awesome.log") end,
+
+function table_to_string(tbl, indent)
+    if not indent then indent = 0 end
+    local str = ""
+    for k, v in pairs(tbl) do
+        str = str .. string.rep("  ", indent) -- add indentation
+        if type(k) == "string" then
+            str = str .. "[" .. string.format("%q", k) .. "] = "
+        elseif type(k) == "function" then
+            str = str .. "function"
+        else
+            str = str .. "[" .. k .. "] = "
+        end
+        if type(v) == "table" then
+            str = str .. "{\n" .. table_to_string(v, indent + 1) .. string.rep("  ", indent) .. "},\n"
+        else
+            str = str .. tostring(v) .. ",\n"
+        end
+    end
+    return str
+end
+
+inspect = require("inspect")
+
+function awmlog(obj)
+    -- Open the file in append mode
+    local filename = "/home/freeo/wb/awm/debug.log"
+    local file = io.open(filename, "a")
+
+    -- Check if the file was opened successfully
+    if file == nil then
+        print("Error: Could not open file " .. filename .. " for appending")
+        return
+    end
+
+    local timestamp = os.date("%Y-%m-%d %H:%M:%S", os.time())
+
+    if type(obj) == "table" then
+        out = table_to_string(obj, 2)
+        file:write(tostring(timestamp) .. ": " .. out .."\n")
+    else
+        file:write(tostring(timestamp) .. ": " .. tostring(obj) .."\n")
+    end
+
+    file:close()
+end
+
+
+function get_client_positions()
+    local clients = awful.screen.focused().clients
+    local positions = {}
+    local count = 0
+    for _, c in ipairs(clients) do
+        if not c.skip_taskbar then
+            count = count + 1
+            local geometry = c:geometry()
+            local position = geometry.x + (geometry.width / 2)
+            positions[count] = position
+        end
+    end
+    return positions
+end
+
+
+
+function focusClient()
+    -- mapped to debug key M-C-t
+
+end
+
+
+-- TODO:
+-- Only mapped 1-5
+-- hidden clients management
+-- https://stackoverflow.com/questions/39192955/how-to-focus-on-specific-client-window
+function focus_client_by_number(number)
+    local cc = {}
+    for _, c in ipairs(client.get()) do
+        if awful.widget.tasklist.filter.currenttags(c, mouse.screen) then cc[#cc + 1] = c end
+    end
+    local new_focused = cc[number]
+    if new_focused then client.focus = new_focused; new_focused:raise() end
+end
+
+
+
+-- local active_tag = awful.screen.focused().selected_tag
+
+awful.keyboard.append_global_keybindings({
+
+    awful.key({ modkey,  }, "1", function ()
+        focus_client_by_number(1)
+    end,
+    {description = "focus 1", group = "focus"}),
+
+    awful.key({ modkey,  }, "2", function ()
+        focus_client_by_number(2)
+    end,
+    {description = "focus 2", group = "focus"}),
+
+    awful.key({ modkey,  }, "3", function ()
+        focus_client_by_number(3)
+    end,
+    {description = "focus 3", group = "focus"}),
+
+    awful.key({ modkey,  }, "4", function ()
+        focus_client_by_number(4)
+    end,
+    {description = "focus 4", group = "focus"}),
+
+    awful.key({ modkey,  }, "5", function ()
+        focus_client_by_number(5)
+    end,
+    {description = "focus 5", group = "focus"}),
+
+
+    awful.key({ modkey,"Control"  }, "t", function ()
+            -- naughty.notify({ title="KEYSTROKE debug", text="dunce"})
+            -- awmlog("debug key pressed")
+            focusClient()
+    end,
+    {description = "current debug", group = "debug"}),
+
+
+-- -- from this example:
+-- -- client.get()[1]:move_to_tag(screen[1].tags[2])
+-- -- a screen has tags list. How can I get clients of this tags list?
+-- --
+-- --
+
+-- client.get()[8]:activate {
+--      switch_to_tag = true,
+--      raise         = true,
+--      context       = "somet_reason",
+-- }
+        })
+
+awesome.connect_signal('exit', function(reason_restart)
+   if not reason_restart then return end
+
+   local file = io.open('/tmp/awesomewm-last-selected-tags', 'w+')
+
+   for s in screen do
+      file:write(s.selected_tag.index, '\n')
+   end
+
+   file:close()
+end)
+
+awesome.connect_signal('startup', function()
+   local file = io.open('/tmp/awesomewm-last-selected-tags', 'r')
+   if not file then return end
+
+   local selected_tags = {}
+
+   for line in file:lines() do
+      table.insert(selected_tags, tonumber(line))
+   end
+
+   for s in screen do
+      local i = selected_tags[s.index]
+      local t = s.tags[i]
+      t:view_only()
+   end
+
+   file:close()
+end)
+
+-- XXX Check if required programs are installed on startup
+-- amixer (for volume media key display)
+
+

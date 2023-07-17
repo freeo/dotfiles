@@ -19,3 +19,9 @@
 [submodule "config/rofi/rofi-power-menu"]
 	path = config/rofi/rofi-power-menu
 	url = git@github.com:jluttine/rofi-power-menu.git
+[submodule "config/ranger/plugins/ranger-archives"]
+	path = config/ranger/plugins/ranger-archives
+	url = https://github.com/maximtrp/ranger-archives.git
+[submodule "config/awesome/awesome-revelation"]
+	path = config/awesome/awesome-revelation
+	url = https://github.com/guotsuan/awesome-revelation
