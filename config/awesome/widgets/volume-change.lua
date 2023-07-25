@@ -157,6 +157,9 @@ awesome.connect_signal("volume_change",
          end,
          false
       )
+      awful.spawn.with_shell("pw-play /usr/share/sounds/Pop/stereo/action/audio-volume-change.oga")
+      -- awful.spawn.with_shell("pw-play /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
+
 
       -- make volume_adjust component visible
       if volume_adjust.visible then

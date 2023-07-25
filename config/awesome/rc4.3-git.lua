@@ -230,8 +230,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
 
     -- s.dpi = 144
 
-    -- Each screen has its own tag table.
-    -- awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -358,11 +356,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
         }
     }
 end)
--- }}}
-
--- beautiful.xresources.set_dpi (dpi[, s])
-
--- {{{ Mouse bindings
+-- }}} beautiful.xresources.set_dpi (dpi[, s]) {{{ Mouse bindings
 -- @DOC_ROOT_BUTTONS@
 awful.mouse.append_global_mousebindings({
     awful.button({}, 3, function() mymainmenu:toggle() end),
@@ -754,17 +748,23 @@ awful.keyboard.append_global_keybindings({
         function() awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96") end
         ,
         { description = "xrandr NeoG9+Toshiba", group = "xrandr" }),
-    awful.key({ modkey, "Control" }, "7",
-        function() awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off") end,
-        { description = "only NeoG9", group = "xrandr" }),
-    -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
+    -- awful.key({ modkey, "Control" }, "7",
+    --     function() awful.spawn("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off") end,
+    --     { description = "only NeoG9", group = "xrandr" }),
     awful.key({ modkey, "Control" }, "8",
-        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144") end
-        ,
+        -- function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && { xrandr --output DP-0 --off ; pw-play /usr/lib/libreoffice/share/gallery/sounds/pluck.wav & ; } || { xset dpms force on ; xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 ; pw-play /usr/lib/libreoffice/share/gallery/sounds/apert.wav & ; }") end,
+        -- function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && { xrandr --output DP-0 --off; pw-play /usr/lib/libreoffice/share/gallery/sounds/pluck.wav ;} || { xset dpms force off ; sleep 1; xset dpms force on ; sleep 1; xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 ; pw-play /usr/lib/libreoffice/share/gallery/sounds/apert.wav; }") end,
+        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && { xrandr --output DP-0 --off; pw-play /usr/lib/libreoffice/share/gallery/sounds/pluck.wav ;} || /home/freeo/dotfiles/scripts/neog9_ON.sh") end,
         { description = "toggle NeoG9", group = "xrandr" }),
+    -- Toggle logic: https://unix.stackexchange.com/questions/315726/how-to-create-xrandr-output-toggle-script/484278
+    awful.key({ modkey, "Control" }, "7",
+        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep DP-0 >/dev/null && xrandr --output DP-0 --off || xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144") end ,
+        { description = "toggle NeoG9 OLD", group = "xrandr" }),
+    awful.key({ modkey, "Control" }, "6",
+        function() awful.spawn.with_shell("xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 && pw-play /usr/lib/libreoffice/share/gallery/sounds/apert.wav") end ,
+        { description = "disable DPMS, turn on NeoG9", group = "xrandr" }),
     awful.key({ modkey, "Control" }, "9",
-        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep HDMI-0 >/dev/null && xrandr --output HDMI-0 --off || xrandr --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x0 --dpi 96") end
-        ,
+        function() awful.spawn.with_shell("xrandr --listactivemonitors | grep HDMI-0 >/dev/null && xrandr --output HDMI-0 --off || xrandr --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x0 --dpi 96") end ,
         { description = "toggle Toshiba", group = "xrandr" }),
     -- awful.key({ modkey,  "Control"}, "8", function () awful.spawn("xrandr --output DP-0 --off") end,
     --           {description = "turn off NeoG9", group = "xrandr"}),
@@ -959,7 +959,7 @@ ruled.client.connect_signal("request::rules", function()
     }
 
     ruled.client.append_rule {
-        rule       = { class = "signal" },
+        rule       = { class = "Signal" },
         properties = { tag = "ggg" }
     }
 
