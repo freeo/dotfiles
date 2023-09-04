@@ -17,18 +17,20 @@ if ! hash pw-play 2>/dev/null ; then
 fi
 
 sndfile="/usr/share/sounds/Yaru/stereo/power-plug.oga"
-if [! -e $sndfile]; then
+if [ ! -e $sndfile ]; then
    echo "optional sound file doesn't exist:"
    echo "$sndfile"
 fi
 
 sndfile="/usr/share/sounds/Yaru/stereo/power-unplug.oga"
-if [! -e $sndfile]; then
+if [ ! -e $sndfile ]; then
    echo "optional sound file doesn't exist:"
    echo "$sndfile"
 fi
 
 # start script
+
+pw-play /usr/share/sounds/Yaru/stereo/power-plug.oga
 
 start=$(date +%s%3N)  # Get the current time in milliseconds
 
@@ -49,6 +51,7 @@ while true; do
     elif echo "$output" | rg "5120x1440\s+" | rg -q "120.00"; then
       xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144
     fi
+    xrandr --output DP-0 --brightness 1
     break
   fi
 
