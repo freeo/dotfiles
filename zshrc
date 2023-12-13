@@ -9,6 +9,9 @@
 # https://unix.stackexchange.com/questions/608538/how-to-use-256-colors-for-background-color-in-terminal
 print -rP '%K{#303030}'
 
+# template: if app x exists
+# if hash x 2>/dev/null ; then
+
 if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
   fortune | lolcat
 fi
@@ -43,7 +46,7 @@ if [[ $TERM = "xterm-kitty" ]]; then
   # Completion for kitty
   autoload -Uz compinit
   compinit
-  kitty + complete setup zsh | source /dev/stdin
+  # kitty + complete setup zsh | source /dev/stdin
   # awesome, fixes multiple ssh problems using kitty
   alias ssh="kitty +kitten ssh"
 fi
@@ -59,13 +62,22 @@ export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filte
 
 alias md='mkdir'
 alias sz='source ~/.zshrc'
-alias l='exa -la'
+alias l='eza -la'
 # function la () {
   # exa -la
 # }
 alias pcat='pygmentize -f terminal256 -O style=native -g'
 
+alias RC='python3 $HOME/dotfiles/scripts/rcselect.py'
+alias RCZ='nvim ~/.zshrc'
+alias RCV='nvim ~/.config/nvim/init.vim'
+alias RCA='nvim ~/.config/awesome/rc.lua'
+alias RCK='nvim ~/.config/kitty/kitty.conf'
+
+
+export PATH="$PATH:$HOME/.config/emacs/bin"
 export PATH="$PATH:$HOME/.cargo/env"
+export PATH="$PATH:$HOME/.cargo/bin"
 
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❯❯❯'
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😎❮'
@@ -110,7 +122,8 @@ function linuxSettings () {
   # ra = reset audio
   alias ra="pulseaudio -k"
   # reset capslock to ctrl
-  alias caps="setxkbmap -option ctrl:nocaps"
+  alias nocaps="setxkbmap -option ctrl:nocaps"
+  alias NOCAPS="xdotool key Caps_Lock; setxkbmap -option ctrl:nocaps"
   alias win10h="systemctl hibernate --boot-loader-entry=Windows10.conf"
   alias win10="systemctl reboot --boot-loader-entry=Windows10.conf"
 
@@ -127,8 +140,9 @@ function linuxSettings () {
       alias draw.io="flatpak run com.jgraph.drawio.desktop"
   fi
   
-  alias neog9='xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
-  alias xboth='xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
+  alias neog9='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
+  alias xboth='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
+  alias xdp0='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -141,13 +155,11 @@ function linuxSettings () {
   alias pbcopy='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
 
-  if hash btm 2>/dev/null ; then
-    alias htop=btm
-  fi
 
   # export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.3.0
   # export JAVA_HOME=$GRAALVM_HOME
   export ANDROID_HOME=$HOME/Android/Sdk
+  # export ANDROID_HOME=/opt/android-sdk
   # export PATH=$GRAALVM_HOME/bin:$PATH
   # for adb
   export PATH=$PATH:$ANDROID_HOME/platform-tools
@@ -157,6 +169,13 @@ function linuxSettings () {
 
   export PATH=$PATH:$HOME/go/bin
 
+  # QT HiDPI Scaling
+  # These two don't work on Krita
+  # export QT_SCALE_FACTOR=1
+  # export QT_AUTO_SCREEN_SCALE_FACTOR=0.7
+  # Works on Krita
+  export QT_SCREEN_SCALE_FACTORS="1.5;1.5"
+  export QT_QPA_PLATFORMTHEME=qt5ct
 
   if hash paru 2>/dev/null ; then
     alias PS='sudo paru -S'
@@ -164,7 +183,12 @@ function linuxSettings () {
     alias PR='sudo paru -R'
   fi
 
+  # workaround to restart network adapter
+  alias fkasus="echo 1 | sudo tee "/sys/bus/pci/devices/$(lspci -D | grep 'Ethernet Controller I225-V' | awk '{print $1}')/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan"
+
   # since I started with tiling window managers (currently awesome)
+  export GTK2_RC_FILES=/usr/share/themes/Adwaita-dark/gtk-2.0/gtkrc
+# GTK2_RC_FILES=/usr/share/themes/Raleigh/gtk-2.0/gtkrc
 }
 
 # Linux Environment Variables, not conflicting with Darwin
@@ -196,9 +220,13 @@ source $HOME/.config/broot/launcher/bash/br
 
 zinit light Tarrasch/zsh-bd
 zinit light darvid/zsh-poetry
-zinit light fdw/ranger-zoxide
+zinit light fdw/ranger-zoxide # provides: r "input"
 zinit light lukechilds/zsh-nvm
 zinit light zdharma/fast-syntax-highlighting
+# provides:
+#   archive
+#   unarchive
+#   lsarchive : lists content of archives
 zinit light zimfw/archive
 zinit light zimfw/git
 zinit light zsh-users/zsh-autosuggestions
@@ -330,15 +358,6 @@ SPACESHIP_KUBECONTEXT_COLOR="blue"
 SPACESHIP_VI_MODE_COLOR="black"
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-
-# The next line updates PATH for the Google Cloud SDK.
-# if [ -f '/Users/arthurj/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/arthurj/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-# if [ -f '/Users/arthurj/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/arthurj/google-cloud-sdk/completion.zsh.inc'; fi
-
-# export pgstorage=gs://drebes-playground-storage-users
 
 # export PATH
 
@@ -637,6 +656,10 @@ if hash nvimpager 2>/dev/null ; then
   export PAGER=nvimpager
 fi
 
+if hash delta 2>/dev/null ; then
+  export DELTA_PAGER=less
+fi
+
 eval "$(direnv hook zsh)"
 
 # source <(manage completion)
@@ -656,7 +679,7 @@ export SDKMAN_DIR="/Users/arthur.jaron/.sdkman"
 # export PATH="$PATH:/Users/arthur.jaron/Library/Application Support/Coursier/bin"
 
 
-export PASSWORD_STORE_DIR=$HOME/bmwcode/infra-base/secrets
+# export PASSWORD_STORE_DIR=$HOME/bmwcode/infra-base/secrets
 
 export XDG_CONFIG_HOME=$HOME/.config
 
@@ -760,13 +783,9 @@ if hash cargo 2>/dev/null ; then
     source $HOME/.cargo/env
   fi
 fi
-# function timer () {
-# TIMER_TITLE="Default Timer Title"
-# TIMER_TITLE="Default Timer Text"
-# sleep $1 & && notify-send -t 5000 -i "/home/freeo/icons/dogeOk.jpg" "$TIMER_TITLE" "$TIMER_TEXT"
-# }
-#
-#
+
+
+
 
 # /home/freeo/.emacs.d/.local/straight/build-28.0.60/vterm/etc/emacs-vterm-zsh.sh
 
@@ -827,8 +846,8 @@ ssh-add $HOME/.ssh/id_bmw > /dev/null 2>&1
 eval $(thefuck --alias)
 
 if hash thefuck 2>/dev/null; then
-  alias fk=thefuck
-  alias doh=thefuck
+  alias fk=fuck
+  alias doh=fuck
 fi
 
 # zinit light-mode for \
@@ -882,8 +901,101 @@ if hash xsetwacom 2>/dev/null ; then
   fi
 fi
 
+OLDM2=$HOME/oldm2.sh
+if [[ -f $OLDM2 ]]; then
+	source $OLDM2
+fi
+
+# ******************
+# NON-CORE CONFIG
+# ******************
+#
+
+function neog9retry () {
+  NG9LOG=$HOME/logs/neog9retry.log
+  date >> $NG9LOG
+  for ((i = 0 ; i < 3; i++)); do
+    xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off
+    sleep 0.5
+    xrandr --listactivemonitors | tee -a $NG9LOG | grep DP-0 && break
+  done
+  echo "" >> $NG9LOG
+}
+
+function morelinuxSettings () {
+
+  if hash xrandr 2>/dev/null ; then
+
+
+  fi
+}
+
+
+case "$OSTYPE" in
+  darwin*)
+
+  ;;
+  linux*)
+    morelinuxSettings
+  ;;
+esac
+
+
+
+# pnpm
+export PNPM_HOME="/home/freeo/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+function timer () {
+TIMER_TITLE="Default Timer Title"
+TIMER_TITLE="Default Timer Text"
+let "minutes=$1 * 60"
+sleep $minutes && notify-send -t 5000 -i "/home/freeo/icons/dogeOk.jpg" "$TIMER_TITLE" "$TIMER_TEXT"
+}
+
+
+function automatic1111 () {
+  cd /home/freeo/stable-diffusion-webui/
+  # source venv/bin/activate
+  # export python_cmd=python3.10; ./webui.sh
+  ./webui.sh
+}
+
+alias a11=automatic1111
+
+# pyenv shell integration, required for "pyenv shell 3.10.6"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+alias hueVaporWave="hueadm group 200 scene=PabuZd2VKFG6mhb"
+alias hueBluePlanet="hueadm group 200 scene=5suARnK-Aiinak0"
+alias hueMagneto="hueadm group 200 scene=1WKjP6Y8eG49e5S"
+alias hueHal="hueadm group 200 scene=cB4y9U2uNsGrSqW"
+alias hueCK="hueadm group 200 scene=nJlNrTw8CfcZOyzG"
+alias hueDisturbia="hueadm group 200 scene=M8f7eeYRIYBWmWt"
+alias hueTyrell="hueadm group 200 scene=HXiHuBbAKjeyCku"
+alias hueEnergize="hueadm group 200 scene=3ZjGyKkArZKgrMx"
+alias hueOff="hueadm group 0 off"
+
+function huehuehue (){
+cat << EOF
+VaporWave   = Violet    yellow   (pleasant!)
+BluePlanet = Green     RealBlue (video self illum)
+Magneto     = yellow    green/turq
+Hal         = RedViolet yellow
+CK          = RED       VIOLET
+Disturbia   = red       violet
+Tyrell      = Green     LightBlue
+Energize    = White x2
+Concentrate = WarmWhite x2
+Relax       = flux x2
+EOF
+}
+
 # PROFILING endpoint:
 # zprof
-
-
-source /home/freeo/.config/broot/launcher/bash/br
