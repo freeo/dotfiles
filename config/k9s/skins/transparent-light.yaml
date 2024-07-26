@@ -1,0 +1,64 @@
+# -----------------------------------------------------------------------------
+# Transparent skin
+# Preserve your terminal session background color
+# -----------------------------------------------------------------------------
+
+foreground: &foreground "#000000"
+magenta: &magenta "#f72972"
+grey: &grey "#494648"
+green: &green "#00ff00"
+
+
+# Skin...
+k9s:
+  body:
+    # fgColor: *foreground
+    fgColor: fuchsia
+    bgColor: default
+    logoColor: black
+  prompt:
+    fgColor: cornsilk
+    bgColor: default
+  info:
+    fgColor: *green
+    sectionColor: default
+  dialog:
+    fgColor: fuchsia
+    bgColor: default
+    labelFgColor: default
+    fieldFgColor: default
+  frame:
+    status:
+      newColor: fuchsia
+    crumbs:
+      fgColor: orchid
+      bgColor: default
+    title:
+      fgColor: plum
+      bgColor: default
+      counterColor: default
+    menu:
+      fgColor: pink
+      bgColor: default
+  views:
+    charts:
+      fgColor: pink
+      bgColor: default
+    table:
+      fgColor: *green
+      bgColor: default
+      header:
+        fgColor: default
+        bgColor: default
+    xray:
+      fgColor: fuchsia
+      bgColor: default
+    logs:
+      bgColor: default
+      indicator:
+        bgColor: default
+        toggleOnColor: default
+        toggleOffColor: default
+    yaml:
+      colonColor: default
+      valueColor: default

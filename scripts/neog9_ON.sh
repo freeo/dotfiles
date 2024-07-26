@@ -5,6 +5,8 @@ exec > >(tee -a "$log_file") 2>&1
 timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 echo "$timestamp"
 
+echo "turn on!"
+
 # check pre-conditions: used programs and files
 if ! hash rg 2>/dev/null ; then
     echo "ripgrep isn't installed! exiting..."
@@ -31,6 +33,7 @@ fi
 # start script
 
 pw-play /usr/share/sounds/Yaru/stereo/power-plug.oga
+# pw-play /usr/share/sounds/Yaru/stereo/message-new-instant.oga
 
 start=$(date +%s%3N)  # Get the current time in milliseconds
 
@@ -84,13 +87,18 @@ output=$(xrandr -q | sed -n '/DP-0 connected/,/^DP-1/p')
 if echo "$output" | rg -q "\*"; then
     echo "xrandr mode set successfully!"
     # pw-play /usr/lib/libreoffice/share/gallery/sounds/apert.wav
+    echo "Last AWM tag:"
+    cat /tmp/awesomewm-last-selected-tags
+    awesome-client "restore_last_tag()"
     pw-play /usr/share/sounds/Yaru/stereo/power-plug.oga
+    echo "done turning on."
     echo ""
     exit 0
 fi
 
 echo "xrandr mode unsuccessful..."
-# pw-play /usr/lib/libreoffice/share/gallery/sounds/pluck.wav
-pw-play /usr/share/sounds/Yaru/stereo/power-unplug.oga
+pw-play /usr/lib/libreoffice/share/gallery/sounds/pluck.wav
+# pw-play /usr/share/sounds/Yaru/stereo/power-unplug.oga
+echo "done turning on."
 echo ""
 exit 1

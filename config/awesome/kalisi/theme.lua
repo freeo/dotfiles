@@ -24,7 +24,8 @@ theme.font          = "sans 8"
 theme.bg_normal     = xrdb.background
 theme.bg_focus      = xrdb.color12
 theme.bg_urgent     = xrdb.color9
-theme.bg_minimize   = xrdb.color8
+-- theme.bg_minimize   = xrdb.color8
+theme.bg_minimize   = xrdb.color12
 theme.bg_systray    = theme.bg_normal
 
 theme.fg_normal     = xrdb.foreground
@@ -53,8 +54,12 @@ theme.hud_slider_bg = "#462E6E"
 -- Example:
 --theme.taglist_bg_focus = "#ff0000"
 
-theme.tasklist_bg_normal   = "#303030"
+theme.tasklist_bg_normal   = "#462E6E"
+theme.tasklist_fg_normal   = "#E0E0E0"
 theme.tasklist_bg_minimize = "#606060"
+theme.tasklist_fg_minimize = "#E0E0E0"
+theme.tasklist_bg_focus   = "#7e5edc"
+theme.tasklist_fg_focus   = "#FFFFFF"
 
 theme.tooltip_fg = theme.fg_normal
 theme.tooltip_bg = theme.bg_normal

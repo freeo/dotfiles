@@ -41,32 +41,41 @@
 (global-subword-mode 1)                           ; Iterate through CamelCase words
 
 
-;; (use-package! mixed-pitch)
-;;
+;; (use-package! mixed-pitch
+;;   :hook
+;;   ;; If you want it in all text modes:
+;;   (text-mode . mixed-pitch-mode)
+;;   ;; :config
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace-indentation)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace-space)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace-newline)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace-tab)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace-big-indent)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'highlight-indent-guides-even-face)
+;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'highlight-indent-guides-odd-face)
+;;   )
+
 (use-package! mixed-pitch
   :hook
-  If you want it in all text modes:
-  (text-mode . mixed-pitch-mode))
+  (text-mode . (lambda ()
+                 ;; (unless (string-match-p "\\.log$" (buffer-file-name))
+                 (unless (string-match-p "\\.\\(log\\|txt\\)$" (buffer-file-name))
+                   (mixed-pitch-mode 1)))))
 
-;; (setq doom-font (font-spec :family "GoMono Nerd Font Mono" :size 16 )
-;;       doom-variable-pitch-font (font-spec :family "Lexend" :size 16)
-;;       ;; doom-variable-pitch-font (font-spec :family "Ubuntu" :size 16)
-;;       doom-unicode-font (font-spec :family "GoMono Nerd Font Mono" :size 16)
-;;       doom-big-font (font-spec :family "GoMono Nerd Font Mono" :size 20 ))
-;;       ;; ivy-posframe-font (font-spec :family "JetBrainsMono" :size 15))
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16 )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
       ;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
       doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :weight 'light )
-      ; doom-variable-pitch-font (font-spec :family "ReadexPro" :size 16 :weight 'light )
-      ; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
-      ; doom-variable-pitch-font (font-spec :family "Liberation Serif" :size 16 )
+                                        ; doom-variable-pitch-font (font-spec :family "ReadexPro" :size 16 :weight 'light )
+                                        ; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
+                                        ; doom-variable-pitch-font (font-spec :family "Liberation Serif" :size 16 )
       ;; Noto Serif CJK SC Semibold :weight 'light
       ;; mixed-pitch-face (font-spec :family "Lexend" :size 16 :weight 'light )
-      doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
+      ;; doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
+      doom-symbol-font (font-spec :family "Noto Color Emoji" :size 16)
+      doom-emoji-font (font-spec :family "Noto Color Emoji" :size 16)
       doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 20 :weight 'bold))
-;; (setq doom-font (font-spec :family "Cousine Nerd Font Mono" :size 16 )
 
                                         ; (use-package font-lock
                                         ;   :defer t
@@ -78,8 +87,12 @@
 
 ;; (push "/home/freeo/.config/doom/theme-source/" custom-theme-load-path )
 
+(setq use-default-font-for-symbols nil)
 
 (setq-default tab-width 2)
+
+;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace)
+
 
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
@@ -154,6 +167,7 @@
 
       :desc "kill buffer" "k" #'kill-current-buffer
       :desc "zoxide travel" "z" #'zoxide-travel
+      :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/Dropbox/org-roam"))
 
       (:prefix-map ("f" . "")
        :desc "file open 2nd Brain" "f" #'vterm
@@ -173,7 +187,8 @@
       (:prefix-map ("s" . "search")
        ;; :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
        :desc "search 2nd Brain" "0" (cmd! (setq projectile-switch-project-action #'+default/search-project)
-                                          (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam")
+                                          ;; (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam")
+                                          (projectile-switch-project-by-name "/home/freeo/Dropbox/org-roam")
                                           (setq projectile-switch-project-action #'projectile-find-file)
                                           )
        :desc "search current PWD" "c" #'helm-rg
@@ -188,12 +203,15 @@
        :desc "Line Numbers" "l" 'doom/toggle-line-numbers
        :desc "Org Heading" "t" 'org-toggle-heading
        :desc "Org Sidebar Tree" "r" 'org-sidebar-tree-toggle
+       :desc "wrap mode" "w" '+word-wrap-mode
        )
 
       (:prefix-map ("r" . "Alrrrrighty Then!")
        :desc "refactor anzu" "r" 'anzu-replace-at-cursor-thing
+       :desc "hot:wb_ck.org"       "`" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/chat"))
        :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
-       :desc "hot:website.org"       "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/website.org"))
+       :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/agenda.org"))
+       ;; :desc "hot:website.org"       "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/website.org"))
        ;; :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
        :desc "hot:doom config.el"  "3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
        :desc "hot:.zshrc"          "4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
@@ -203,7 +221,8 @@
 
       (:prefix-map ("p" . "project")
        ;; :desc "search bmwcode" "s" (cmd! (projectile-switch-project-by-name "/home/freeo/bmwcode/"))
-       :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam"))
+       ;; :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/pcloud/org-roam"))
+       :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/Dropbox/org-roam"))
        )
 
 
@@ -218,9 +237,9 @@
 ;; And the vanilla commands
 (map! :leader
       (:prefix-map ("j" . "harpoon")
-       "c" 'harpoon-clear
-       "f" 'harpoon-toggle-file
-       )
+                   "c" 'harpoon-clear
+                   "f" 'harpoon-toggle-file
+                   )
       "1" 'harpoon-go-to-1
       "2" 'harpoon-go-to-2
       "3" 'harpoon-go-to-3
@@ -236,7 +255,7 @@
 ;; main keybindings
 ;; (map! :n "C-t"   #'evilnc-comment-operator)
 (map! :n "C-t"   #'comment-line
-      :n "C-/"   #'swiper
+      :n "C-/"   #'swiper-helm
       :n "-"   #'dired-jump
       :n "C-h" #'evil-window-left
       :n "C-j" #'evil-window-down
@@ -261,7 +280,8 @@
       :n "RET"   nil  ;; unbind electric-indent-mode
       :n "C-s"   #'avy-goto-char-2
       :n "C-f"   #'avy-goto-char-timer
-      :n "C-S-<return>"   #'new-vterm-s-split
+      ;; :n "C-S-<return>"   #'new-vterm-s-split
+      :n "C-S-<return>"    #'vterm
       :n "C-SPC" #'harpoon-quick-menu-hydra
       :n "C-q" #'evil-visual-block
       :n "g q" #'+format:region     ;; swap gQ with gq
@@ -270,13 +290,55 @@
       :n "g k" #'evil-previous-visual-line
       :n "C-<" (cmd! (evil-window-decrease-width 10))
       :n "C->" (cmd! (evil-window-increase-width 10))
-      :n "C-+" (cmd! (evil-window-decrease-height 3))
-      :n "C-_" (cmd! (evil-window-increase-height 3))
+      :n "C-+" (cmd! (evil-window-increase-height 3))
+      :n "C-_" (cmd! (evil-window-decrease-height 3))
       )
 
+;; (global-set-key (kbd "M-'") (lambda () (interactive) (insert "ä")))
+;; (global-set-key (kbd "M-[") (lambda () (interactive) (insert "ü")))
+;; (global-set-key (kbd "M-;") (lambda () (interactive) (insert "ö")))
+
+(map! :map markdown-mode-map
+      :i "M--" (lambda () (interactive) (insert "ß")))
+
+(map! :map evil-markdown-mode-map
+      :i "M--" (lambda () (interactive) (insert "ß")))
+
+
+(with-eval-after-load 'evil
+  (define-key evil-insert-state-map (kbd "M--") (lambda () (interactive) (insert "ß")))
+  (define-key evil-insert-state-map (kbd "M-;") (lambda () (interactive) (insert "ö")))
+  (define-key evil-insert-state-map (kbd "M-:") (lambda () (interactive) (insert "Ö")))
+  (define-key evil-insert-state-map (kbd "M-'") (lambda () (interactive) (insert "ä")))
+  (define-key evil-insert-state-map (kbd "M-\"") (lambda () (interactive) (insert "Ä")))
+  (define-key evil-insert-state-map (kbd "M-\\") (lambda () (interactive) (insert "ü")))
+  (define-key evil-insert-state-map (kbd "M-[") (lambda () (interactive) (insert "ü")))
+  (define-key evil-insert-state-map (kbd "M-|") (lambda () (interactive) (insert "Ü"))))
+
+
+
+(if (eq system-type 'darwin)
+    (map! :map markdown-mode-map
+          :i "s--" (lambda () (interactive) (insert "ß")))
+  (map! :map evil-markdown-mode-map
+        :i "s--" (lambda () (interactive) (insert "ß")))
+
+  (with-eval-after-load 'evil
+    (define-key evil-insert-state-map (kbd "s--") (lambda () (interactive) (insert "ß")))
+    (define-key evil-insert-state-map (kbd "s-;") (lambda () (interactive) (insert "ö")))
+    (define-key evil-insert-state-map (kbd "s-:") (lambda () (interactive) (insert "Ö")))
+    (define-key evil-insert-state-map (kbd "s-'") (lambda () (interactive) (insert "ä")))
+    (define-key evil-insert-state-map (kbd "s-\"") (lambda () (interactive) (insert "Ä")))
+    (define-key evil-insert-state-map (kbd "s-\\") (lambda () (interactive) (insert "ü")))
+    (define-key evil-insert-state-map (kbd "s-[") (lambda () (interactive) (insert "ü")))
+    (define-key evil-insert-state-map (kbd "s-{") (lambda () (interactive) (insert "Ü"))))
+  nil)
+
+;; Add ":" to end a sentence for jumping with literal "(" and ")" keys
+(setq sentence-end-base "[.?!:…‽][]\"'”’)}»›]*")
 
 (define-key
-  evil-insert-state-map (kbd "M-d") 'evil-multiedit-toggle-marker-here)
+ evil-insert-state-map (kbd "M-d") 'evil-multiedit-toggle-marker-here)
 
 (define-key! ranger-mode-map "C-h" 'evil-window-left)
 (define-key! ranger-mode-map "C-j" 'evil-window-down)
@@ -285,6 +347,55 @@
 
 (setq ranger-show-hidden t)
 (setq ranger-hide-cursor t)
+
+;; (define-key! image-mode-map "-" 'dired-jump)
+
+(map! :map image-mode-map
+      :n "-" #'dired-jump
+      :n "C-=" #'image-increase-size
+      :n "C--" #'image-decrease-size)
+
+
+;; evil-markdown-mode-map <insert-state> M--
+;; markdown-mode-map <emacs-state> M-SPC m i -
+;; markdown-mode-map <insert-state> M-SPC m i -
+;; markdown-mode-map <motion-state> SPC m i -
+;; markdown-mode-map <normal-state> SPC m i -
+;; markdown-mode-map <visual-state> SPC m i -
+
+;; https://oremacs.com/2017/03/18/dired-ediff/
+(defun ora-ediff-files ()
+  (interactive)
+  (let ((files (dired-get-marked-files))
+        (wnd (current-window-configuration)))
+    (if (<= (length files) 2)
+        (let ((file1 (car files))
+              (file2 (if (cdr files)
+                         (cadr files)
+                       (read-file-name
+                        "file: "
+                        (dired-dwim-target-directory)))))
+          (if (file-newer-than-file-p file1 file2)
+              (ediff-files file2 file1)
+            (ediff-files file1 file2))
+          (add-hook 'ediff-after-quit-hook-internal
+                    (lambda ()
+                      (setq ediff-after-quit-hook-internal nil)
+                      (set-window-configuration wnd))))
+      (error "no more than 2 files should be marked"))))
+
+;; drag and drop in dired, only supported in X
+(setq dired-mouse-drag-files t)
+
+;; ranger-emacs-mode-map C-SPC
+;; ranger-normal-mode-map t
+
+(map! :map ranger-normal-mode-map
+      "e" #'ora-ediff-files)
+
+;; image--repeat-map -
+;; image-map i -
+;; image-mode-map <normal-state> -
 
 ;; TODO create github doom issue: fix update of buffer-file-name in +workspace/switch
 ;;
@@ -327,7 +438,8 @@
       :after evil-org
       :n "C-S-h" #'+workspace/switch-left
       :n "C-S-l" #'+workspace/switch-right
-      :n "C-S-<return>"   #'new-vterm-s-split
+      ;; :n "C-S-<return>"   #'new-vterm-s-split
+      :n "C-S-<return>"   #'vterm
       )
 
 ;; XXX delete soon
@@ -449,16 +561,39 @@ helm-ff-fuzzy-matching t
       helm-recentf-fuzzy-match t
       helm-semantic-fuzzy-match t)
 
+
 (setq evil-insert-state-cursor '(bar "#ff0000")
       evil-visual-state-cursor '(box "#0033aa")
       evil-normal-state-cursor '(box "#ff0000"))
 
+;; (use-package vterm
+;;   :config
+;;   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+;;   )
+
+
+(defun vterm-dont-ask-on-kill ()
+  (make-local-variable 'kill-buffer-query-functions)
+  (setq kill-buffer-query-functions nil))
+
 (use-package vterm
+  :ensure t
+  :init
   :config
-  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+  ;; (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+  (add-hook 'vterm-exit-functions
+            (lambda (_ _)
+              (let* ((buffer (current-buffer))
+                     (window (get-buffer-window buffer)))
+                (when (not (one-window-p))
+                  (delete-window window))
+                (kill-buffer buffer))))
+  (add-hook 'vterm-mode-hook 'vterm-dont-ask-on-kill)
   )
 
-(setq vterm-kill-buffer-on-exit t)
+(setq vterm-min-window-width 120)
+
+;; (setq vterm-kill-buffer-on-exit t)
 
 ;; enable word-wrap (almost) everywhere
 ;; MUST be after use-package vterm! Otherwise this will cause a memory leak on startup (if vterm-module isn't
@@ -470,10 +605,24 @@ helm-ff-fuzzy-matching t
 ;; (auto-save-visited-mode 1)
 ;; evil-normal-state-map C-t
 
-; How can I be so fuckin stupid
-; (add-hook 'evil-insert-state-exit-hook
-;           (lambda ()
-;             (call-interactively #'save-buffer)))
+;; How can I be so fuckin stupid
+;; I need cases for actual files on disk.
+;; Must avoid all special buffers:
+;; vterm, SPC h r r
+;; (add-hook 'evil-insert-state-exit-hook
+;;           (lambda ()
+;;             (call-interactively #'save-buffer)))
+;;
+;; Try doing it for individual modes
+(defun cmd-mode-autosave-hook ()
+  (add-hook 'evil-insert-state-exit-hook
+            (lambda ()
+              (unless (derived-mode-p 'vterm-mode)
+                (call-interactively #'save-buffer)))))
+
+(add-hook 'web-mode-hook #'cmd-mode-autosave-hook)
+(add-hook 'org-mode-hook #'cmd-mode-autosave-hook)
+;; (add-hook 'text-mode-hook #'org-mode)
 
 (use-package! super-save
   :ensure t
@@ -482,7 +631,9 @@ helm-ff-fuzzy-matching t
 
 
 (after! org
-  (super-save-mode +1))
+  (super-save-mode +1)
+  ;; (setq org-image-actual-width 600) ;; BREAK: GLOBAL! Unfortunately this breaks ATTR width
+  )
 
 ;; this triggers ws-butler too often (removes trailing whitespace at cursor while typing)
 ;; (setq super-save-auto-save-when-idle t)
@@ -551,30 +702,33 @@ helm-ff-fuzzy-matching t
 ;;                             (window-number bar evil-state matches " " buffer-info-simple buffer-position " " selection-info)
 ;;                             (buffer-encoding major-mode flycheck global))
 
+(after! projectile
+  ;; alien doesn't work right now: unwanted: .gitignore'd files are unreachable using projectile-find-file
+  ;; (setq projectile-indexing-method 'alien)
+  (setq projectile-indexing-method 'hybrid)
+  (setq projectile-enable-caching nil)
+  ;; git ls-files filters out more than the .gitignore and therefore seems unreliable. More hits is fine for me
+  (setq projectile-git-command "fd --type f --print0 -H -I -E '.git'")
 
-(setq projectile-indexing-method 'alien)
-;; git ls-files filters out more than the .gitignore and therefore seems unreliable. More hits is fine for me
-;; (setq projectile-git-command "git ls-files -zco")
-(setq projectile-git-command "fd --type f --print0 -H -I -E '.git'")
-(setq projectile-generic-command "fd --type f --print0 -H -I")
-(setq projectile-enable-caching nil)
+  ;; (setq projectile-generic-command "fd --type f --print0 -H -I")
+  )
 
 ;; export GOPATH="/home/freeo/go"
 
 
 ;; LSP
-;; (use-package lsp-mode
-;;   :commands (lsp lsp-deferred)
-;;   :hook (lsp-mode . efs/lsp-mode-setup)
-;;   :init
-;;   (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-;;   :config
-;;   (lsp-enable-which-key-integration t))
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t))
 
-;; (use-package lsp-ui
-;;   :hook (lsp-mode . lsp-ui-mode)
-;;   :custom
-;;   (lsp-ui-doc-position 'bottom)
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
 
 
 (setq fancy-splash-image
@@ -597,6 +751,7 @@ helm-ff-fuzzy-matching t
 ;;        doom-dashboard-widget-loaded
 ;;        ))
 
+
 ;; Go LSP
 (require 'lsp-mode)
 (add-hook 'go-mode-hook #'lsp-deferred)
@@ -618,12 +773,36 @@ helm-ff-fuzzy-matching t
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
 
-(use-package dap-mode)
+(defun my-setup-dap-node ()
+  "Require dap-node feature and run dap-node-setup if VSCode module isn't already installed"
+  (require 'dap-node)
+  (unless (file-exists-p dap-node-debug-path) (dap-node-setup)))
+
+;; (add-hook 'typescript-mode-hook 'my-setup-dap-node)
+;; (add-hook 'javascript-mode-hook 'my-setup-dap-node)
+
+;; (use-package dap-mode
+;;   ;; Uncomment the config below if you want all UI panes to be hidden by default!
+;;   ;; :custom
+;;   ;; (lsp-enable-dap-auto-configure nil)
+;;   ;; :config
+;;   ;; (dap-ui-mode 1)
+
+;;   :config
+;;   ;; Set up Node debugging
+;;   (require 'dap-node)
+;;   (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+;;   ;; (dap-chrome-setup) ;; Automatically installs Node debug adapter if needed
+;;   )
 
 ;; Go DAP (Debugger)
-(dap-mode 1)
+;; (dap-mode 1)
+;; (require 'dap-chrome)
+;; (require 'dap-firefox)
+;; (require 'dap-node)
+
 ;; (dap-go-setup)
-(require 'dap-go)
+;; (require 'dap-go)
 
 ;;; jsonnet-language-server -- Summary
 ;; Development lsp registration for Emacs lsp-mode.
@@ -700,6 +879,21 @@ helm-ff-fuzzy-matching t
 (setq x-underline-at-descent-line t)
 (setq centaur-tabs-set-close-button nil)
 
+;; DONE: chat and wb_ck.org not switchable via F1/F2
+;; continue testing
+(after! centaur-tabs
+  (centaur-tabs-mode t)
+  (setq centaur-tabs-set-bar 'over
+        centaur-tabs-set-icons t
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-height 24
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker "●" ;; nice!
+        centaur-tabs-buffer-groups-function #'centaur-tabs-projectile-buffer-groups))
+
+
+
+
 (setq avy-all-windows t)
 
 
@@ -746,12 +940,23 @@ helm-ff-fuzzy-matching t
   :after kubernetes)
 
 
+;; (use-package typescript-mode
+;;   :mode "\\.ts\\'"
+;;   :hook (typescript-mode . lsp-deferred)
+;;   :config
+;;   (require 'dap-node)
+;;   (dap-node-setup))
+
 (use-package typescript-mode
-  :mode "\\.ts\\'"
-  :hook (typescript-mode . lsp-deferred)
+  :defer t
+  :hook (typescript-mode . (lambda () (setq-local fill-column 120)))
+  ;; (typescript-ts-mode)))
+  :custom
+  (lsp-clients-typescript-server-args '("--stdio"))
   :config
-  (require 'dap-node)
-  (dap-node-setup))
+  (setq typescript-indent-level 2)
+  ;; (add-to-list 'auto-mode-alist '("\.ts\'" . typescript-mode))
+  )
 
 ;; increase width, so that breakpoints are clearly visible/clickable
 (after! git-gutter-fringe
@@ -804,7 +1009,11 @@ helm-ff-fuzzy-matching t
 
   ;; good example how to replace values in an alist - this seems to be a common config pattern
   (setf (alist-get 'prettier apheleia-formatters)
+        ;; '(npx "prettier" "--use-tabs" "true" "--write" filepath ))
         '(npx "prettier" "--use-tabs" "true" "--stdin-filepath" filepath ))
+
+  (setf (alist-get 'markdown-mode apheleia-mode-alist)
+        'prettier-markdown)
 
   ;; used in hooks to turn off apheleia mode for some modes
   (defun shou/disable-apheleia-mode nil (apheleia-mode -1))
@@ -920,7 +1129,7 @@ helm-ff-fuzzy-matching t
 (defun org-add-my-extra-fonts ()
   "Add alert and overdue fonts."
   (add-to-list 'org-font-lock-extra-keywords '("\\(\\$\\)\\([^\n\r\t]+\\)\\(\\$\\)" (1 '(face org-highlight-1 invisible t)) (2 'org-highlight-1 t) (3 '(face org-highlight-1 invisible t))) t)
-  (add-to-list 'org-font-lock-extra-keywords '("\\(%\\)\\([^\n\r\t]+\\)\\(%\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t)
+  (add-to-list 'org-font-lock-extra-keywords '("\\(&\\)\\([^\n\r\t]+\\)\\(&\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-highlight-2 t) (3 '(face org-highlight-2 invisible t))) t)
   (add-to-list 'org-font-lock-extra-keywords '("[[:blank:]]\\(:\\)\\([^\n\r\t]+\\)\\(:\\)" (1 '(face org-highlight-2 invisible t)) (2 'org-modern-tag t) (3 '(face org-highlight-2 invisible t))) t)
   )
 
@@ -931,8 +1140,13 @@ helm-ff-fuzzy-matching t
 (font-lock-add-keywords 'org-mode
                         '(("\\([[:blank:]]#[[:blank:]].+$\\)" 1 font-lock-comment-face prepend)) 'append)
 
-;;magit diff
+;; magit diff
 (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+
+;; magit character wise diff on all visible hunks, careful: performance impact
+;; WIP: ugly but works, requires better highlighting groups
+;; (after! magit
+;; (setq magit-diff-refine-hunk 'all))
 
 ;; tested: not invisible: %
 ;; (font-lock-add-keywords 'org-mode
@@ -941,117 +1155,12 @@ helm-ff-fuzzy-matching t
 
 
 
-;; (require 'auto-dark)
-
-;; I did minor changes to this source:
-;; https://www.reddit.com/r/emacs/comments/th50v7/autodark_for_emacs_is_now_available_on_melpa/
-;; Only a temporary workaround until this issue is solved:
-;; https://github.com/doomemacs/doomemacs/issues/6027
-;; (defun gnome-dark-mode-enabled-p ()
-;;   "Check if frame is dark or not."
-;;   (if (executable-find "gsettings")
-;;       (thread-last "gsettings get org.gnome.desktop.interface color-scheme"
-;;                    shell-command-to-string
-;;                    string-trim-right
-;;                    (string-suffix-p "-dark'"))
-;;     (eq 'dark (frame-parameter nil 'background-mode))))
-
-;; (use-package dbus
-;;   ;; :straight nil
-;;   :when window-system
-;;   :requires (functions local-config)
-;;   :config
-;;   (defun gtk-theme-changed (path _ _)
-;;     "DBus handler to detect when the GTK theme has changed."
-;;     (when (string-equal path "/org/gnome/desktop/interface/color-scheme")
-
-;;       (message "old: got new value: %s" (car value))
-;;       (if (gnome-dark-mode-enabled-p)
-;;           (load-theme local-config-dark-theme t)
-;;         (load-theme local-config-light-theme t))
-;;       ))
-;;   (dbus-register-signal
-;;    :session
-;;    "ca.desrt.dconf"
-;;    "/ca/desrt/dconf/Writer/user"
-;;    "ca.desrt.dconf.Writer"
-;;    "Notify"
-;;    #'gtk-theme-changed))
-
-;; (use-package dbus
-;;   ;; :straight nil
-;;   :when window-system
-;;   :requires (functions local-config)
-;;   :config
-;;   )
-
-(require 'dbus)
-
-(setq local-config-dark-theme 'doom-gruvbox)
-(setq local-config-light-theme 'kalisi-light)
-
-(defun handler (value)
-  (message "current value %s" (car (car value))))
-
-(defun signal-handler (namespace key value)
-  (if (and
-       ;; (string-equal namespace "org.freedesktop.appearance")
-       (string-equal namespace "org.gnome.desktop.interface")
-       (string-equal key "color-scheme"))
-      ;; (message "got new value: %s" (car value))
-      ;; (message "got new value: %s" value)
-      ;; (if (= (car value) 1)
-      (setq durr (car value))  ;; using a temp variable lets me reuse it as often as I like
-    ;; (if (string-equal (car value) "prefer-dark")
-    (if (string-equal durr "prefer-dark")
-        (load-theme local-config-dark-theme t)
-      (load-theme local-config-light-theme t))
-    ;; (if (string-equal durr "prefer-dark") ;; 2nd access test
-    ;; (message "eq dark")
-    ;; (message "eq light"))
-    (message "%s" durr) ;; 3rd access test
-    nil))
-
-
-
-(dbus-call-method-asynchronously
- :session
- "org.freedesktop.portal.Desktop"
- "/org/freedesktop/portal/desktop"
- "org.freedesktop.portal.Settings"
- "Read"
- #'handler
- "org.freedesktop.appearance"
- "color-scheme")
-
-;; Requires xdg-portal-desktop which provides the DBus Interace
-;; Also requires a backend, tested: xdg-portal-desktop-gtk
-(dbus-register-signal
- :session
- "org.freedesktop.portal.Desktop"
- "/org/freedesktop/portal/desktop"
- "org.freedesktop.portal.Settings"
- "SettingChanged"
- #'signal-handler)
-
-
-;; string "type='signal',interface='',path='/ca
-;; /desrt/dconf/Writer/user',arg0path='/org/gnome/desktop/interface/'"
-;; method return time=1675795353.914985 sender=org.freedesktop.DBus ->
-;; destination=:1.502 serial=3 reply_serial=2
-
-
-;; (dbus-introspect
-;;  :system "org.gnome.desktop.interface"
-;;  "/org/gnome/desktop/interface")
-
-;; (dbus-introspect-get-all-nodes :session "org.gnome.desktop.interface" "/")
-
-;; learn elisp: why is using "value" in the function above consuming the item like an iterator? It yields a different value on 2nd access! WHY?
-;; (defun hurr (durr)
-;;   (message "%s %s" (car durr) (car durr)))
-;; (setq murr '("light" "dark"))
-;; hurr(murr)
+;; auto-dark: takes care of dbus messages. No further config necessary!
+(after! doom-ui
+  (setq! auto-dark-dark-theme 'doom-ayu-mirage
+         auto-dark-light-theme 'kalisi-light)
+  (auto-dark-mode 1))
+;; dbus code war archived to old-code.el in this f
 
                                         ; this macro was copied from here: https://stackoverflow.com/a/22418983/4921402
 (defmacro define-and-bind-quoted-text-object (name key start-regex end-regex)
@@ -1083,7 +1192,179 @@ helm-ff-fuzzy-matching t
 
 (setq ispell-dictionary "de_DE")
 
+(after! org
+  (setq org-agenda-files
+        '("~/pcloud/cloudkoloss/agenda.org"))
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "BLOCKED(b)" "PROJ(p)" "LOOP(l)" "START(s)" "WIP(w)" "HOLD(h)" "|" "DONE(d)" "KILL(k)" "WONTDO(W)" "DECIDE(D)")
+          (sequence "[ ](T)" "[-](S)" "[?](q)" "|" "[X](X)")
+          (sequence "REALIZATION(r)" "IDEA(i)")
+          (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+
+  (setq org-modern-todo-faces
+        '(("PROJ" . (:background "blue" :foreground "white" :weight bold))
+          ;; ("TODO" . (:background "black" :foreground "white" :weight bold))
+          ("WIP" . (:background "orange" :foreground "white" :weight bold))
+          ("WONTDO" . (:background "gray" :foreground "white" :weight bold))
+          ("BLOCKED" . (:background "red" :foreground "black" :weight bold)))))
+;; ("CANCELLED" . (:background "gray" :foreground "white" :weight bold))
+
+
+(setq org-highest-priority ?A
+      org-default-priority ?B
+      org-lowest-priority ?E)
+
+;; (use-package org-fancy-priorities
+;;   :ensure t
+;;   :hook
+;;   (org-mode . org-fancy-priorities-mode)
+;;   :config
+;;   (setq org-priority-faces
+;;         '((?A :background "#ffffff" :weight bold)
+;;           (?B :background "#ffffff" :weight bold)
+;;           (?C :background "#ffffff" :weight bold)
+;;           (?D :background "#ffffff" :weight bold)
+;;           (?E :background "#ffffff" :weight bold)))
+;;   (setq org-fancy-priorities-list '((?A . "🚨️")
+;;                                     (?B . "🟥️️")
+;;                                     (?C . "⚠️")
+;;                                     (?D . "☕")
+;;                                     (?E . "💤"))))
+;;
+
+(setq org-modern-priority '((?A . "🚨️")
+                            (?B . "🟥️️")
+                            (?C . "⚠️")
+                            (?D . "☕")
+                            (?E . "💤")))
+
+
 ;; (set-file-template! "\\.svx$" :trigger "__" :mode 'web-mode)
 
 (require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.svx\\'" . web-mode))
+;; (add-to-list 'auto-mode-alist '("\\.svx\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.svx\\'" . markdown-mode))
+(add-to-list 'lsp-language-id-configuration '("\\.svx$" . "markdown"))
+
+(add-hook 'web-mode-hook #'lsp-deferred)
+
+;; svelte support
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode))
+(setq web-mode-engines-alist
+      '(("svelte" . "\\.svelte\\'")))
+
+;; inspect if running with with M-x lsp-describe-session
+(use-package! lsp-tailwindcss
+  :init
+  ;; enable add-on mode, so that multiple LSP servers can be started (svelte+tailwind)
+  (setq lsp-tailwindcss-add-on-mode t))
+
+
+;; LSP Workaround: Bug in Emacs 28 (fixed in 29)
+;; https://github.com/emacs-lsp/lsp-mode/issues/2681
+;;
+;; https://github.com/typescript-language-server/typescript-language-server/issues/559#issuecomment-1259470791
+;; same definition as mentioned earlier
+(advice-add 'json-parse-string :around
+            (lambda (orig string &rest rest)
+              (apply orig (s-replace "\\u0000" "" string)
+                     rest)))
+
+;; minor changes: saves excursion and uses search-forward instead of re-search-forward
+(advice-add 'json-parse-buffer :around
+            (lambda (oldfn &rest args)
+	      (save-excursion
+                (while (search-forward "\\u0000" nil t)
+                  (replace-match "" nil t)))
+	      (apply oldfn args)))
+
+(require 'org-download)
+;; Drag-and-drop to `dired`
+(add-hook 'dired-mode-hook 'org-download-enable)
+
+
+
+;; YOU DON'T NEED NONE OF THIS CODE FOR SIMPLE INSTALL
+;; IT IS AN EXAMPLE OF CUSTOMIZATION.
+;; (use-package ellama
+;;   :init
+;;   ;; setup key bindings
+;;   (setopt ellama-keymap-prefix "C-'")
+;;   ;; language you want ellama to translate to
+;;   ;; (setopt ellama-language "German")
+;;   ;; could be llm-openai for example
+;;   (require 'llm-ollama)
+;;   (setopt ellama-provider
+;; 	  (make-llm-ollama
+;; 	   ;; this model should be pulled to use it
+;; 	   ;; value should be the same as you print in terminal during pull
+;; 	   :chat-model "llama3:8b-instruct-q8_0"
+;; 	   ;; :chat-model "codestral"
+;; 	   ))
+;;   )
+;;
+;; :embedding-model "nomic-embed-text"
+;; :default-chat-non-standard-params '(("num_ctx" . 8192))))
+;; Predefined llm providers for interactive switching.
+;; You shouldn't add ollama providers here - it can be selected interactively
+;; without it. It is just example.
+;; (setopt ellama-providers
+;;         '(("llama3" . (make-llm-ollama
+;;       		 :chat-model "llama3:7b-instruct-v0.2-q6_K"
+;;       		 :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
+;;           ("zephyr" . (make-llm-ollama
+;;       		 :chat-model "zephyr:7b-beta-q6_K"
+;;       		 :embedding-model "zephyr:7b-beta-q6_K"))
+;;           ("mistral" . (make-llm-ollama
+;;       		  :chat-model "mistral:7b-instruct-v0.2-q6_K"
+;;       		  :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
+;;           ("codestral" . (make-llm-ollama
+;;       		    :chat-model "mistral:7b-instruct-v0.2-q6_K"
+;;       		    :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
+;;           ("dolphin" . (make-llm-ollama
+;;       		  :chat-model "mistral:7b-instruct-v0.2-q6_K"
+;;       		  :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
+;;           ("mixtral" . (make-llm-ollama
+;;       		  :chat-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"
+;;       		  :embedding-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"))))
+;; Naming new sessions with llm
+;; (setopt ellama-naming-provider
+;;         (make-llm-ollama
+;;          :chat-model "llama3:8b-instruct-q8_0"
+;;          :embedding-model "nomic-embed-text"
+;;          :default-chat-non-standard-params '(("stop" . ("\n")))))
+;; (setopt ellama-naming-scheme 'ellama-generate-name-by-llm)
+;; ;; Translation llm provider
+;; (setopt ellama-translation-provider (make-llm-ollama
+;;       			       :chat-model "phi3:14b-medium-128k-instruct-q6_K"
+;;       			       :embedding-model "nomic-embed-text")))
+;;
+
+(use-package! gptel
+  :config
+  (setq
+   gptel-model "codestral:latest"
+   gptel-backend (gptel-make-ollama "Ollama"
+                   :host "localhost:11434"
+                   :stream t
+                   :models '("codestral:latest")))
+
+  )
+
+(add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
+(add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+
+
+;; (add-hook 'yaml-mode-hook #'mixed-pitch-mode-off)
+(add-hook 'yaml-mode-hook
+          (lambda ()
+            (mixed-pitch-mode 0)))
+
+(use-package docker
+  :ensure t
+  :bind ("C-c d" . docker)
+  :config
+  (setq docker-command "podman"))
+
+(require 'string-inflection)

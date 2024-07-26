@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=NOCAPS
+GenericName=EMERGENCY
+Comment=Disable Capslock
+Exec=xdotool key Caps_Lock; setxkbmap -option ctrl:nocaps
+Icon=format-text-rich-symbolic
+Type=Application
+Terminal=false
+Categories=Script
+StartupNotify=true

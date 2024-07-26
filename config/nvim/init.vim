@@ -59,8 +59,10 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin('~/.vim/plugged')
- 
+let plugins_dir = data_dir . '/plugged'
+call plug#begin(plugins_dir)
+   Plug 'junegunn/vim-plug' " Keep this line to manage vim-plug itself
+
 
 " Delete:
 " Plug 'kchmck/vim-coffee-script'
@@ -102,7 +104,7 @@ if !exists('g:vscode')
   Plug 'Shougo/neoyank.vim'
   Plug 'mileszs/ack.vim'
   Plug 'majutsushi/tagbar'
-  Plug 'davidhalter/jedi-vim'
+  " Plug 'davidhalter/jedi-vim'
   Plug 'luochen1990/rainbow'
   Plug 'elzr/vim-json'
   Plug 'tpope/vim-fugitive'
@@ -121,37 +123,34 @@ if !exists('g:vscode')
   Plug 'towolf/vim-helm'
   Plug 'machakann/vim-highlightedyank'
   Plug 'google/vim-jsonnet'
-
   Plug 'Shougo/defx.nvim'
   Plug 'lambdalisue/fern.vim'
-
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'junegunn/fzf.vim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
+  Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'neovim/nvim-lspconfig'
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/nvim-cmp'
-
+  Plug 'L3MON4D3/LuaSnip'
+  Plug 'saadparwaiz1/cmp_luasnip'
   Plug 'mfussenegger/nvim-dap'
   Plug 'mxsdev/nvim-dap-vscode-js'
-
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
   Plug 'folke/which-key.nvim'
   Plug 'shime/vim-livedown'
-
   Plug 'fourjay/vim-password-store'
-
   Plug 'nanotee/zoxide.vim'
-  Plug 'liuchengxu/vim-clap'
+  " Plug 'liuchengxu/vim-clap'
   Plug 'jvgrootveld/telescope-zoxide'
-
   Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+  Plug 'lambdalisue/vim-suda'
+  Plug 'ojroques/vim-oscyank' " OSC52
 
   if has('nvim')
     " Plug 'Vigemus/iron.nvim', { 'branch': 'lua/replace' }
@@ -163,8 +162,9 @@ if !exists('g:vscode')
     " Plug 'justinmk/vim-dirvish'
     " Plug 'zchee/deoplete-jedi'
     Plug 'Shougo/deol.nvim'
-    Plug 'Vigemus/iron.nvim'
+    " Plug 'Vigemus/iron.nvim'
     " luafile $HOME/.config/nvim/plugins.lua
+    Plug 'nvim-orgmode/orgmode'
   else
     " Plug 'wilywampa/vim-ipython' " vs iron.nvim
     " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
@@ -177,9 +177,9 @@ if !exists('g:vscode')
   endif
   " let g:deoplete#enable_at_startup = 1
 
-  if has("python3")
-    Plug 'SirVer/ultisnips'
-  endif
+  " if has("python3")
+  Plug 'SirVer/ultisnips'
+  " endif
   Plug 'honza/vim-snippets'
   Plug 'thinca/vim-ref'
 
@@ -191,12 +191,31 @@ if !exists('g:vscode')
   Plug 'pangloss/vim-javascript'
   " Plug 'git@bitbucket.org:freeo/vimtext-projectsens.git'
   Plug 'hashivim/vim-terraform'
+  Plug 'evanleck/vim-svelte'
+
   if has("win64")
     Plug 'vim-scripts/Windows-PowerShell-Syntax-Plugin'
   endif
-  Plug 'evanleck/vim-svelte'
 
+  if has('win32')
+    Plug 'obaland/vfiler.vim'
+  else
+    Plug 'kevinhwang91/rnvimr'
+  endif
+
+endif " !vscode
+
+call plug#end()
+
+" XXX temporary until this is fixed:
+" https://github.com/junegunn/vim-plug/issues/1270 
+if !isdirectory(plugins_dir) || empty(globpath(&runtimepath, '*/plug.vim'))
+  echo "No plugins found. Running :PlugInstall..."
+  silent! update | PlugInstall | update
 endif
+
+
+" Not using these anymore
 " Bundle 'https://github.com/xolox/vim-easytags'
 " Bundle 'https://github.com/xolox/vim-misc'
 " Bundle 'https://github.com/xolox/vim-shell'
@@ -234,32 +253,31 @@ endif
 " Plug 'freeo/vim-makegreen'
 " Plug 'freeo/vim-ipython' " not working with newer ipython version
 
-if has('win32')
-  Plug 'obaland/vfiler.vim'
-else
-  Plug 'kevinhwang91/rnvimr'
-endif
-
-call plug#end()
-
 set completeopt=menu,menuone,noselect
 
 lua <<EOF
   if vim.g.vscode == nil then
     -- Setup nvim-cmp.
     local cmp = require'cmp'
+    local luasnip = require'luasnip'
 
     cmp.setup({
       snippet = {
         -- REQUIRED - you must specify a snippet engine
         expand = function(args)
-          vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-          -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+          require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
           -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
           -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
         end,
       },
+      window = {
+        completion = cmp.config.window.bordered(),
+        documentation = cmp.config.window.bordered(),
+      },
       mapping = {
+        ['<C-j>'] = cmp.mapping(cmp.mapping.select_next_item(), { 'i', 'c' }),
+        ['<C-k>'] = cmp.mapping(cmp.mapping.select_prev_item(), { 'i', 'c' }),
         ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
         ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
         ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
@@ -272,17 +290,32 @@ lua <<EOF
       },
       sources = cmp.config.sources({
         { name = 'nvim_lsp' },
-        { name = 'vsnip' }, -- For vsnip users.
-        -- { name = 'luasnip' }, -- For luasnip users.
+        { name = 'luasnip' },
+        { name = 'buffer' },
+        { name = 'path' },
         -- { name = 'ultisnips' }, -- For ultisnips users.
+        -- { name = 'vsnip' }, -- For vsnip users.
+        -- { name = 'luasnip' }, -- For luasnip users.
         -- { name = 'snippy' }, -- For snippy users.
+      -- },
+      -- {
+      --   { name = 'buffer' },
+      })
+    })
+
+    ------------
+    -- Set configuration for specific filetype.
+    cmp.setup.filetype('gitcommit', {
+      sources = cmp.config.sources({
+        { name = 'git' }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
       }, {
         { name = 'buffer' },
       })
     })
 
-    -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline('/', {
+    -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline({ '/', '?' }, {
+      mapping = cmp.mapping.preset.cmdline(),
       sources = {
         { name = 'buffer' }
       }
@@ -290,20 +323,36 @@ lua <<EOF
 
     -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
     cmp.setup.cmdline(':', {
+      mapping = cmp.mapping.preset.cmdline(),
       sources = cmp.config.sources({
         { name = 'path' }
       }, {
         { name = 'cmdline' }
       })
     })
+    ------------
+
+    local nvim_lsp = require 'lspconfig'
 
     -- Setup lspconfig.
-    local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
-    -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+    local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+    -- nvim-cmp supports additional completion capabilities
+    -- local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+    -- local capabilities = vim.lsp.protocol.make_client_capabilities()
+    -- capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+
+    -- Enable the following language servers
+    local servers = { 'lua_ls', 'gopls', 'pyright', 'tsserver' }
+    -- local servers = { 'gopls', 'tsserver' }
+    for _, lsp in ipairs(servers) do
+        nvim_lsp[lsp].setup {
+            on_attach = on_attach,
+            capabilities = capabilities,
+        }
+    end
 
     vim.o.completeopt = 'menu,menuone,noselect'
-    -- Shared LSP settings
-    local nvim_lsp = require 'lspconfig'
 
 
     local on_attach = function(_, bufnr)
@@ -334,20 +383,6 @@ lua <<EOF
       vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
     end
 
-
-    -- nvim-cmp supports additional completion capabilities
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
-
-    -- Enable the following language servers
-    -- local servers = { 'gopls', 'pyright', 'tsserver' }
-    local servers = { 'gopls', 'tsserver' }
-    for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {
-            on_attach = on_attach,
-            capabilities = capabilities,
-        }
-    end
 
 
     require'lspconfig'.gopls.setup{}
@@ -382,7 +417,7 @@ lua <<EOF
     --
 
     -- require'lspconfig'.tsserver.setup{}
-    require'lspconfig'.jsonnet_ls.setup{}
+    -- require'lspconfig'.jsonnet_ls.setup{}
     -- require'lspconfig'.pyright.setup{}
 
 
@@ -390,38 +425,55 @@ lua <<EOF
     --   capabilities = capabilities
     -- }
 
-      require("which-key").setup {
-       spelling = {
-          enabled = false, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
-          suggestions = 20, -- how many suggestions should be shown in the list?
-        },
-       presets = {
-          operators = true, -- adds help for operators like d, y, ... and registers them for motion / text object completion
-          motions = true, -- adds help for motions
-          text_objects = true, -- help for text objects triggered after entering an operator
-          windows = true, -- default bindings on <c-w>
-          nav = true, -- misc bindings to work with windows
-          z = true, -- bindings for folds, spelling and others prefixed with z
-          g = true, -- bindings for prefixed with g
-        },
-      window = {
-        border = "none", -- none, single, double, shadow
-        position = "bottom", -- bottom, top
-        margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
-        padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
-        winblend = 0
-      },
-      layout = {
-        height = { min = 4, max = 25 }, -- min and max height of the columns
-        width = { min = 20, max = 50 }, -- min and max width of the columns
-        spacing = 3, -- spacing between columns
-        align = "left", -- align columns left, center or right
-      },
-      }
+  -- SUDA - smarter auto-sudo
+  vim.g.suda_smart_edit = 1
 
-
-
+  -- OSC52 force system clipboard provider, for kitty ssh yank/copy & paste
+  -- vim.g.clipboard = {
+  --   name = 'OSC 52',
+  --   copy = {
+  --     ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+  --     -- ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  --   },
+  --   paste = {
+  --     ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+  --     -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  --   },
+  -- }
   end
+EOF
+
+lua <<EOF
+if vim.g.vscode == nil then
+  require("which-key").setup {
+   spelling = {
+      enabled = false, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
+      suggestions = 20, -- how many suggestions should be shown in the list?
+    },
+   presets = {
+      operators = true, -- adds help for operators like d, y, ... and registers them for motion / text object completion
+      motions = true, -- adds help for motions
+      text_objects = true, -- help for text objects triggered after entering an operator
+      windows = true, -- default bindings on <c-w>
+      nav = true, -- misc bindings to work with windows
+      z = true, -- bindings for folds, spelling and others prefixed with z
+      g = true, -- bindings for prefixed with g
+    },
+  window = {
+    border = "none", -- none, single, double, shadow
+    position = "bottom", -- bottom, top
+    margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
+    padding = { 2, 2, 2, 2 }, -- extra window padding [top, right, bottom, left]
+    winblend = 0
+  },
+  layout = {
+    height = { min = 4, max = 25 }, -- min and max height of the columns
+    width = { min = 20, max = 50 }, -- min and max width of the columns
+    spacing = 3, -- spacing between columns
+    align = "left", -- align columns left, center or right
+  },
+  }
+end
 EOF
 
 
@@ -503,7 +555,43 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 vim.keymap.set('n', '<leader>ft', builtin.treesitter, {})
 vim.keymap.set('n', '<leader>fr', builtin.registers, {})
 
+require'nvim-treesitter.configs'.setup {
+    -- Don't use 'ensure_installed' or face this compile error:
+    --     No C compiler found! "cc", "gcc", "clang", "cl", "zig" are not executable.
+    -- ensure_installed = "python", -- Or "all" to install parsers for all supported languages
+    highlight = {
+      enable = true,
+    },
+    refactor = {
+            navigation = {
+              enable = true,
+              keymaps = {
+                goto_definition = "gnd",
+                list_definitions = "gnD",
+                list_definitions_toc = "gO",
+                goto_next_usage = "<a-*>",
+                goto_previous_usage = "<a-#>",
+                },
+            },
+          },
+    }
 end
+
+
+-- NOTE: If you are using nvim-treesitter with ~ensure_installed = "all"~ option
+-- add ~org~ to ignore_install
+-- require('nvim-treesitter.configs').setup({
+--   ensure_installed = 'all',
+--   ignore_install = { 'org' },
+-- })
+
+
+require('orgmode').setup({
+  org_agenda_files = {'~/Dropbox/org/*', '~/my-orgs/**/*'},
+  org_default_notes_file = '~/Dropbox/org/refile.org',
+})
+
+
 EOF
 
 autocmd BufWritePre *.go lua goimports(1000)
@@ -519,8 +607,11 @@ if !has("nvim")
   echom "No nvim"
 else
   if has("unix")
-    " deprecated: let g:python_host_prog = "/usr/bin/python"
-    let g:python3_host_prog = "/usr/bin/python3"
+    if filereadable(expand("$HOME/.pyenv/shims/python3"))
+      let g:python3_host_prog = "$HOME/.pyenv/shims/python3"
+    else
+      let g:python3_host_prog = "/usr/bin/python3"
+    endif
   elseif has("mac")
     " let g:python3_host_prog = "/Users/freeo/.pyenv/versions/neovim/bin/python"
     let g:python_host_prog = "/usr/bin/python"
@@ -762,9 +853,12 @@ set smartcase
 " use clipboard for every yank and vice versa
 if has("nvim")
   set clipboard+=unnamedplus
-else
+  else
   set clipboard+=unnamed
 endif
+
+nmap <leader>c <Plug>OSCYankOperator  
+vmap <leader>y <Plug>OSCYankVisual
 
 
 " setglobal relativenumber "disables absolute numbers in ruler
@@ -1265,6 +1359,53 @@ let g:airline_right_sep=''
 "                                   
 
 
+lua <<EOF
+
+-- Create a job to detect current gnome color scheme and set background
+local Job = require("plenary.job")
+local set_background = function()
+	local j = Job:new({ command = "gsettings", args = { "get", "org.gnome.desktop.interface", "color-scheme" } })
+	j:sync()
+  vim.api.nvim_echo({ { j:result()[1] } }, true, {})
+	if j:result()[1] == "'prefer-light'" then
+		vim.o.background = "light"
+	else
+		vim.o.background = "dark"
+	end
+
+  -- vim.api.nvim_echo({ { vim.o.background } }, true, {})
+end
+
+-- Call imediately to set initially
+set_background()
+
+-- AUTO-DARK
+-- Debounce to not call the method too often in case of multiple signals.
+local debounce = function(ms, fn)
+	local running = false
+	return function()
+		if running then
+			return
+		end
+		vim.defer_fn(function()
+			running = false
+		end, ms)
+		running = true
+		vim.schedule(fn)
+	end
+end
+
+-- Listen for SIGUSR1 signal to update background
+local group = vim.api.nvim_create_augroup("BackgroundWatch", { clear = true })
+vim.api.nvim_create_autocmd("Signal", {
+	pattern = "SIGUSR1",
+	callback = debounce(500, set_background),
+	group = group,
+})
+
+EOF
+
+
 
 function! Reload256Kalisi()
   source $HOME/.vim/bundle/vim-kalisi/colors/kalisi.vim
@@ -1496,15 +1637,37 @@ let g:rnvimr_border_attr = {'fg': 7, 'bg': -1}
 " Link CursorLine into RnvimrNormal highlight in the Floating window
 highlight link RnvimrNormal CursorLine
 
+let g:rnvimr_edit_cmd = 'drop'
+let g:rnvimr_shadow_winblend = 50
+
 " Map Rnvimr action
 let g:rnvimr_action = {
-            \ '<C-t>': 'NvimEdit tabedit',
-            \ '<C-x>': 'NvimEdit split',
+            \ '<CR>': 'NvimEdit edit',
+            \ '<C-s>': 'NvimEdit split',
             \ '<C-v>': 'NvimEdit vsplit',
+            \ '<C-o>': 'NvimEdit drop',
+            \ '<C-t>': 'NvimEdit tabedit',
             \ 'gw': 'JumpNvimCwd',
             \ 'yw': 'EmitRangerCwd'
             \ }
 
+" Add views for Ranger to adapt the size of floating window
+let g:rnvimr_ranger_views = [
+            \ {'minwidth': 90, 'ratio': []},
+            \ {'minwidth': 50, 'maxwidth': 89, 'ratio': [1,1]},
+            \ {'maxwidth': 49, 'ratio': [1]}
+            \ ]
+
+" Customize the initial layout
+let g:rnvimr_layout = {
+            \ 'relative': 'editor',
+            \ 'width': &columns,
+            \ 'height': float2nr(round(0.95 * &lines)),
+            \ 'col': 0,
+            \ 'row': float2nr(round(0.05 * &lines)),
+            \ 'style': 'minimal'
+            \ }
+            " \ 'col': float2nr(round(0.05 * &columns)),
 
 " http://emanuelduss.ch/2011/04/meine-konfigurationsdatei-fur-vim-vimrc/
 "
@@ -1773,8 +1936,7 @@ endfunction
 " # STARTIFY #################################################################
 
 
-
-let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.vim','~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
+let g:startify_bookmarks = [$HOME . '/.config/nvim/init.vim', '~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
 "
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
@@ -2239,51 +2401,52 @@ vmap <F9> :py3 EvaluateCurrentRange()<CR>
 " Use F7/Shift-F7 to add/remove a breakpoint (pdb.set_trace)
 " Totally cool.
 
-python3 << EOL
-def SetBreakpoint():
-    import re
-    nLine = int( vim.eval( 'line(".")'))
+" python3 << EOL
+" def SetBreakpoint():
+"     import re
+"     nLine = int( vim.eval( 'line(".")'))
+"
+"     strLine = vim.current.line
+"     strWhite = re.search( '^(\s*)', strLine).group(1)
+"
+"     vim.current.buffer.append(
+"       "%(space)spdb.set_trace() %(mark)s Breakpoint %(mark)s" %
+"         {'space':strWhite, 'mark': '#' * 30}, nLine - 1)
+"
+"     for strLine in vim.current.buffer:
+"         if strLine == "import pdb":
+"             break
+"     else:
+"         vim.current.buffer.append( 'import pdb', 0)
+"         vim.command( 'normal j1')
+"
+" vim.command( 'map <f7> :py3 SetBreakpoint()<cr>')
+"
+" def RemoveBreakpoints():
+"     import re
+"
+"     nCurrentLine = int( vim.eval( 'line(".")'))
+"
+"     nLines = []
+"     nLine = 1
+"     for strLine in vim.current.buffer:
+"         if strLine == "import pdb" or strLine.lstrip()[:15] == "pdb.set_trace()":
+"             nLines.append( nLine)
+"         nLine += 1
+"
+"     nLines.reverse()
+"
+"     for nLine in nLines:
+"         vim.command( "normal %dG" % nLine)
+"         vim.command( "normal dd")
+"         if nLine < nCurrentLine:
+"             nCurrentLine -= 1
+"
+"     vim.command( "normal %dG" % nCurrentLine)
+"
+" vim.command( "map <s-f7> :py3 RemoveBreakpoints()<cr>")
+" EOL
 
-    strLine = vim.current.line
-    strWhite = re.search( '^(\s*)', strLine).group(1)
-
-    vim.current.buffer.append(
-      "%(space)spdb.set_trace() %(mark)s Breakpoint %(mark)s" %
-        {'space':strWhite, 'mark': '#' * 30}, nLine - 1)
-
-    for strLine in vim.current.buffer:
-        if strLine == "import pdb":
-            break
-    else:
-        vim.current.buffer.append( 'import pdb', 0)
-        vim.command( 'normal j1')
-
-vim.command( 'map <f7> :py3 SetBreakpoint()<cr>')
-
-def RemoveBreakpoints():
-    import re
-
-    nCurrentLine = int( vim.eval( 'line(".")'))
-
-    nLines = []
-    nLine = 1
-    for strLine in vim.current.buffer:
-        if strLine == "import pdb" or strLine.lstrip()[:15] == "pdb.set_trace()":
-            nLines.append( nLine)
-        nLine += 1
-
-    nLines.reverse()
-
-    for nLine in nLines:
-        vim.command( "normal %dG" % nLine)
-        vim.command( "normal dd")
-        if nLine < nCurrentLine:
-            nCurrentLine -= 1
-
-    vim.command( "normal %dG" % nCurrentLine)
-
-vim.command( "map <s-f7> :py3 RemoveBreakpoints()<cr>")
-EOL
 endif
 
 " vim:syntax=vim
@@ -2573,7 +2736,7 @@ function! TodaySeparator()
 endfunction
 
 " nmap <c-F1> :call TodaySeparator()<CR>
-nmap <leader>t :call TodaySeparator()<CR>
+" nmap <leader>t :call TodaySeparator()<CR>
 
 
 let g:ycm_auto_trigger = 0
@@ -2883,6 +3046,7 @@ end
 
 end
 EOF
+
 
 " echom "correct vimrc!"
 " End of my epic vimrc!

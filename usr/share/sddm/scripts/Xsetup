@@ -1,0 +1,50 @@
+#!/bin/sh
+# Xsetup - run as root before the login dialog appears
+# xrandr --output DP-4 --off --output HDMI-0 --off
+# sleep 0.5
+# xrandr --output DP-4 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off
+NG9LOG=/var/log/neog9xsetup.log
+date >> $NG9LOG
+
+xrandr | tee -a $NG9LOG
+xrandr --listactivemonitors | tee -a $NG9LOG
+
+xrandr_output=$(xrandr -q | sed -En '/DP-0/,/^(HDMI|DisplayPort|DP)-[0-9]/p')
+dp_nvidia_connected=$(echo "$xrandr_output" | grep "DP-0 connected")
+if [[ -n $dp_nvidia_connected ]]; then
+  for ((i = 0 ; i < 3; i++)); do
+    xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96
+    sleep 0.5
+    xrandr --listactivemonitors | tee -a $NG9LOG | grep DP-0 && break
+  done
+  echo "Check last time for DP-0, if it's safe to turn off HDMI-0" >> $NG9LOG
+  xrandr --listactivemonitors | tee -a $NG9LOG | grep DP-0 && xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off
+  echo "Final state:" >> $NG9LOG
+  xrandr --listactivemonitors >> $NG9LOG
+  echo "" >> $NG9LOG
+else
+    echo "DP-0 not connected" >> $NG9LOG
+fi
+
+# AMDGPU
+# HDMI-A-0 seems to be unique to AMD
+xrandr_output=$(xrandr -q | sed -En '/HDMI-A-0/,/^(HDMI|DisplayPort|DP)-[0-9]/p')
+hdmi_amd_connected=$(echo "$xrandr_output" | grep "HDMI-A-0 connected")
+if [[ -n $hdmi_amd_connected ]]; then
+    resolution_line=$(echo "$xrandr_output" | grep "5120x1440[[:space:]]*59")
+
+    if [[ -n $resolution_line ]]; then
+        resolution=$(echo "$resolution_line" | awk '{print $1}' | tr -d '\n')
+        rate=$(echo "$resolution_line" | awk '{print $2}' | sed 's/[+*]//g' | tr -d '\n')
+
+        # Execute the xrandr command
+        xrandr_command="xrandr --output HDMI-A-0 --mode $resolution --rate $rate --dpi 144"
+        echo "Executing: $xrandr_command" >> $NG9LOG
+        eval "$xrandr_command" >> $NG9LOG
+    else
+        echo "Resolution 5120x1440 not found for HDMI-A-0" >> $NG9LOG
+    fi
+else
+    echo "HDMI-A-0 not connected" >> $NG9LOG
+fi
+

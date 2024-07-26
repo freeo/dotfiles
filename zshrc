@@ -1,3 +1,4 @@
+
 #!/bin/zsh
 # PROFILING this .zshrc:
 # NOTE: Last line of this script is necessary to know when to stop
@@ -6,24 +7,38 @@
 # don't execute the rest of this .zshrc if connecting via emacs TRAMP
 [[ $TERM == "tramp" ]] && unsetopt zle && PS1='$ ' && return
 
+# Background Color for more readable lolcat
 # https://unix.stackexchange.com/questions/608538/how-to-use-256-colors-for-background-color-in-terminal
-print -rP '%K{#303030}'
+# print -rP '%K{#303030}'
 
 # template: if app x exists
 # if hash x 2>/dev/null ; then
 
 if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
-  fortune | lolcat
+  # seed to avoid unreadable green
+  fortune | lolcat --seed 1337 --spread 4
 fi
 # echoti setab [%?%p1%{8}%<%t4%p1%d%e%p1%{16}%<%t10%p1%{8}%-%d%e48;5;%p1%d%;m
 
+# Outdated!
 # careful: zi not zinit
 # https://github.com/z-shell/zi
-zi_home="${HOME}/.zi"
-source "${zi_home}/bin/zi.zsh"
+# zi_home="${HOME}/.zi"
+# source "${zi_home}/bin/zi.zsh"
+# autoload -Uz _zi
+# (( ${+_comps} )) && _comps[zi]=_zi
 
-autoload -Uz _zi
-(( ${+_comps} )) && _comps[zi]=_zi
+if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+    print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-    …continuum/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
+        print -P "%F{33} %F{34}Installation successful.%f%b" || \
+        print -P "%F{160} The clone has failed.%f%b"
+fi
+
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -34,8 +49,8 @@ autoload -Uz _zi
 # p10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
-zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
-zstyle :compinstall filename '/home/freeo/.zshrc'
+# zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=** r:|=**' 'l:|=* r:|=*'
+# zstyle :compinstall filename '/home/freeo/.zshrc'
 
 
 
@@ -58,7 +73,10 @@ export AUTO_NOTIFY_THRESHOLD=10
 # export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
 AUTO_NOTIFY_IGNORE+=("ranger")
 # export BAT_THEME="Monokai Extended Light"
-export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filter=metadata.managedFields"
+
+if hash dyff 2>/dev/null ; then
+  export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --filter=metadata.managedFields"
+fi
 
 alias md='mkdir'
 alias sz='source ~/.zshrc'
@@ -78,9 +96,12 @@ alias RCK='nvim ~/.config/kitty/kitty.conf'
 export PATH="$PATH:$HOME/.config/emacs/bin"
 export PATH="$PATH:$HOME/.cargo/env"
 export PATH="$PATH:$HOME/.cargo/bin"
+export PATH="$PATH:$HOME/dotfiles/scripts"
+export PATH="$PATH:$HOME/.linkerd2/bin"
 
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❯❯❯'
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😎❮'
+typeset -g POWERLEVEL9K_PYENV_PROMPT_ALWAYS_SHOW=true
 
 # this SKIM_DEFAULT_COMMAND: 1.37 seconds for ~1.4 million files, faster than fd
 export SKIM_DEFAULT_COMMAND="rg --files --no-ignore --hidden"
@@ -124,6 +145,8 @@ function linuxSettings () {
   # reset capslock to ctrl
   alias nocaps="setxkbmap -option ctrl:nocaps"
   alias NOCAPS="xdotool key Caps_Lock; setxkbmap -option ctrl:nocaps"
+  alias CAPSLOCK="xdotool key Caps_Lock"
+  alias capslock="xdotool key Caps_Lock"
   alias win10h="systemctl hibernate --boot-loader-entry=Windows10.conf"
   alias win10="systemctl reboot --boot-loader-entry=Windows10.conf"
 
@@ -194,6 +217,7 @@ function linuxSettings () {
 # Linux Environment Variables, not conflicting with Darwin
 export GREP_COLORS="1;97;102"
 
+
 # macOS settings ###################
 # if ostype == darwin
 function darwinSettings () {
@@ -216,23 +240,30 @@ function darwinSettings () {
   # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
 }
 
-source $HOME/.config/broot/launcher/bash/br
+br_exists=$HOME/.config/broot/launcher/bash/br
+[ -f $br_exists ] && source $br_exists
 
 zinit light Tarrasch/zsh-bd
 zinit light darvid/zsh-poetry
 zinit light fdw/ranger-zoxide # provides: r "input"
 zinit light lukechilds/zsh-nvm
 zinit light zdharma/fast-syntax-highlighting
+zinit light trapd00r/zsh-syntax-highlighting-filetypes
 # provides:
 #   archive
 #   unarchive
 #   lsarchive : lists content of archives
 zinit light zimfw/archive
 zinit light zimfw/git
+zinit light zimfw/input # try out: maybe fixes some nested prompt issues, like in pdb, where I can't DEL and BACKSPACE properly
+# zinit light zimfw/magic-enter # incompatible with p10k
 zinit light zsh-users/zsh-autosuggestions
 zinit ice wait'1' lucid
 zinit light mellbourn/zabb
 zinit load wfxr/forgit
+zinit light zsh-users/zsh-completions # XXX
+# zinit light zimfw/completion
+zinit light MichaelAquilina/zsh-you-should-use
 
 # zi light zimfw/exa # creates bad aliases
 
@@ -249,7 +280,11 @@ case "$OSTYPE" in
     # zi light MichaelAquilina/zsh-auto-notify
     # silence notify inside of emacs, as EVERY cmd triggers a notification!
     if [[ -z "$INSIDE_EMACS" ]]; then
-      zinit light marzocchi/zsh-notify
+      if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
+        # don't load in vagrant and other ssh environments!
+      else
+        zinit light marzocchi/zsh-notify
+      fi
     fi
     # plugins=(
     #   git
@@ -260,6 +295,7 @@ case "$OSTYPE" in
     linuxSettings
   ;;
 esac
+
 
 
 # emacs-vterm
@@ -302,6 +338,17 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
 
 fi
 
+zstyle ':completion:*' menu select
+
+# TODO: Moved down here, otherwise I can't see installation progress... Observe if it's ok to stay here.
+# ---
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 
 # Git aliases, additionally on top of zimfw/git
 # upper case f for same shortcut, as magit uses
@@ -310,15 +357,6 @@ alias GFr="git pull --rebase"
 alias GFm="git pull --no-rebase"
 alias Gfa="git fetch --all"
 
-
-# TODO: Moved down here, otherwise I can't see installation progress... Observe if it's ok to stay here.
-# ---
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-# fi
 
 # source $ZSH/oh-my-zsh.sh
 
@@ -406,6 +444,8 @@ SAVEHIST=1000000   # maximum number of items for the history file
 # Load key-bindings (pacman package provides this file), most notably CTRL-R
 FZFKEYBINDINGS=/usr/share/fzf/key-bindings.zsh
 [ -f $FZFKEYBINDINGS ] && source $FZFKEYBINDINGS
+# configures fzf to use fd, rg
+zinit light zimfw/fzf
 # fallback if fzf not installed:
 if ! typeset -f fzf-history-widget &>/dev/null; then
   bindkey '^r' history-incremental-search-backward
@@ -562,10 +602,18 @@ zstyle ':notify:*' success-title "very success. wow"
 # echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi" >> ~/.zshrc # add autocomplete permanently to your zsh shellif [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 # if [ /usr/local/bin/kubectl ]; then source <(kubectl completion zsh); fi
 
+# danielfoehrKn/kubeswitch
+# requires compdef, loaded by compinit
+if hash switcher 2>/dev/null; then
+  source <(switcher init zsh)
+  # optionally use alias `s` instead of `switch`
+  # source <(alias s=switch)
+  # optionally use command completion
+  source <(switch completion zsh)
+fi
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-alias vim="nvim"
 
 export PATH=~/.npm-global/bin:$PATH
 # Unset manpath so we can inherit from /etc/manpath via the `manpath` command
@@ -588,6 +636,15 @@ unset GNUPGHOME
 
 alias k='kubectl'
 alias gs='git status'
+
+alias scu='systemctl --user'
+alias scus='sudo systemctl --type=service --user'
+alias sc='sudo systemctl'
+alias scs='sudo systemctl --type=service'
+
+alias lazypodman='DOCKER_HOST=unix:///run/user/1000/podman/podman.sock lazydocker'
+# fdr: fd in root
+alias fdr="fd --exclude /mnt --exclude /home -uu"
 
 
 export LC_ALL=en_US.UTF-8
@@ -660,7 +717,9 @@ if hash delta 2>/dev/null ; then
   export DELTA_PAGER=less
 fi
 
-eval "$(direnv hook zsh)"
+if hash direnv 2>/dev/null; then
+  eval "$(direnv hook zsh)"
+fi
 
 # source <(manage completion)
 
@@ -770,13 +829,24 @@ alias vpncon='nmcli con up id catenate && vpndnsfix'
 alias vpndis='nmcli con down id catenate'
 alias vpnconask='nmcli --ask con up id catenate && vpndnsfix'
 
-eval "$(zoxide init zsh)"
+# --no-cmd skips initializing zinit=zi but requires manual aliases
+eval "$(zoxide init zsh --no-cmd)"
+alias z=__zoxide_z
+alias zz=__zoxide_zi
 
+# zinit conflict: this function ALWAYS overwrites zinit!
+# DO NOT USE! as long as I'm using zinit package manager
+# alias zi=__zoxide_zi
+
+# alias vim="nvim"
+alias v='nvim'
 alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..." && z '
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
+# alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
+alias rg="rg -i -uu"
 
 if hash cargo 2>/dev/null ; then
   if test -f "$HOME/.cargo/env" ; then
@@ -803,7 +873,7 @@ ranger() {
 # ranger_cd
 rcd() {
     temp_file="$(mktemp -t "ranger_cd.XXXXXXXXXX")"
-    ranger --choosedir="$temp_file" -- "${@:-$PWD}"
+    ranger --choosedir="$temp_file" -- "${@:-$PWD}" $1
     if chosen_dir="$(cat -- "$temp_file")" && [ -n "$chosen_dir" ] && [ "$chosen_dir" != "$PWD" ]; then
         cd -- "$chosen_dir"
     fi
@@ -813,9 +883,14 @@ rcd() {
 
 # This binds Ctrl-O to ranger_cd:
 # bindkey ^o ranger-cd
-bindkey -s "^o" "rcd\n"
+# bindkey -s "^o" "rcd\n"
+bindkey -s "^o" "^E^Urcd^M"
+# Ctrl+Alt+o : sudo ranger .
+bindkey -s "^[^o" "^E^Usudo ranger .^M"
 
-bindkey -s "^p" "zi\n"
+bindkey -s "^p" "zz\n"
+# XXX doesn't work yet
+# bindkey -s "^p" "^E^Urcd --cmd=zi^M"
 
 # broot
 # bindkey -s "^p" "br\n"
@@ -843,9 +918,9 @@ ssh-add $HOME/.ssh/id_bmw > /dev/null 2>&1
 
 [ -s ~/.luaver/luaver ] && . ~/.luaver/luaver
 
-eval $(thefuck --alias)
 
 if hash thefuck 2>/dev/null; then
+  eval $(thefuck --alias)
   alias fk=fuck
   alias doh=fuck
 fi
@@ -928,6 +1003,17 @@ function morelinuxSettings () {
 
 
   fi
+
+  # if conda is installed...
+  [ -f /opt/miniconda3/etc/profile.d/conda.sh ] && source /opt/miniconda3/etc/profile.d/conda.sh
+
+
+  # when ComfyUI doesn't start, no CUDA device available:
+  # RuntimeError: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero.
+  function nvidia_restart (){
+    sudo modprobe -r nvidia_uvm && sudo modprobe nvidia_uvm
+  }
+
 }
 
 
@@ -968,9 +1054,12 @@ function automatic1111 () {
 alias a11=automatic1111
 
 # pyenv shell integration, required for "pyenv shell 3.10.6"
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+
+if hash pyenv 2>/dev/null; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+fi
 
 alias hueVaporWave="hueadm group 200 scene=PabuZd2VKFG6mhb"
 alias hueBluePlanet="hueadm group 200 scene=5suARnK-Aiinak0"
@@ -995,6 +1084,88 @@ Energize    = White x2
 Concentrate = WarmWhite x2
 Relax       = flux x2
 EOF
+}
+
+
+function meet () {
+  /home/freeo/dotfiles/scripts/meet.sh
+}
+
+alias lackit="kitten ssh vagrant@lackit.local"
+alias lvidia="kitten ssh vagrant@lvidia.local"
+alias alpine="kubectl exec -it pod/alpine -- /bin/sh"
+alias alpineCreate="set -x; kubectl apply -f /home/freeo/cubecloud/gitops-lackit/dev/alpine.yaml; sleep 3; set +x; kubectl exec -it pod/alpine -- /bin/sh; "
+alias alpineDelete="kubectl delete -f /home/freeo/cubecloud/gitops-lackit/dev/alpine.yaml"
+
+
+
+HOST=$(hostname)
+
+case "$HOST" in
+  "cloudkoloss")
+    # export KUBECONFIG="/home/$USER/.kube/lackit.k3s.yaml"
+    export KUBECONFIG="/home/$USER/.kube/lvidia.k3s.yaml"
+    ;;
+  "lackit")
+    export KUBECONFIG="/home/$USER/.kube/config.yaml"
+    alias sukitten="sudo /home/vagrant/.local/share/kitty-ssh-kitten/kitty/bin/kitten"
+    alias cpk3scfg="sukitten transfer /etc/rancher/k3s/k3s.yaml /home/freeo/.kube/lackit.k3s.yaml"
+    ;;
+  "lvidia")
+    export KUBECONFIG="/home/$USER/.kube/config.yaml"
+    alias sukitten="sudo /home/vagrant/.local/share/kitty-ssh-kitten/kitty/bin/kitten"
+    alias cpk3scfg="sukitten transfer /etc/rancher/k3s/k3s.yaml /home/freeo/.kube/lvidia.k3s.yaml"
+    ;;
+  *)
+    export KUBECONFIG="/home/$USER/.kube/config.yaml"
+    ;;
+esac
+
+export ATAC_KEY_BINDINGS=$XDG_CONFIG_HOME/atac/vim_key_bindings.toml
+
+
+MOUSE() {
+  local onoff="$1"
+  xinput_list=$(xinput list)
+  # Extract the IDs of all devices
+  device_ids=$(echo "$xinput_list" | rg -i "cooler master.*mm" | grep -oP 'id=\K\d+')
+  # bash: for id in $device_ids; do
+  # ZSH style loop! device_ids output is different from bash
+  for id in ${(f)device_ids}; do
+      xinput $onoff $id
+      if [[ -z $ERRORCODE ]]; then
+        echo "$onoff device with ID: $id"
+      else
+        echo "error: $onoff device with ID: $id"
+        echo $xinput_list | rg $id
+      fi
+  done
+}
+
+alias mouse="MOUSE enable"
+# context files must contain "current-context: mycontext"
+alias k9v='k9s --kubeconfig ~/.kube/lvidia.k3s.yaml'
+alias k9l='k9s --kubeconfig ~/.kube/lackit.k3s.yaml'
+alias chmodquery='stat -c "%a %n"'
+
+gpu="0000:01:00.0"
+aud="0000:01:00.1"
+gpu_vd="$(cat /sys/bus/pci/devices/$gpu/vendor) $(cat /sys/bus/pci/devices/$gpu/device)"
+aud_vd="$(cat /sys/bus/pci/devices/$aud/vendor) $(cat /sys/bus/pci/devices/$aud/device)"
+
+function bind_vfio {
+  echo "$gpu" > "/sys/bus/pci/devices/$gpu/driver/unbind"
+  echo "$aud" > "/sys/bus/pci/devices/$aud/driver/unbind"
+  echo "$gpu_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
+  echo "$aud_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
+}
+
+function unbind_vfio {
+  echo "$gpu_vd" > "/sys/bus/pci/drivers/vfio-pci/remove_id"
+  echo "$aud_vd" > "/sys/bus/pci/drivers/vfio-pci/remove_id"
+  echo 1 > "/sys/bus/pci/devices/$gpu/remove"
+  echo 1 > "/sys/bus/pci/devices/$aud/remove"
+  echo 1 > "/sys/bus/pci/rescan"
 }
 
 # PROFILING endpoint:

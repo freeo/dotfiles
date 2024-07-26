@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+<mime-type type="application/audacity.project">
+  <glob pattern="*.aup3"/>
+    <comment>Audacity Project File</comment>
+  <icon name="audio-mpeg" />
+</mime-type>
+</mime-info>

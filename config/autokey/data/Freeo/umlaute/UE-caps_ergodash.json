@@ -25,7 +25,7 @@
         "hotKey": "\\"
     },
     "filter": {
-        "regex": null,
+        "regex": "draw.io|Signal|Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|libreoffice.libreoffice-writer|Msgcompose.thunderbird",
         "isRecursive": false
     }
 }

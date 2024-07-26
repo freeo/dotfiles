@@ -1,0 +1,165 @@
+log of cmd:
+$ xev -root -event randr
+
+waiting for natural OffTime (xorg), then running my "8" script. See XXX where I turned it on
+Change determined by the timestamp output of:
+$ udevadm monitor -u
+
+
+RRNotify event, serial 18, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property EDID, timestamp 2421691, state Delete
+
+RRNotify event, serial 18, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property CTM, timestamp 2421691, state NewValue
+
+RRScreenChangeNotify event, serial 18, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 1770451, config_timestamp 2425968
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRNotify event, serial 18, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc 440, mode 5120x1440 (5120x1440)
+    rotation RR_Rotate_0
+    connection RR_Disconnected, subpixel_order SubPixelUnknown
+
+RRNotify event, serial 29, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property CTM, timestamp 2426697, state NewValue
+
+RRScreenChangeNotify event, serial 29, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 1770451, config_timestamp 2427465
+    size_index 1, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRNotify event, serial 29, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc 440, mode 5120x1440 (5120x1440)
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+RRScreenChangeNotify event, serial 33, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 1770451, config_timestamp 2427465
+    size_index 1, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRNotify event, serial 33, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc 440, mode 5120x1440 (5120x1440)
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+RRScreenChangeNotify event, serial 35, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 1770451, config_timestamp 2427465
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRNotify event, serial 35, synthetic NO, window 0x1f2,
+    subtype XRRCrtcChangeNotifyEvent
+    crtc 440, mode None, rotation RR_Rotate_0
+    x 0, y 0, width 0, height 0
+
+RRNotify event, serial 35, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc None, mode None
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+RRScreenChangeNotify event, serial 35, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2663624, config_timestamp 2427465
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 8, height 8, mwidth 1, mheight 1
+
+XXX HERE: TURNED ON MANUALLY AGAIN!!!
+
+RRNotify event, serial 37, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property EDID, timestamp 2663762, state Delete
+
+RRNotify event, serial 37, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property CTM, timestamp 2663762, state NewValue
+
+RRScreenChangeNotify event, serial 37, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2663624, config_timestamp 2663839
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 8, height 8, mwidth 1, mheight 1
+
+RRNotify event, serial 37, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc None, mode None
+    rotation RR_Rotate_0
+    connection RR_Disconnected, subpixel_order SubPixelUnknown
+
+RRNotify event, serial 44, synthetic NO, window 0x1f2,
+    subtype XRROutputPropertyChangeNotifyEvent
+    output DP-0, property CTM, timestamp 2664350, state NewValue
+
+RRScreenChangeNotify event, serial 44, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2663624, config_timestamp 2665301
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 8, height 8, mwidth 1, mheight 1
+
+RRNotify event, serial 44, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc None, mode None
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+RRScreenChangeNotify event, serial 48, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2663624, config_timestamp 2665301
+    size_index 65535, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 1024, height 768, mwidth 128, mheight 95
+
+RRScreenChangeNotify event, serial 48, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2663624, config_timestamp 2665301
+    size_index 11, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 1024, height 768, mwidth 128, mheight 95
+
+RRNotify event, serial 48, synthetic NO, window 0x1f2,
+    subtype XRRCrtcChangeNotifyEvent
+    crtc 440, mode 1024x768, rotation RR_Rotate_0
+    x 0, y 0, width 1024, height 768
+
+RRNotify event, serial 48, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc 440, mode 1024x768 (1024x768)
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+RRScreenChangeNotify event, serial 51, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2666126, config_timestamp 2665301
+    size_index 1, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRScreenChangeNotify event, serial 51, synthetic NO, window 0x1f2,
+    root 0x1f2, timestamp 2666126, config_timestamp 2665301
+    size_index 1, subpixel_order SubPixelUnknown
+    rotation RR_Rotate_0
+    width 5120, height 1440, mwidth 903, mheight 254
+
+RRNotify event, serial 51, synthetic NO, window 0x1f2,
+    subtype XRRCrtcChangeNotifyEvent
+    crtc 440, mode 5120x1440, rotation RR_Rotate_0
+    x 0, y 0, width 5120, height 1440
+
+RRNotify event, serial 51, synthetic NO, window 0x1f2,
+    subtype XRROutputChangeNotifyEvent
+    output DP-0, crtc 440, mode 5120x1440 (5120x1440)
+    rotation RR_Rotate_0
+    connection RR_Connected, subpixel_order SubPixelUnknown
+
+
+

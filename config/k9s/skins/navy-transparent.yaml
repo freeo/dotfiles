@@ -1,0 +1,129 @@
+# -----------------------------------------------------------------------------
+# In the Navy
+# -----------------------------------------------------------------------------
+
+fg: &fg "white"
+bg: &bg "black"
+black: &black "black"
+white: &white "white"
+blue: &blue "blue"
+steel: &steel "steelblue"
+dark: &dark "darkblue"
+alice: &alice "aliceblue"
+# err: &err "indianred"
+err: &err "#ee7755" # orange
+royal: &royal "royalblue"
+slate: &slate "slategray"
+gray: &gray "#a0a0a0"
+lightgray: &lightgray "#c0c0c0"
+cadet: &cadet "cadetblue"
+aqua: &aqua "aqua"
+mslate: &mslate "mediumslateblue"
+green: &green "#228844"
+purpur: &purpur "#8250df"
+fuchsia: &fuchsia "#ff00ff"
+lavender: &lavender "#2bdab6"
+higreen: &higreen "#4ebd30"
+
+k9s:
+  body:
+    fgColor: *black
+    bgColor: default
+    logoColor: *black
+  prompt:
+    fgColor: *black
+    # bgColor: *bg
+    bgColor: default
+    suggestColor: *green
+  info:
+    fgColor: *royal
+    # sectionColor: *steel
+    sectionColor: default
+  dialog:
+    fgColor: "black"
+    # bgColor: *bg
+    buttonFgColor: *fg
+    buttonBgColor: "#FFFF00"
+    buttonFocusFgColor: "black"
+    buttonFocusBgColor: *green
+    bgColor: default
+    labelFgColor: *black
+    fieldFgColor: *purpur
+  frame:
+    border:
+      # fgColor: *fg
+      fgColor: *black
+      bgColor: *dark
+      focusColor: *alice
+    menu:
+      fgColor: *black
+      keyColor: *black
+      # numKeyColor: *cadet
+      numKeyColor: *purpur
+    crumbs:
+      fgColor: *fg
+      bgColor: *gray
+      activeColor: *green
+    status:
+      newColor: "black"
+      modifyColor: *purpur
+      addColor: *higreen
+      errorColor: *err
+      highlightColor: *royal
+      killColor: *slate
+      completedColor: *gray
+    title:
+      fgColor: *black
+      # bgColor: *bg
+      bgColor: default
+      counterColor: default
+      highlightColor: *purpur
+      # counterColor: *slate
+      filterColor: *slate
+  views:
+    table:
+      fgColor: *fg
+      # bgColor: *bg
+      bgColor: default
+      cursorFgColor: *fg
+      cursorBgColor: *fuchsia
+      markColor: *mslate
+      header:
+        fgColor: *fg
+        # bgColor: *bg
+        # fgColor: default
+        bgColor: default
+        sorterColor: *purpur
+    xray:
+      fgColor: *blue
+      # bgColor: *dark
+      bgColor: default
+      cursorColor: *green
+      graphicColor: *mslate
+      showIcons: false
+    charts:
+      # bgColor: *bg
+      bgColor: default
+      defaultDialColors:
+        - *green
+        - *err
+      defaultChartColors:
+        - *green
+        - *err
+    yaml:
+      keyColor: *royal
+      colorColor: *green
+      valueColor: *black
+    logs:
+      # fgColor: *dark
+      fgColor: *black
+      # bgColor: *bg
+      bgColor: default
+      indicator:
+        fgColor: *dark
+        # bgColor: *bg
+        toggleOnColor: *steel
+        toggleOffColor: *blue
+        bgColor: default
+        # toggleOnColor: default
+        # toggleOffColor: default

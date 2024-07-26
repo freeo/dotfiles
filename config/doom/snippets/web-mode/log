@@ -1,0 +1,6 @@
+# -*- mode: web-mode -*-
+# name: log
+# key: log
+# condition: t
+# --
+console.log($0)

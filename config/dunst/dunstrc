@@ -34,7 +34,7 @@
     origin = top-center
 
     # Offset from the origin
-    offset = 10x50
+    offset = 10x100
 
     # Scale factor. It is auto-detected if value is 0.
     scale = 0
@@ -110,7 +110,6 @@
     # section for how to disable this if necessary
     # idle_threshold = 120
 
-login to okteto jira skill
     ### Text ###
 
     # font = FiraCode Nerd Font Mono 10
@@ -208,7 +207,7 @@ login to okteto jira skill
     sticky_history = yes
 
     # Maximum amount of notifications kept in history
-    history_length = 20
+    history_length = 50
 
     ### Misc/Advanced ###
 

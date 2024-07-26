@@ -29,6 +29,7 @@ function unplug (){
 
   # wtf... it makes a screenshot...
   # flameshot full -c -p /home/freeo/wb/g9off
+  awesome-client "write_last_tag()"
   xrandr --output DP-0 --off
   # echo "off"
   echo "turn it off!"
@@ -51,7 +52,15 @@ function unplug (){
 # isG9on && echo "unplug" || echo "plug in!"
 # isG9on && unplug || /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null
 # xssstate -s
-xset -q | sed -n '/DPMS/,/$/p' && isG9on && unplug || { isG9off && echo "turn it on!" && /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null;}
+
+
+xset -q | sed -n '/DPMS/,/$/p' && isG9on && awesome-client "write_last_tag()" && unplug || { isG9off && echo "turn it on!" && /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null;}
+#
+# works, but refactored restoring the tag into neog9_ON.sh
+# xset -q | sed -n '/DPMS/,/$/p' && isG9on && awesome-client "write_last_tag()" && unplug || { isG9off && echo "turn it on!" && /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null && awesome-client "restore_last_tag()";}
+
+
+# xset -q | sed -n '/DPMS/,/$/p' && isG9on && unplug || { isG9off && echo "turn it on!" && /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null;}
 
 # xrandr --listactivemonitors | grep DP-0 >/dev/null && unplug || echo "on" && /home/freeo/dotfiles/scripts/neog9_ON.sh > /dev/null
 

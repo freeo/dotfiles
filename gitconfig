@@ -7,7 +7,8 @@
 	rebase = false
 [core]
 	editor = nvim
-	pager = delta
+	pager = delta --max-line-length 5120 --max-line-distance 0.8
+
 	excludesfile = ~/.gitignore
 # [includeIf "gitdir:github/"]
   # path = .gitconfig-github
@@ -27,9 +28,11 @@
 	defaultBranch = main
 [interactive]
 	diffFilter = delta --color-only --features=interactive
+  # diffFilter = diff-so-fancy --patch
 [delta]
 	features = decorations
-	side-by-side = true
+	side-by-side = false
+  light = true
 [delta "interactive"]
 	keep-plus-minus-markers = false
 [delta "decorations"]
@@ -41,3 +44,5 @@
 	hunk-header-line-number-style = "#067a00"
 	hunk-header-style = file line-number syntax
 
+[credential]
+	helper = cache --timeout=14400

@@ -137,8 +137,9 @@ awesome.connect_signal("volume_change",
       -- set new volume value
       awful.spawn.easy_async_with_shell(
           -- 0.1 was carefully tested: smaller values result in wrong display for fast changes
-         "sleep 0.1 && amixer -D pulse sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
          -- "sleep 0.1 && amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
+         -- "sleep 0.1 && amixer -D pulse sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
+         "sleep 0.1 && amixer sget Master | grep 'Right:' | sed -n '1p' | awk -F '[][]' '{print $2}'| sed 's/[^0-9]//g'",
          function(stdout)
             local volume_level = tonumber(stdout)
             if (volume_level == nil ) then

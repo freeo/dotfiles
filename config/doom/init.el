@@ -4,8 +4,8 @@
 ;; in. Remember to run 'doom sync' after modifying it!
 
 ;; NOTE Press 'SPC h d h' (or 'C-h d h' for non-vim users) to access Doom's
-;;      documentation. There you'll find a "Module Index" link where you'll find
-;;      a comprehensive list of Doom's modules and what flags they support.
+;;      documentation. There you'll find a link to Doom's Module Index where all
+;;      of our modules are listed, including what flags they support.
 
 ;; NOTE Move your cursor over a module's name (or its flags) and press 'K' (or
 ;;      'C-c c k' for non-vim users) to view its documentation. This works on
@@ -21,23 +21,27 @@
 ;;   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 
 (doom! :input
+       ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
        ;;chinese
        ;;japanese
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
+       ;; (company +tng) :+tng should enable TAB completion, but doesn't work.
+       ;; Also company doesn't select the first element anymore. Annoying.
        company           ; the ultimate code completion backend
-       helm              ; the *other* search engine for love and life
-       ;;ido               ; the other *other* search engine...
+       ;; helm              ; the *other* search engine for love and life
+       (helm +fuzzy +childframe)              ; the *other* search engine for love and life
+       ;; ido               ; the other *other* search engine...
        ;; ivy               ; a search engine for love and life
-       vertico           ; the search engine of the future
+       ;; vertico           ; the search engine of the future
 
        :ui
        ;;deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
        ;; doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       (emoji +unicode +github +ascii)  ; 🙂
+       ;; (emoji +github +ascii)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;; hydra
        indent-guides     ; highlighted indent columns
@@ -93,7 +97,7 @@
        :tools
        ;;ansible
        ;; debugger          ; FIXME stepping through code, to help you add bugs
-       (debugger +lsp)          ; FIXME stepping through code, to help you add bugs
+       ;; (debugger +lsp)          ; not with eglot lsp
        direnv
        docker
        editorconfig      ; let someone else argue about tabs vs spaces
@@ -101,27 +105,28 @@
        (eval +overlay)     ; run code, run (also, repls)
        gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
-       lsp              ; M-x vscode
+       lsp              ; lsp-mode
        ;; (lsp +eglot)              ; M-x vscode
-       magit             ; a git porcelain for Emacs
+       (magit +forge)            ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        pass              ; password manager for nerds
        ;;pdf               ; pdf enhancements
        ;;prodigy           ; FIXME managing external services & code builders
        ;;rgb               ; creating color strings
-       ;;taskrunner        ; taskrunner for all your projects
+       taskrunner        ; taskrunner for all your projects
        terraform         ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
+       ;;tree-sitter       ; syntax and parsing, sitting in a tree...
        ;;upload            ; map local to remote projects via ssh/ftp
 
        :os
-       ;;(:if IS-MAC macos)  ; improve compatibility with macOS
+       (:if IS-MAC macos)  ; improve compatibility with macOS
        tty               ; improve the terminal Emacs experience
 
-       :lang
+       :lang (+dragndrop ) ; +pretty is worse than org-modern
        ;;agda              ; types of types of types of types...
        ;;beancount         ; mind the GAAP
-       ;;cc                ; C > C++ == 1
+       ;;(cc +lsp)         ; C > C++ == 1
        ;;clojure           ; java with a lisp
        ;;common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
@@ -137,10 +142,12 @@
        ;;ess               ; emacs speaks statistics
        ;;factor
        ;;faust             ; dsp, but you get to keep your soul
+       ;;fortran           ; in FORTRAN, GOD is REAL (unless declared INTEGER)
        ;;fsharp            ; ML stands for Microsoft's Language
        ;;fstar             ; (dependent) types and (monadic) effects and Z3
        ;;gdscript          ; the language you waited for
        (go +lsp)         ; the hipster dialect
+       ;;(graphql +lsp)    ; Give queries a REST
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
@@ -162,7 +169,8 @@
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
-       (python +lsp)       ; beautiful is better than ugly
+       ;; (python +lsp)       ; beautiful is better than ugly
+       python        ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
@@ -177,7 +185,7 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       web               ; the tubes
+       (web +lsp)               ; the tubes
        yaml              ; JSON, but readable
        ;;zig               ; C, but simpler
 

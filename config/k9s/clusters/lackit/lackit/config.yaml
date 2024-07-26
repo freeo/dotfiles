@@ -1,0 +1,22 @@
+k9s:
+  cluster: lackit
+  skin: axual
+  # readOnly: false          # [New!] you can now single out a given context and make it readonly. Woof!
+  namespace:
+    active: default
+    # Disable k9s favorites ns updates.
+    lockFavorites: false
+    # Favorite namespaces.
+    favorites:
+    - all
+    - kube-system
+    - default
+  # Active view
+  view:
+    active: dp
+  # Feature gates toggle k9s features
+  featureGates:
+    # Enable/Disable nodeShell
+    nodeShell: true
+  # Default port forward host
+  portForwardAddress: localhost

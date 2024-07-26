@@ -5,7 +5,7 @@
     "modes": [
         3
     ],
-    "usageCount": 11,
+    "usageCount": 92,
     "prompt": false,
     "omitTrigger": false,
     "showInTrayMenu": false,
@@ -24,7 +24,7 @@
         "hotKey": ";"
     },
     "filter": {
-        "regex": null,
+        "regex": "draw.io|Signal|Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|libreoffice.libreoffice-writer|Msgcompose.thunderbird",
         "isRecursive": false
     }
 }

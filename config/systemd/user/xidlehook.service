@@ -1,4 +1,3 @@
-
 [Unit]
 Description=X Idle Hook: Manage NeoG9 standby
 
@@ -9,4 +8,7 @@ Environment=XIDLEHOOK_SOCK=%t/xidlehook.socket
 ExecStart=bash /home/freeo/dotfiles/scripts/xidlehook_neog9.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
+; WantedBy=multi-user.target
+; throws an error on arch
+; WantedBy=graphical.target

@@ -1,0 +1,5 @@
+[plugin]
+deps = [{ use = "dedukun/bookmarks", commit = "748efed" }]
+
+[flavor]
+deps = []
