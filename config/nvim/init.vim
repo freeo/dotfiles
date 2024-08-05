@@ -1258,7 +1258,8 @@ vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 " =====================
 
 if has("win32")
-  set guifont=Cousine\ NF:h12:cANSI:qDRAFT
+  set guifont=FiraCode\ Nerd\ Font\ Mono:h16
+  " set guifont=Cousine\ NF:h12:cANSI:qDRAFT
   " exec "Guifont! Cousine NF:h12:cANSI:qDRAFT"
 endif
 
@@ -1272,10 +1273,11 @@ if has("gui_running")
     set guifont=Liberation\ Mono\ for\ Powerline\ 9,
                 \Liberation\ Mono\ 9,
   elseif has("gui_win32")
-    set guifont=Cousine\ NF:h12:cANSI:qDRAFT,
-\Cousine_NF:h12:cANSI:qDRAFT,
-\Consolas:h10,
-\Lucida_Console:h10
+    set guifont=JetBrainsMonoNL\ NFM:h16
+    " set guifont=Cousine\ NF:h12:cANSI:qDRAFT,
+    " \Cousine_NF:h12:cANSI:qDRAFT,
+    " \Consolas:h10,
+    " \Lucida_Console:h10
   elseif has("gui_macvim")
     set guifont=
 \Cousine_Nerd_Font_Mono:h18,
@@ -1311,7 +1313,8 @@ endif
 
 if exists('g:neovide')
     " set guifont=Cousine\ Nerd\ Font\ Mono:h16:cANSI:qDRAFT
-    set guifont=Cousine_Nerd_Font_Mono:h16
+    " set guifont=Cousine_Nerd_Font_Mono:h16
+    set guifont=JetBrainsMonoNL\ NFM:h16
 endif
 
 syntax enable " Syntax Colors
@@ -1936,7 +1939,7 @@ endfunction
 " # STARTIFY #################################################################
 
 
-let g:startify_bookmarks = [$HOME . '/.config/nvim/init.vim', '~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
+let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.vim', '~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
 "
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
