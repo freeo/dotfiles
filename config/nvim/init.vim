@@ -103,7 +103,7 @@ if !exists('g:vscode')
   Plug 'cloudhead/neovim-fuzzy'
   Plug 'Shougo/neoyank.vim'
   Plug 'mileszs/ack.vim'
-  Plug 'majutsushi/tagbar'
+  Plug 'majutsushi/tagbar' " TagbarToggle, side buffer with all tags. 
   " Plug 'davidhalter/jedi-vim'
   Plug 'luochen1990/rainbow'
   Plug 'elzr/vim-json'
@@ -137,8 +137,6 @@ if !exists('g:vscode')
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/nvim-cmp'
-  Plug 'L3MON4D3/LuaSnip'
-  Plug 'saadparwaiz1/cmp_luasnip'
   Plug 'mfussenegger/nvim-dap'
   Plug 'mxsdev/nvim-dap-vscode-js'
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -165,6 +163,13 @@ if !exists('g:vscode')
     " Plug 'Vigemus/iron.nvim'
     " luafile $HOME/.config/nvim/plugins.lua
     Plug 'nvim-orgmode/orgmode'
+    Plug 'mtdl9/vim-log-highlighting'
+    Plug 'SmiteshP/nvim-navic'
+    Plug 'rmagatti/goto-preview'
+    " Plug 'someone-stole-my-name/yaml-companion.nvim'
+    Plug 'msvechla/yaml-companion.nvim', { 'branch': 'kubernetes_crd_detection' }
+    Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
+    Plug 'saadparwaiz1/cmp_luasnip'
   else
     " Plug 'wilywampa/vim-ipython' " vs iron.nvim
     " netrw is broken in neovim, dirvish is a simple replacement with fewer functions
@@ -178,7 +183,7 @@ if !exists('g:vscode')
   " let g:deoplete#enable_at_startup = 1
 
   " if has("python3")
-  Plug 'SirVer/ultisnips'
+  " Plug 'SirVer/ultisnips' " move to luasnip
   " endif
   Plug 'honza/vim-snippets'
   Plug 'thinca/vim-ref'
@@ -257,16 +262,34 @@ set completeopt=menu,menuone,noselect
 
 lua <<EOF
   if vim.g.vscode == nil then
+
+    -- SUDA - smarter auto-sudo
+    vim.g.suda_smart_edit = 1
+
+    local ls = require("luasnip")
+    require("luasnip.loaders.from_snipmate").lazy_load()
+
+    vim.keymap.set({"i"}, "<C-K>", function() ls.expand() end, {silent = true})
+    vim.keymap.set({"i", "s"}, "<C-L>", function() ls.jump( 1) end, {silent = true})
+    vim.keymap.set({"i", "s"}, "<C-J>", function() ls.jump(-1) end, {silent = true})
+
+    vim.keymap.set({"i", "s"}, "<C-E>", function()
+      if ls.choice_active() then
+        ls.change_choice(1)
+      end
+    end, {silent = true})
+
     -- Setup nvim-cmp.
     local cmp = require'cmp'
-    local luasnip = require'luasnip'
+
 
     cmp.setup({
       snippet = {
         -- REQUIRED - you must specify a snippet engine
         expand = function(args)
           -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-          require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          ls.lsp_expand(args.body) -- For `luasnip` users.
           -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
           -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
         end,
@@ -289,7 +312,7 @@ lua <<EOF
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
       },
       sources = cmp.config.sources({
-        { name = 'nvim_lsp' },
+        { name = 'lspconfig' },
         { name = 'luasnip' },
         { name = 'buffer' },
         { name = 'path' },
@@ -332,7 +355,7 @@ lua <<EOF
     })
     ------------
 
-    local nvim_lsp = require 'lspconfig'
+    local lspconfig = require 'lspconfig'
 
     -- Setup lspconfig.
     local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -343,25 +366,27 @@ lua <<EOF
     -- capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
     -- Enable the following language servers
-    local servers = { 'lua_ls', 'gopls', 'pyright', 'tsserver' }
+    local servers = { 'lua_ls', 'gopls', 'pyright', 'tsserver', 'jsonls', 'bashls', 'yaml-companion'}
     -- local servers = { 'gopls', 'tsserver' }
     for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {
-            on_attach = on_attach,
+        lspconfig[lsp].setup {
+            on_attach = on_attach_common,
             capabilities = capabilities,
         }
     end
 
     vim.o.completeopt = 'menu,menuone,noselect'
 
+    local navic = require("nvim-navic")
 
-    local on_attach = function(_, bufnr)
+    local on_attach_common = function(client, bufnr)
       local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
       local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
-      buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+      buf_set_option('omnifunc',  'v:lua.vim.lsp.omnifunc')
 
       local opts = { noremap = true, silent = true }
+
       buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
       buf_set_keymap('n', '<leader>o', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
       buf_set_keymap('n', '<Leader>K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
@@ -381,11 +406,14 @@ lua <<EOF
       buf_set_keymap('n', '<Leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
       buf_set_keymap('n', '<Leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
       vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
+
+      -- if client.server_capabilities.documentSymbolProvider then
+      navic.attach(client, bufnr)
+      -- end
     end
 
 
 
-    require'lspconfig'.gopls.setup{}
   --   require'lspconfig'.gopls.setup{
   --
   --     cmd = {"gopls", "serve"},
@@ -425,8 +453,112 @@ lua <<EOF
     --   capabilities = capabilities
     -- }
 
-  -- SUDA - smarter auto-sudo
-  vim.g.suda_smart_edit = 1
+  lspconfig.yamlls.setup {
+    on_attach = function(client, bufnr)
+      -- Custom keybindings or other settings can be added here
+      on_attach_common(client, bufnr)
+    end,
+    flags = {
+      debounce_text_changes = 150,
+    },
+    settings = {
+      yaml = {
+        schemas = {
+                kubernetes = "k8s-*.yaml",
+                ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
+                ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
+                ["http://json.schemastore.org/ansible-stable-2.9"] = "roles/tasks/**/*.{yml,yaml}",
+                ["http://json.schemastore.org/prettierrc"] = ".prettierrc.{yml,yaml}",
+                ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
+                ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
+                ["http://json.schemastore.org/circleciconfig"] = ".circleci/**/*.{yml,yaml}",
+              },
+        -- schemas = {
+        --   ["file:///path/to/your/schema.json"] = "*.yaml",
+        -- },
+        format = {
+          enable = true,
+          singleQuote = false,
+          bracketSpacing = true,
+        },
+        validate = true,
+        completion = true,
+      },
+    },
+  }
+
+
+  navic.setup {
+      lsp = {
+          auto_attach = true,
+          preference = { 'helm_ls', 'yamlls' },
+      },
+      -- highlight = false,
+      separator = "",
+      -- depth_limit = 0,
+      -- depth_limit_indicator = "..",
+      -- safe_output = true,
+      -- lazy_update_context = false,
+      -- click = false,
+      -- format_text = function(text)
+      --     return text
+      -- end,
+    -- defining icons to remove trailing whitespace after the icon to minimize space
+    icons = {
+        File          = "󰈙",
+        Module        = "",
+        Namespace     = "󰌗",
+        Package       = "",
+        Class         = "󰌗",
+        Method        = "󰆧",
+        Property      = "",
+        Field         = "",
+        Constructor   = "",
+        Enum          = "󰕘",
+        Interface     = "󰕘",
+        Function      = "󰊕",
+        Variable      = "󰆧",
+        Constant      = "󰏿",
+        String        = "󰀬",
+        Number        = "󰎠",
+        Boolean       = "◩",
+        Array         = "󰅪",
+        Object        = "󰅩",
+        Key           = "󰌋",
+        Null          = "󰟢",
+        EnumMember    = "",
+        Struct        = "󰌗",
+        Event         = "",
+        Operator      = "󰆕",
+        TypeParameter = "󰊄",
+    },
+  }
+
+
+  lspconfig.helm_ls.setup {
+    settings = {
+      ['helm-ls'] = {
+        yamlls = {
+          path = "yaml-language-server",
+        }
+      }
+    }
+  }
+
+
+
+  require('goto-preview').setup {
+    default_mappings = true,
+  }
+
+
+  vim.keymap.set('n', '<leader>r1', function()
+      vim.cmd('edit /home/freeo/pcloud/cloudkoloss/wb_ck.org')
+  end, { noremap = true, silent = true })
+
+  vim.keymap.set('n', '<leader>r3', function()
+      vim.cmd('edit /home/freeo/dotfiles/config/nvim/init.vim')
+  end, { noremap = true, silent = true })
 
   -- OSC52 force system clipboard provider, for kitty ssh yank/copy & paste
   -- vim.g.clipboard = {
@@ -440,8 +572,12 @@ lua <<EOF
   --     -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
   --   },
   -- }
-  end
+  -- end
+
+end -- closes "not in vscode"
 EOF
+
+imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' 
 
 lua <<EOF
 if vim.g.vscode == nil then
@@ -459,7 +595,7 @@ if vim.g.vscode == nil then
       z = true, -- bindings for folds, spelling and others prefixed with z
       g = true, -- bindings for prefixed with g
     },
-  window = {
+  win = {
     border = "none", -- none, single, double, shadow
     position = "bottom", -- bottom, top
     margin = { 1, 0, 1, 0 }, -- extra window margin [top, right, bottom, left]
@@ -541,13 +677,15 @@ t.setup({
   },
 })
 
--- Load the extension
+-- Load Telescope extensions
 t.load_extension('zoxide')
+t.load_extension("yaml_schema") -- yaml-companion
 
 -- Add a mapping
 vim.keymap.set("n", "<leader>cd", t.extensions.zoxide.list)
 
 local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader><space>', builtin.find_files, {})
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
 vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
@@ -559,7 +697,8 @@ require'nvim-treesitter.configs'.setup {
     -- Don't use 'ensure_installed' or face this compile error:
     --     No C compiler found! "cc", "gcc", "clang", "cl", "zig" are not executable.
     -- ensure_installed = "python", -- Or "all" to install parsers for all supported languages
-    highlight = {
+    ensure_installed = "json",
+    highlight  = {
       enable = true,
     },
     refactor = {
@@ -589,6 +728,7 @@ end
 require('orgmode').setup({
   org_agenda_files = {'~/Dropbox/org/*', '~/my-orgs/**/*'},
   org_default_notes_file = '~/Dropbox/org/refile.org',
+  org_startup_folded = 'showeverything',
 })
 
 
@@ -1206,7 +1346,7 @@ function! MyFoldText()
   return v:foldend - v:foldstart +1 .": " . sub
 endfunction
 
-nnoremap <leader><space> za
+" nnoremap <leader><space> za
 
 
 " Return to last edit cursor position when opening files (You want this!)
@@ -1330,6 +1470,10 @@ call s:set_bg(0)  " Run on startup
 if !exists('g:vscode')
   colorscheme kalisi
   let g:airline_theme='kalisi'
+    if !empty($SUDO_USER) || $HOME == "/root"
+      " let g:airline_theme='kolor'
+      let g:airline_theme='molokai'
+    endif
 endif
 set synmaxcol=200
 "
@@ -1369,14 +1513,14 @@ local Job = require("plenary.job")
 local set_background = function()
 	local j = Job:new({ command = "gsettings", args = { "get", "org.gnome.desktop.interface", "color-scheme" } })
 	j:sync()
-  vim.api.nvim_echo({ { j:result()[1] } }, true, {})
-	if j:result()[1] == "'prefer-light'" then
+  local r = j:result()[1] 
+	if r == "'prefer-light'" or r == "'default'" then
 		vim.o.background = "light"
 	else
 		vim.o.background = "dark"
 	end
 
-  -- vim.api.nvim_echo({ { vim.o.background } }, true, {})
+  -- vim.api.nvim_echo({ { j:result()[1] } }, true, {})
 end
 
 -- Call imediately to set initially
@@ -2070,8 +2214,11 @@ let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#branch#enabled = 1 " fugitive integration
 let g:airline#extensions#branch#empty_message = ''
 let g:airline#extensions#syntastic#enabled = 0
+let g:airline#extensions#tagbar#enabled = 0
 let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
 let g:airline#extensions#quickfix#location_text = 'Location'
+
+let g:airline#extensions#virtualenv#ft = []
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#buffer_min_count = 0
@@ -2082,8 +2229,17 @@ let g:airline#extensions#tabline#buffer_nr_show = 0
 
 " let g:airline_section_b = "%{branch()}%"
 " let g:airline_section_y       (fileencoding, fileformat)
-" let g:airline_section_y       (fileencoding, fileformat)
+let g:airline_section_y = ""
 " let g:airline_section_warning (syntastic, whitespace)
+
+" 'ffenc','foo'
+" let g:airline_section_y = airline#section#create_right([])
+
+let g:airline_section_x = ''
+" let g:airline_section_y = ''
+" let g:airline_section_z = '%3p%% %3l:%3v'
+
+let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
 
 set numberwidth=3
 
@@ -2572,6 +2728,14 @@ endfunction
 
 " let g:airline_section_a = '%{Airline_cwd()}'
 
+" Define a function to get nvim-navic location
+function! NavicLocation()
+  return luaeval("require('nvim-navic').get_location()")
+endfunction
+
+" Add nvim-navic to the airline statusline
+let g:airline_section_c = airline#section#create_right(['%{NavicLocation()}'])
+
 command! Leave exe 'e '.g:vimfiles.'/leftoff.txt' |exe 'norm gg' | exe 'r! date /t' | exe 'r! time /t' | exe 'norm kJo' | start
 
 " python syntax
@@ -2595,8 +2759,8 @@ nmap <leader>x :QFix<CR>
 " nmap <leader>x :copen<CR>
 
 " Reverse |ins-completion-menu| tab cycling
-let g:SuperTabMappingForward = '<s-tab>'
-let g:SuperTabMappingBackward = '<tab>'
+" let g:SuperTabMappingForward = '<s-tab>'
+" let g:SuperTabMappingBackward = '<tab>'
 
 " /ivanov/vim-ipython
 " disable default vim-ipython mappings: F9, <C-s>, ...
@@ -2682,7 +2846,6 @@ endif
 if has("python3")
     let g:UltiSnipsUsePythonVersion = 3
 endif
-
 
 let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips']
 
