@@ -336,6 +336,8 @@ end, { noremap = true, silent = true })
 -- }
 -- end
 
+-- https://github.com/folke/which-key.nvim#%EF%B8%8F-configuration
+-- vim.opt.timeoutlen = 500
 local wk = require("which-key")
 wk.add({
   { "<leader>f", group = "file" }, -- group
@@ -387,6 +389,208 @@ wk.add({
   -- },
   -- }
 
+  function goimports(timeout_ms)
+    local context = { only = { "source.organizeImports" } }
+    vim.validate { context = { context, "t", true } }
+
+    local params = vim.lsp.util.make_range_params()
+    params.context = context
+
+    -- See the implementation of the textDocument/codeAction callback
+    -- (lua/vim/lsp/handler.lua) for how to do this properly.
+    local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, timeout_ms)
+    if not result or next(result) == nil then return end
+    local actions = result[1].result
+    if not actions then return end
+    local action = actions[1]
+
+    -- textDocument/codeAction can return either Command[] or CodeAction[]. If it
+    -- is a CodeAction, it can have either an edit, a command or both. Edits
+    -- should be executed first.
+    if action.edit or type(action.command) == "table" then
+      if action.edit then
+        vim.lsp.util.apply_workspace_edit(action.edit)
+      end
+      if type(action.command) == "table" then
+        vim.lsp.buf.execute_command(action.command)
+      end
+    else
+      vim.lsp.buf.execute_command(action)
+    end
+  end
+
+local t = require("telescope")
+local z_utils = require("telescope._extensions.zoxide.utils")
+-- XXX telescope-zoxide not working! When I try running ':Telescope zoxide' it throws an error in Telescopes' command.lua
+-- revisit this in the future
+
+-- Configure the extension
+t.setup({
+  extensions = {
+    zoxide = {
+      prompt_title = "[ Walking on the shoulders of TJ ]",
+      mappings = {
+        default = {
+          after_action = function(selection)
+            print("Update to (" .. selection.z_score .. ") " .. selection.path)
+          end
+        },
+        ["<C-s>"] = {
+          before_action = function(selection) print("before C-s") end,
+          action = function(selection)
+            vim.cmd("edit " .. selection.path)
+          end
+        },
+        ["<C-q>"] = { action = z_utils.create_basic_command("split") },
+      },
+    },
+  },
+})
+
+-- Load Telescope extensions
+t.load_extension('zoxide')
+t.load_extension("yaml_schema") -- yaml-companion
+
+-- Add a mapping
+vim.keymap.set("n", "<leader>cd", t.extensions.zoxide.list)
+
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader><space>', builtin.find_files, {})
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+vim.keymap.set('n', '<leader>ft', builtin.treesitter, {})
+vim.keymap.set('n', '<leader>fr', builtin.registers, {})
+
+local function has_compiler()
+  return vim.fn.executable("cc") == 1 or
+         vim.fn.executable("gcc") == 1 or
+         vim.fn.executable("clang") == 1 or
+         vim.fn.executable("cl") == 1 or
+         vim.fn.executable("zig") == 1
+end
+
+
+
+if has_compiler() then
+require'nvim-treesitter.configs'.setup {
+    -- Don't use 'ensure_installed' or face this compile error:
+    --     No C compiler found! "cc", "gcc", "clang", "cl", "zig" are not executable.
+    ensure_installed = "python", -- Or "all" to install parsers for all supported languages
+    --ensure_installed = "json",
+    highlight  = {
+      enable = true,
+    },
+    refactor = {
+            navigation = {
+              enable = true,
+              keymaps = {
+                goto_definition = "gnd",
+                list_definitions = "gnD",
+                list_definitions_toc = "gO",
+                goto_next_usage = "<a-*>",
+                goto_previous_usage = "<a-#>",
+                },
+            },
+      },
+}
+
+require('orgmode').setup({
+  org_agenda_files = {'~/Dropbox/org/*', '~/my-orgs/**/*'},
+  org_default_notes_file = '~/Dropbox/org/refile.org',
+  org_startup_folded = 'showeverything',
+})
+
+else
+  -- vim.notify("No C compiler found. Treesitter disabled.", vim.log.levels.WARN)
+  vim.api.nvim_echo({{"No C compiler found. Treesitter disabled.", "WarningMsg"}}, true, {})
+end
+
+-- NOTE: If you are using nvim-treesitter with ~ensure_installed = "all"~ option
+-- add ~org~ to ignore_install
+-- require('nvim-treesitter.configs').setup({
+--   ensure_installed = 'all',
+--   ignore_install = { 'org' },
+-- })
+
+
+-- Create a job to detect current gnome color scheme and set background
+local Job = require("plenary.job")
+local set_background = function()
+	local j = Job:new({ command = "gsettings", args = { "get", "org.gnome.desktop.interface", "color-scheme" } })
+	j:sync()
+  local r = j:result()[1] 
+	if r == "'prefer-light'" or r == "'default'" then
+		vim.o.background = "light"
+	else
+		vim.o.background = "dark"
+	end
+
+  -- vim.api.nvim_echo({ { j:result()[1] } }, true, {})
+end
+
+-- Call imediately to set initially
+set_background()
+
+-- AUTO-DARK
+-- Debounce to not call the method too often in case of multiple signals.
+local debounce = function(ms, fn)
+	local running = false
+	return function()
+		if running then
+			return
+		end
+		vim.defer_fn(function()
+			running = false
+		end, ms)
+		running = true
+		vim.schedule(fn)
+	end
+end
+
+-- Listen for SIGUSR1 signal to update background
+local group = vim.api.nvim_create_augroup("BackgroundWatch", { clear = true })
+vim.api.nvim_create_autocmd("Signal", {
+	pattern = "SIGUSR1",
+	callback = debounce(500, set_background),
+	group = group,
+})
+
+require("dap-vscode-js").setup({
+  -- node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+  debugger_path = "/home/freeo/wb/vscode-js-debug", -- Path to vscode-js-debug installation.
+  -- debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+  adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' }, -- which adapters to register in nvim-dap
+  -- log_file_path = "(stdpath cache)/dap_vscode_js.log" -- Path for file logging
+  -- log_file_level = false -- Logging level for output to file. Set to false to disable file logging.
+  -- log_console_level = vim.log.levels.ERROR -- Logging level for output to console. Set to false to disable console output.
+})
+
+for _, language in ipairs({ "typescript", "javascript" }) do
+  require("dap").configurations[language] = {
+      {
+        type = "node-terminal",
+        request = "launch",
+        name = "SvelteKit VaVite ESM",
+        command = "pnpm vavite-loader vite dev --port 3000",
+        cwd = "${workspaceFolder}",
+      },
+      {
+        type = "pwa-node",
+        request = "launch",
+        name = "Launch file",
+        program = "${file}",
+        cwd = "${workspaceFolder}",
+      },
+      {
+        type = "pwa-node",
+        request = "attach",
+        name = "Attach",
+        processId = require'dap.utils'.pick_process,
+        cwd = "${workspaceFolder}",
+      }
+  }
+end
+
 end -- closes "not in vscode"
-
-
