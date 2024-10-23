@@ -1,4 +1,12 @@
-vim.cmd('source ~/.config/nvim/vimrc')
+-- vim.cmd('source ~/.config/nvim/vimrc')
+
+local vimrc_path = vim.fn.stdpath('config') .. '/vimrc'
+
+if vim.fn.filereadable(vimrc_path) == 1 then
+    vim.cmd('source ' .. vimrc_path)
+else
+    print("vimrc file not found at: " .. vimrc_path)
+end
 
 -- require('init')
 -- require('options')

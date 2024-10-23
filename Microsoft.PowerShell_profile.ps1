@@ -68,7 +68,8 @@ set-alias gcal gcaladd
 
 Import-Module posh-git
 Import-Module oh-my-posh
-Set-Theme kalisi
+# Set-Theme kalisi # outdated structure! oh-my-posh switched from psm1 to json
+Set-PoshPrompt negligible
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -110,5 +111,19 @@ New-Alias -Name j -Value ZtoJ
 # https://github.com/PowerShell/PSReadLine/issues/687
 # Set-PSReadLineKeyHandler -Key "Shift+Tab" -Function AcceptSuggestion
 
+New-Alias -Name ranger -Value lf
+New-Alias -Name rcd -Value lf
+
+$ENV:EDITOR = "C:/tools/neovim/nvim-win64/bin/nvim.EXE"
+
+# zoxide
+Invoke-Expression (& {
+    $hook = if ($PSVersionTable.PSVersion.Major -lt 6) { 'prompt' } else { 'pwd' }
+    (zoxide init --hook $hook powershell) -join "`n"
+})
+
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
 echo "Loaded my profile"
+
 
