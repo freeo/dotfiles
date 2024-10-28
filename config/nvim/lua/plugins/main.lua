@@ -2,7 +2,11 @@ return {
   {'freeo/vim-kalisi', branch='dev-0.9'},
   'mhinz/vim-startify',
   'rhysd/clever-f.vim',
-  'tomtom/tcomment_vim',
+  -- 'tomtom/tcomment_vim',
+  'numToStr/Comment.nvim',
+    opts = {
+        -- add any options here
+    },
   'ctrlpvim/ctrlp.vim',
   'bling/vim-airline',
   'vim-airline/vim-airline-themes',
@@ -54,7 +58,12 @@ return {
   -- Plug 'liuchengxu/vim-clap',
   'jvgrootveld/telescope-zoxide',
   {'mg979/vim-visual-multi', branch='master'},
-  'lambdalisue/vim-suda',
+  {
+    "lambdalisue/vim-suda",
+    init = function()
+      vim.g.suda_smart_edit = 1
+    end
+  },
   'ojroques/vim-oscyank', -- OSC52,
 
   -- neovim only, old distinguishment

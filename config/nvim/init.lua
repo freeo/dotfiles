@@ -19,8 +19,6 @@ vim.g.maplocalleader = "\\"
 
 require("config.lazy")
 
--- vim.cmd('source ~/.config/nvim/vimrc')
-
 local vimrc_path = vim.fn.stdpath('config') .. '/vimrc'
 
 if vim.fn.filereadable(vimrc_path) == 1 then
@@ -32,7 +30,6 @@ end
 -- require('init')
 -- require('options')
 -- require('plugins')
--- require('mappings')
 
 if vim.g.vscode == nil then
 
@@ -485,7 +482,9 @@ if vim.g.vscode == nil then
 
   local builtin = require('telescope.builtin')
   vim.keymap.set('n', '<leader><space>', builtin.find_files, {})
-  vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+  vim.keymap.set('n', '<leader>ff', function()
+    builtin.find_files({follow=true})
+  end, {})
   vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
   vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
   vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
@@ -624,9 +623,9 @@ if vim.g.vscode == nil then
 
   -- require("config.lazy")
 
-  -- vim.cmd('source ~/.config/nvim/vimrc')
 
   require("config.colorscheme")
 
 end -- closes "not in vscode"
 
+require("mappings")
