@@ -3,7 +3,7 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
-local DEBUG = true
+DEBUG = true
 -- local DEBUG = false
 
 -- Standard awesome library
@@ -20,7 +20,9 @@ local naughty = require("naughty")
 local ruled = require("ruled")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
+local awmlog = require("functions.awmlog")
 
+awmlog("\n\nStarting AwesomeWM")
 -- local awesome = require("awesome")
 
 awesome.set_preferred_icon_size(64)
@@ -185,33 +187,6 @@ function run_once(prg, arg_string, pname, screen)
 end
 
 
-function awmlog(obj)
-    if not DEBUG then
-        return
-    else
-        -- Open the file in append mode
-        local filename = "/home/freeo/wb/awm/debug.log"
-        local file = io.open(filename, "a")
-
-        -- Check if the file was opened successfully
-        if file == nil then
-            print("Error: Could not open file " .. filename .. " for appending")
-            return
-        end
-
-        local timestamp = os.date("%Y-%m-%d %H:%M:%S", os.time())
-
-        if type(obj) == "table" then
-            out = table_to_string(obj, 2)
-            file:write(tostring(timestamp) .. ": " .. out .. "\n")
-        else
-            file:write(tostring(timestamp) .. ": " .. tostring(obj) .. "\n")
-        end
-
-        file:close()
-    end
-end
-
 
 -- {{{ Wallpaper
 -- @DOC_WALLPAPER@
@@ -273,7 +248,9 @@ local net_widgets = require("net_widgets")
 
 net_wired = net_widgets.indicator({
     -- interfaces  = {"enp2s0", "another_interface", "and_another_one"},
-    interfaces  = {"eno1", "wlp7s0"},
+    -- interfaces  = {"eno1", "wlp7s0"},
+    -- interfaces  = {"bond0"},
+    interfaces  = {"enp5s0f0"},
     timeout     = 5
 })
 
@@ -591,7 +568,7 @@ function update_tasklist_widget(w, buttons, label, data, objects)
         -- o.icon_name = "Roger"
         -- awmlog(o.name)
         -- o.text = i .. "|" .. o.name
-
+        -- o.
         -- local l = i .. "|".. label(o)
         -- awmlog(inspect(l))
         -- awmlog(inspect(o))
@@ -605,7 +582,7 @@ function update_tasklist_widget(w, buttons, label, data, objects)
     my_list_update(w, buttons, my_label, data, objects, {})
     -- my_list_update(w, buttons, my_label, data, result)
     -- awful.widget.common.list_update(w, buttons, tasklist_label, data, result)
-    -- awful.widget.common.list_update(w, buttons, label, data, result)
+    awful.widget.common.list_update(w, buttons, label, data, result)
     -- w:set_max_widget_size(100)
     -- return result
 end
@@ -615,6 +592,100 @@ function update_tasklist_widget2(w, buttons, label, data, objects)
     w:set_max_widget_size(100)
     awful.widget.common.list_update(w, buttons, label, data, objects)
 end
+
+local rainbow_colors = {
+    "#FF6F61",  -- Soft Coral
+    "#6B5B93",  -- Soft Lavender
+    "#88B04B",  -- Soft Olive Green
+    "#F7CAC9",  -- Soft Pink
+    "#92A8D1",  -- Soft Sky Blue
+    "#955251",  -- Soft Burgundy
+    "#B9C8A3",  -- Soft Sage Green
+    "#F6C5A0",  -- Soft Peach
+    "#E2B2D4",  -- Soft Lilac
+    "#F2E6D5"   -- Soft Cream
+}
+
+-- XXX prompt: write a function, that sets the background color of each widget depending on its position in the tasklist. The first widget has bg color nr 1 from table rainbow_colors, the 2nd widget has bg color nr 2 from that same table and so on. Minimized clients should have the default minimized color.
+--
+-- Function to set background color based on position
+-- local function update_tasklist_colors(self, c, index, objects)
+local function update_tasklist_colors(s)
+    --
+    -- if not s.mytasklist then
+    --     awmlog("s.mytasklist is nil")
+    --     return
+    -- end
+    -- local layout = s.mytasklist.layout or s.mytasklist._private.layout
+    -- if not layout then
+    --     awmlog("Unable to find layout in s.mytasklist")
+    --     return
+    -- end
+    -- awmlog("s.mytasklist:", s.mytasklist)
+
+    -- local children = layout:get_children()
+    -- local clients = s.clients
+
+    -- for i, child in ipairs(children) do
+    --     local c = clients[i]
+    --     if c then
+    --         local bg_widget = child:get_children_by_id('background_role')[1]
+    --         if bg_widget then
+    --             bg_widget.bg = c.minimized and beautiful.tasklist_bg_minimize
+    --                                         or rainbow_colors[(i-1) % #rainbow_colors + 1]
+    --         else
+    --             print("No background_role widget found for client " .. i)
+    --         end
+    --     end
+    -- end
+
+
+    -- local clients = s.clients
+    -- for i, c in ipairs(clients) do
+    --     local tasklist_item = s.mytasklist:get_widgets_by_indices(i)[1]
+    --     if tasklist_item then
+    --         local bg_widget = tasklist_item:get_children_by_id('background_role')[1]
+    --         if bg_widget then
+    --             if c.minimized then
+    --                 bg_widget.bg = beautiful.tasklist_bg_minimize
+    --             else
+    --                 local color_index = (i - 1) % #rainbow_colors + 1
+    --                 bg_widget.bg = rainbow_colors[color_index]
+    --             end
+    --         end
+    --     end
+    -- end
+end
+
+        -- bg_widget.bg = "#FF00FF"
+
+    -- -- Add hover effect
+    -- self:connect_signal('mouse::enter', function()
+    --     if not c.minimized then
+    --         -- Store the original color
+    --         self.original_bg = bg_widget.bg
+    --         -- Set hover color (you can adjust this)
+    --         bg_widget.bg = "#FFFFFF" -- White for hover
+    --     end
+    -- end)
+
+    -- self:connect_signal('mouse::leave', function()
+    --     if not c.minimized then
+    --         -- Restore the original color
+    --         bg_widget.bg = self.original_bg
+    --     end
+    -- end)
+
+
+local function set_tasklist_colors(s)
+    -- s = awful.screen.focused()
+    awmlog("Tasklist all_children:")
+    awmlog(s.mytasklist)
+    awmlog(s.mytasklist.children)
+end
+
+local gpuicon = require("widgets.gpuicon.gpuicon-amd-nvidia")
+gpuicon.init()
 
 -- local test_widget = require("widgets.test-widget.test-widget")
 
@@ -709,6 +780,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
         },
         -- XXX entry point to enable my WIP
         -- update_function = update_tasklist_widget,
+        -- update_function = set_tasklist_colors,
         widget_template = {
             {
                 {
@@ -736,12 +808,16 @@ screen.connect_signal("request::desktop_decoration", function(s)
             widget = wibox.container.background,
             forced_width = 200,
         },
-
+        -- create_callback = update_tasklist_colors,
+        -- update_callback = set_tasklist_colors,
     })
+
+    -- s.mytasklist:connect_signal("widget::updated", update_tasklist_colors(s))
 
     -- function s.mytasklist.layout:fit(context, width, height)
     --     return math.min(150, width), height
     -- end
+
 
     -- @DOC_WIBAR@
     -- Create the wibox
@@ -769,6 +845,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
                 -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
                 wibox.widget.systray(),
+                gpuicon.widget,
                 fs_widget({ "/", "/home/freeo", "/mnt/nvme0n1p6", "/mnt/Drive D", "/mnt/Drive E" }),
                 cpu_widget({
                     -- width = 70,
@@ -1110,6 +1187,23 @@ for i, _ in ipairs(tags) do
 end
 
 local microphone = require("widgets.microphone")
+
+-- FIND OUT: how many seconds, before the gears timer will actually be executed?
+awful.spawn.easy_async_with_shell("(date; uptime --since; uptime -p; echo '----') >> /home/freeo/wb/awm/uptime.log", function(stdout, stderr, reason, exit_code)
+    -- local uptime = stdout:gsub("\n$", "")
+    -- naughty.notify({ text = "System uptime: " .. uptime })
+end)
+
+-- necessary for it to work on startup
+gears.timer {
+    timeout   = 15, -- determine time!
+    single_shot = true,
+    autostart = true,
+    callback  = function()
+        microphone.Off()
+    end
+}
+
 local clientstate = require("functions.clientstate")
 -- dofile(awful.util.getdir("config") .. "/" .. "./functions/clientstate.lua")
 
@@ -1296,6 +1390,22 @@ awful.keyboard.append_global_keybindings({
         awful.spawn.with_shell("flameshot gui")
     end, { description = "Screenshot flameshot", group = "Applications" }),
 
+    awful.key({ modkey, "Shift", "Control" }, "4", function()
+        awful.spawn.with_shell(
+            [=[
+            flameshot gui --last-region --accept-on-select --path ~/Pictures/flameshots/series/
+            -- wait for this to be solved:
+            -- https://github.com/flameshot-org/flameshot/issues/3679
+            -- if [ $? -eq 0 ]; then
+            --     pw-play /usr/share/sounds/Yaru/stereo/bell.oga
+            -- fi
+            ]=])
+    end, { description = "Screenshot flameshot", group = "Applications" }),
+
+    awful.key({ modkey, "Shift" }, "6", function()
+            -- simplescreenrecorder
+    end, { description = "Screenshot flameshot", group = "Applications" }),
+
     awful.key({ modkey }, "F11", function(c)
         c.fullscreen = not c.fullscreen
         c:raise()
@@ -1456,6 +1566,31 @@ ruled.client.connect_signal("request::rules", function()
         },
     })
 
+    ruled.client.append_rule({
+        rule_any = { class = {"copyq"} },
+        properties = {
+            floating = true,
+            placement = function(c)
+                awful.placement.top(c, { honor_padding = true, honor_workarea = true })
+                local margin_top = 150
+                c:geometry({
+                    y = c:geometry().y + margin_top
+                })
+            end,
+            width = 1000,
+            height = 700,
+        },
+    })
+
+    ruled.client.append_rule({
+        rule = { class = "Xephyr" },
+            properties = {
+            floating = false,
+            -- tag = awful.tag.selected(1),
+            -- focus = true,
+            -- placement = awful.placement.centered
+            }
+    })
 
     -- @DOC_DIALOG_RULE@
     -- Add titlebars to normal clients and dialogs
@@ -1662,16 +1797,19 @@ end)
 -------------------------
 -- AwesomeWM ignores ~/.config/autostart/*.desktop files!
 
-run_once("picom")
+-- run_once("picom")
 -- run_once("picom --backend glx")
 -- run_once("compton --backend glx")
-run_once("volumeicon")
+-- run_once("volumeicon") -- redundant?
 -- run_once("mictray")
-run_once("nm-applet")
+-- run_once("nm-applet") -- redundant?
+run_once("setxkbmap -option ctrl:nocaps")
 run_once("dunst") -- if I don't run this, naughty (from awesome) takes over notifications
 -- run_once("redshift-gtk", "", "/usr/bin/python3 /usr/bin/redshift-gtk")
 run_once("redshift-gtk", "", "python3 /usr/bin/redshift-gtk")
-run_once("autokey-qt", "", "/usr/bin/python3 /usr/bin/autokey-qt")
+-- temporary! until autokey has python3.13 support, I have to use a py3.12 venv
+-- run_once("autokey-qt", "", "/usr/bin/python3 /usr/bin/autokey-qt")
+run_once("~/.pyenv/versions/3.12.8/envs/autokey-env/bin/python ~/.pyenv/versions/autokey-env/bin/autokey-qt", "", "")
 run_once("emote", "", "python3 /snap/emote/19/bin/emote")
 run_once("nitrogen", "--restore &")
 run_once("xbindkeys", "&")
@@ -1679,24 +1817,22 @@ run_once("xbindkeys", "&")
 run_once("/usr/bin/copyq")
 run_once("emacs --daemon")
 -- run_once("qjackctl")
-run_once("setxkbmap -option ctrl:nocaps")
+run_once("thunderbird")
  -- polkit provider needs to running in the background, apps don't invoke it directly, only the polkit interface (dbus?)
 run_once("lxpolkit")
 run_once("pcloud")
 run_once("strawberry")
 run_once("solaar", "", "/usr/bin/python /usr/bin/solaar")
-run_once("thunderbird")
 run_once("protonmail-bridge")
-run_once("signal-desktop")
-
 run_once("emacs")
-run_once("/usr/lib/firefox/firefox")
+-- run_once("/usr/lib/firefox/firefox")
 run_once("hueadm group 0 off")
 run_once("dropbox")
 -- run_once("hexchat")
 -- run_once("discord")
 run_once("networkd-notify")
 -- run_once("systemctl --user start xidlehook.service")
+run_once("signal-desktop")
 
 
 
@@ -1752,8 +1888,9 @@ awful.keyboard.append_global_keybindings({
         group = "Applications",
     }),
 
-    awful.key({ modkey, "Control", "Shift" }, "p", function()
-        awful.spawn("bwmenu")
+    awful.key({ modkey, "Control", "Shift" }, "b", function()
+        awful.spawn("rofi-rbw")
+        -- awful.spawn("bwmenu") -- bit outdated, doesn't work ootb from paru: bitwarden-rofi
     end, { description = "launch Bitwarden-Rofi", group = "launcher" }),
 })
 
@@ -2028,18 +2165,31 @@ awesome.connect_signal("startup", function()
     end
 
     local selected_tags = {}
+    local file_is_empty = true
 
     for line in file:lines() do
+        file_is_empty = false
         table.insert(selected_tags, tonumber(line))
+    end
+
+    file:close()
+
+   -- If the file is empty, do nothing
+    if file_is_empty then
+        return
     end
 
     for s in screen do
         local i = selected_tags[s.index]
-        local t = s.tags[i]
-        t:view_only()
+        -- XXX: test this doesn't result in issues.
+        if i and s.tags[i] then
+            local t = s.tags[i]
+            t:view_only()
+        end
+        -- local t = s.tags[i]
+        -- t:view_only()
     end
 
-    file:close()
 end)
 
 -- XXX Check if required programs are installed on startup
@@ -2080,3 +2230,32 @@ local Meetingselector = require("widgets.meetingselector")
         end, { description = "swap 1", group = "debug" }),
 
     })
+
+-- https://www.reddit.com/r/awesomewm/comments/1glkio7/awesome_tag_switching_takes_significant_amount_of/
+collectgarbage("incremental", 110, 1000)
+
+local memory_last_check_count = collectgarbage("count")
+local memory_last_run_time = os.time()
+local memory_growth_factor = 1.1 -- 10% over last
+local memory_long_collection_time = 300 -- five minutes in seconds
+
+local gtimer = require("gears.timer")
+gtimer.start_new(5, function()
+local cur_memory = collectgarbage("count")
+-- instead of forcing a garbage collection every 5 seconds
+-- check to see if memory has grown enough since we last ran
+-- or if we have waited a sificiently long time
+local elapsed = os.time() - memory_last_run_time
+local waited_long = elapsed >= memory_long_collection_time
+local grew_enough = cur_memory > (memory_last_check_count * memory_growth_factor)
+if grew_enough or waited_long then
+    collectgarbage("collect")
+    collectgarbage("collect")
+    memory_last_run_time = os.time()
+end
+-- even if we didn't clear all the memory we would have wanted
+-- update the current memory usage.
+-- slow growth is ok so long as it doesn't go unchecked
+memory_last_check_count = collectgarbage("count")
+return true
+end)
