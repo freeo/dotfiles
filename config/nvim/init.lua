@@ -1,4 +1,5 @@
 -- ./vimrc
+-- ~/.local/share/nvim
 --    ########################################################################
 --  ##             /  .-',--.--. ,---.  ,---.  ,---. |  |,---.                ##
 --  ##             |  `-,|  .--'| .-. :| .-. :| .-. |`-'(  .-'                ##
@@ -345,7 +346,7 @@ if vim.g.vscode == nil then
   end, { noremap = true, silent = true })
 
   vim.keymap.set('n', '<leader>r3', function()
-                   vim.cmd('edit /home/freeo/dotfiles/config/nvim/init.vim')
+                   vim.cmd('edit /home/freeo/dotfiles/config/nvim/init.lua')
   end, { noremap = true, silent = true })
 
   -- OSC52 force system clipboard provider, for kitty ssh yank/copy & paste
@@ -364,27 +365,31 @@ if vim.g.vscode == nil then
 
   -- https://github.com/folke/which-key.nvim#%EF%B8%8F-configuration
   -- vim.opt.timeoutlen = 500
-  local wk = require("which-key")
-  wk.add({
-      { "<leader>f", group = "file" }, -- group
-      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find File", mode = "n" },
-      { "<leader>fb", function() print("hello") end, desc = "Foobar" },
-      { "<leader>fn", desc = "New File" },
-      { "<leader>f1", hidden = true }, -- hide this keymap
-      { "<leader>w", proxy = "<c-w>", group = "windows" }, -- proxy to window mappings
-      { "<leader>b", group = "buffers", expand = function()
-          return require("which-key.extras").expand.buf()
-      end
-      },
-      {
-        -- Nested mappings are allowed and can be added in any order
-        -- Most attributes can be inherited or overridden on any level
-        -- There's no limit to the depth of nesting
-        mode = { "n", "v" }, -- NORMAL and VISUAL mode
-        { "<leader>q", "<cmd>q<cr>", desc = "Quit" }, -- no need to specify mode since it's inherited
-        { "<leader>w", "<cmd>w<cr>", desc = "Write" },
-      }
-  })
+  -- local wk = require("which-key")
+  -- wk.add({
+  --   { "<leader>f", group = "file" }, -- group
+  --   -- { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find File", mode = "n" },
+  --   { "<leader>ff",
+  --     function()
+  --       require('telescope.builtin').find_files({follow=true})
+  --     end , desc = "Find File", mode = "n" },
+  --   { "<leader>fb", function() print("hello") end, desc = "Foobar" },
+  --   { "<leader>fn", desc = "New File" },
+  --   { "<leader>f1", hidden = true }, -- hide this keymap
+  --   { "<leader>w", proxy = "<c-w>", group = "windows" }, -- proxy to window mappings
+  --   { "<leader>b", group = "buffers", expand = function()
+  --     return require("which-key.extras").expand.buf()
+  --   end
+  --   },
+  --   {
+  --     -- Nested mappings are allowed and can be added in any order
+  --     -- Most attributes can be inherited or overridden on any level
+  --     -- There's no limit to the depth of nesting
+  --     mode = { "n", "v" }, -- NORMAL and VISUAL mode
+  --     { "<leader>q", "<cmd>q<cr>", desc = "Quit" }, -- no need to specify mode since it's inherited
+  --     { "<leader>w", "<cmd>w<cr>", desc = "Write" },
+  --   }
+  -- })
   -- OLD which-key config
   -- require("which-key").setup {
   --  spelling = {
@@ -446,31 +451,39 @@ if vim.g.vscode == nil then
   end
 
   local t = require("telescope")
+  local actions = require('telescope.actions')
   local z_utils = require("telescope._extensions.zoxide.utils")
   -- XXX telescope-zoxide not working! When I try running ':Telescope zoxide' it throws an error in Telescopes' command.lua
   -- revisit this in the future
 
-  -- Configure the extension
   t.setup({
-      extensions = {
-        zoxide = {
-          prompt_title = "[ Walking on the shoulders of TJ ]",
-          mappings = {
-            default = {
-              after_action = function(selection)
-                print("Update to (" .. selection.z_score .. ") " .. selection.path)
-              end
-            },
-            ["<C-s>"] = {
-              before_action = function(selection) print("before C-s") end,
-              action = function(selection)
-                vim.cmd("edit " .. selection.path)
-              end
-            },
-            ["<C-q>"] = { action = z_utils.create_basic_command("split") },
-          },
+    defaults = {
+      mappings = {
+        i = {
+          ["<C-j>"] = actions.move_selection_next,
+          ["<C-k>"] = actions.move_selection_previous,
         },
       },
+    },
+    extensions = {
+      zoxide = {
+        prompt_title = "[ Walking on the shoulders of TJ ]",
+        mappings = {
+          default = {
+            after_action = function(selection)
+              print("Update to (" .. selection.z_score .. ") " .. selection.path)
+            end
+          },
+          ["<C-s>"] = {
+            before_action = function(selection) print("before C-s") end,
+            action = function(selection)
+              vim.cmd("edit " .. selection.path)
+            end
+          },
+          ["<C-q>"] = { action = z_utils.create_basic_command("split") },
+        },
+      },
+    },
   })
 
   -- Load Telescope extensions
@@ -482,9 +495,9 @@ if vim.g.vscode == nil then
 
   local builtin = require('telescope.builtin')
   vim.keymap.set('n', '<leader><space>', builtin.find_files, {})
-  vim.keymap.set('n', '<leader>ff', function()
-    builtin.find_files({follow=true})
-  end, {})
+  -- vim.keymap.set('n', '<leader>ff', function()
+  --   builtin.find_files({follow=true})
+  -- end, {})
   vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
   vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
   vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
@@ -522,13 +535,13 @@ if vim.g.vscode == nil then
           },
         },
       },
-                                           }
+    }
 
     require('orgmode').setup({
-        org_agenda_files = {'~/Dropbox/org/*', '~/my-orgs/**/*'},
-        org_default_notes_file = '~/Dropbox/org/refile.org',
-        org_startup_folded = 'showeverything',
-                            })
+      org_agenda_files = {'~/Dropbox/org/*', '~/my-orgs/**/*'},
+      org_default_notes_file = '~/Dropbox/org/refile.org',
+      org_startup_folded = 'showeverything',
+    })
 
   else
     -- vim.notify("No C compiler found. Treesitter disabled.", vim.log.levels.WARN)
@@ -570,7 +583,7 @@ if vim.g.vscode == nil then
         return
       end
       vim.defer_fn(function()
-          running = false
+        running = false
       end, ms)
       running = true
       vim.schedule(fn)
@@ -580,20 +593,20 @@ if vim.g.vscode == nil then
   -- Listen for SIGUSR1 signal to update background
   local group = vim.api.nvim_create_augroup("BackgroundWatch", { clear = true })
   vim.api.nvim_create_autocmd("Signal", {
-                                pattern = "SIGUSR1",
-                                callback = debounce(500, set_background),
-                                group = group,
+    pattern = "SIGUSR1",
+    callback = debounce(500, set_background),
+    group = group,
   })
 
   require("dap-vscode-js").setup({
-      -- node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
-      debugger_path = "/home/freeo/wb/vscode-js-debug", -- Path to vscode-js-debug installation.
-      -- debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
-      adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' }, -- which adapters to register in nvim-dap
-      -- log_file_path = "(stdpath cache)/dap_vscode_js.log" -- Path for file logging
-      -- log_file_level = false -- Logging level for output to file. Set to false to disable file logging.
-      -- log_console_level = vim.log.levels.ERROR -- Logging level for output to console. Set to false to disable console output.
-                                })
+    -- node_path = "node", -- Path of node executable. Defaults to $NODE_PATH, and then "node"
+    debugger_path = "/home/freeo/wb/vscode-js-debug", -- Path to vscode-js-debug installation.
+    -- debugger_cmd = { "js-debug-adapter" }, -- Command to use to launch the debug server. Takes precedence over `node_path` and `debugger_path`.
+    adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' }, -- which adapters to register in nvim-dap
+    -- log_file_path = "(stdpath cache)/dap_vscode_js.log" -- Path for file logging
+    -- log_file_level = false -- Logging level for output to file. Set to false to disable file logging.
+    -- log_console_level = vim.log.levels.ERROR -- Logging level for output to console. Set to false to disable console output.
+  })
 
   for _, language in ipairs({ "typescript", "javascript" }) do
     require("dap").configurations[language] = {
@@ -618,7 +631,7 @@ if vim.g.vscode == nil then
         processId = require'dap.utils'.pick_process,
         cwd = "${workspaceFolder}",
       }
-                                              }
+    }
   end
 
   -- require("config.lazy")
@@ -629,3 +642,53 @@ if vim.g.vscode == nil then
 end -- closes "not in vscode"
 
 require("mappings")
+
+local function is_executable(cmd)
+    local handle = io.popen("command -v " .. cmd .. " 2>/dev/null")
+    if handle then
+        local result = handle:read("*a")
+        handle:close()
+        return result ~= ""
+    end
+    return false
+end
+
+-- SYSTEM CLIPBOARD always, both local and ssh: This has been a long journey... Tested with kitty, alacritty
+-- and ssh. This should let me forget about "+ for most of the time and even has a fallback. Every
+-- comment exists to document this journey - don't remove this until there's some kind of major overhaul of
+-- kitty or neovim! This system here is probably not gonna change anytime soon.
+--
+-- g:clipboard: Explicit definition is required, because I need "unnamedplus" to avoid explicit register
+-- usage like this here: "+yy
+-- Issue: OSC52 yanking takes ~10 seconds because of the default paste function. But only when "unnamedplus"
+-- is used, which is required, otherwise yanking doesn't work at all. This here works, because it uses kitty
+-- clipboard to paste.
+if is_executable("kitten") then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      -- non-default! The default explicit config introduces the 10 second lag
+      -- For reference: This just deletes the paste function and therefore removes the 10 second yank lag, but
+      -- it's not usable.
+      -- ['+'] = function() return {} end,
+      -- ['*'] = function() return {} end,
+      -- this doesn't really work, because "+ is empty. Not worth to investigate further. Just paste with CopyQ
+      -- ['+'] = {'kitten', 'clipboard', '--get-clipboard'},
+      ['+'] = {'xclip','selection','clipboard','-o'},
+      ['*'] = {'kitten', 'clipboard', '--get-clipboard'},
+    },
+    cache_enabled = 1,
+  }
+end
+
+vim.opt.clipboard = "unnamedplus"
+
+vim.opt.iskeyword = "@,48-57,_,192-255" -- default
+-- emx style
+vim.opt.iskeyword:remove("_")
+
+require('gitsigns').setup()

@@ -393,13 +393,6 @@ set cpoptions=aABceFs
 " set cpoptions=B
 set wcm=<C-Z>
 
-" set guioptions-=T " remove (T)oolbar from guioptions
-" set guioptions-=m " and the (m)enu
-" set guioptions-=e " remove guitabline, use non gui instead
-" set guioptions=g
-" set guioptions+=m
-" set guioptions=
-set guioptions=m
 set shortmess+=I
 set winaltkeys=no
 set nocursorline
@@ -524,11 +517,11 @@ set smartcase
 "set commentstring = \ #\ %s
 " set foldlevel=0
 " use clipboard for every yank and vice versa
-if has("nvim")
-  set clipboard+=unnamedplus
-  else
-  set clipboard+=unnamed
-endif
+"if has("nvim")
+"  set clipboard+=unnamedplus
+"  else
+"  set clipboard+=unnamed
+"endif
 
 nmap <leader>c <Plug>OSCYankOperator  
 vmap <leader>y <Plug>OSCYankVisual
@@ -931,6 +924,25 @@ map <leader><v> :vimgrep // %<left><left><left>
 " When you press <leader>r you can search and replace the selected text
 vnoremap <silent> <leader>r :call VisualSelection('replace')<CR>
 
+" Tab page settings
+" -----------------
+function! GuiTabLabel()
+  let label = ''
+  let buflist = tabpagebuflist(v:lnum)
+  if exists('t:title')
+    let label .= t:title . ' '
+  endif
+  let label .= '[' . bufname(buflist[tabpagewinnr(v:lnum) - 1]) . ']'
+  for bufnr in buflist
+    if getbufvar(bufnr, '&modified')
+      let label .= '+'
+      break
+    endif
+  endfor
+  return label
+endfunction
+
+
 " Visuals
 " =====================
 
@@ -944,6 +956,12 @@ if has("gui_running")
   set go-=TlLrR
   set lines=55
   set columns=115
+  " set guioptions-=T " remove (T)oolbar from guioptions
+  " set guioptions-=m " and the (m)enu
+  " set guioptions-=e " remove guitabline, use non gui instead
+  " set guioptions=g
+  set guioptions=m
+  set guitablabel=%{GuiTabLabel()}
   " winpos 1132 0
   if has("gui_gtk2")
     " set guifont=BlexMono\ Nerd \Font \Mono 9
@@ -1102,24 +1120,6 @@ endfunction
 
 inoremap <C-p> <++><ESC>:call HighlightPlaceholder()<CR>a
 
-" Tab page settings
-" -----------------
-function! GuiTabLabel()
-  let label = ''
-  let buflist = tabpagebuflist(v:lnum)
-  if exists('t:title')
-    let label .= t:title . ' '
-  endif
-  let label .= '[' . bufname(buflist[tabpagewinnr(v:lnum) - 1]) . ']'
-  for bufnr in buflist
-    if getbufvar(bufnr, '&modified')
-      let label .= '+'
-      break
-    endif
-  endfor
-  return label
-endfunction
-set guitablabel=%{GuiTabLabel()}
 
 
 
@@ -1194,8 +1194,24 @@ autocmd FileType tsv setlocal noexpandtab tabstop=20 softtabstop=20 shiftwidth=2
 " AUTOSAVE
 "---------
 " automatic saving after buffer change, on loosing focus
-" next line is necessary for neovim-qt on windows
-autocmd FocusLost * :wa
+" ignore unnamed buffers
+augroup FocusLostSave
+  autocmd!
+  autocmd FocusLost * call SaveNamedBuffers()
+augroup END
+
+function! SaveNamedBuffers()
+  " Get a list of all buffers
+  let l:bufs = range(1, bufnr('$'))
+  for l:buf in l:bufs
+    " Check if the buffer is named and modified
+    if bufexists(l:buf) && bufname(l:buf) != '' && getbufvar(l:buf, '&modifiable')
+      silent! execute 'b' . l:buf . ' | update'
+    endif
+  endfor
+endfunction
+
+" necessary for neovim-qt on windows
 set nohidden
 " hidden = 1 disables autowrite!!! Annoying to find...
 set autoread
@@ -1500,7 +1516,14 @@ endfunction
 " #######################################################################
 
 " runtime! macros/matchit.vim
-source $VIMRUNTIME/macros/matchit.vim
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Regular Vim 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if !has('nvim')
+  " loaded by default in neovim
+  source $VIMRUNTIME/macros/matchit.vim
+endif
 let b:match_words = &matchpairs
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1574,7 +1597,7 @@ endfunction
 " # STARTIFY #################################################################
 
 
-let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.vim', '~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
+let g:startify_bookmarks = ['~/dotfiles/config/nvim/init.lua', '~/dotfiles/zshrc','~/.config/awesome/rc.lua','~/dotfiles/config/kitty/kitty.conf','~/dotfiles/config/doom/config.el' ]
 "
 " let g:startify_bookmarks = ['~/_vimrc','~/vimfiles/temp.txt','E:/dropbox/Master_Thesis/logs' ]
 " let g:startify_session_autoload = 1
@@ -1710,7 +1733,7 @@ let g:airline_detect_paste=1
 " let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
 " let g:airline#extensions#quickfix#location_text = 'Location'
 " let g:airline#extensions#virtualenv#ft = []
-" let g:airline#extensions#tabline#enabled = 1
+ let g:airline#extensions#tabline#enabled = 1
 " let g:airline#extensions#tabline#buffer_min_count = 0
 " let g:airline#extensions#tabline#fnamecollapse = 0
 " let g:airline#extensions#tabline#fnamemod = ':t'
@@ -1882,10 +1905,10 @@ endfunction
 " nnoremap <silent> <A-l> "_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o>/\w\+\_W\+<CR><c-l>:noh<CR>
 
 
-" ctags integration
-" set tags=./tags;~/vimfiles/tags/
-let &tags='./tags;'.g:vimfiles.'/tags/'
-set iskeyword=@,48-57,_,128-167,224-235,-
+" ctags integration DEPCRECATED
+" I don't use ctags anymore. Moved this to init.lua and made it behave like emx
+"let &tags='./tags;'.g:vimfiles.'/tags/'
+"set iskeyword=@,48-57,_,128-167,224-235,-
 " Excluded . (dot), because it will jump over 'word', making it a 'WORD'
 " Otherwise ctags would be broken, because it only searches for a 'word'
 
