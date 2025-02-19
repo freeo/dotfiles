@@ -1,0 +1,45 @@
+# don't ignore cached/ its a common folder for code
+# cached/ # DON'T!
+.git/
+.cache/
+cache/
+Cache/
+.npm/
+# subfolders don't work, have to be explicitly wide
+# .local/share/containers/storage/
+storage/
+Cache_Data/
+Code Cache/
+CacheStorage/
+ComputeCache/
+__pycache__/
+_cacache/
+shader_cache/
+cefcache/
+ScriptCache/
+librarycache/
+GrShaderCache/
+httpcache/
+.pnpm-store/
+.gradle/
+.m2/
+.docker/
+.vscode/
+CachedData/
+pnpm/
+.rustup/
+.pyenv/
+.virtualenvs/
+node_modules/
+pycache/
+.terraform/
+.ansible/
+.nuget/
+Emojis/
+acn-eml/
+.vscode-oss/
+.vscode/
+syswow64/
+drawable-mdpi/
+drawable-xhdpi/
+drawable-hdpi/

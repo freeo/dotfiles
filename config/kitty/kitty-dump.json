@@ -1,0 +1,433 @@
+[
+  {
+    "background_opacity": 1.0,
+    "id": 1,
+    "is_active": true,
+    "is_focused": true,
+    "last_focused": true,
+    "platform_window_id": 94371851,
+    "tabs": [
+      {
+        "active_window_history": [
+          10,
+          37
+        ],
+        "enabled_layouts": [
+          "fat",
+          "grid",
+          "horizontal",
+          "splits",
+          "stack",
+          "tall",
+          "vertical"
+        ],
+        "groups": [
+          {
+            "id": 1,
+            "windows": [
+              1,
+              37
+            ]
+          },
+          {
+            "id": 3,
+            "windows": [
+              10
+            ]
+          }
+        ],
+        "id": 1,
+        "is_active": false,
+        "is_focused": false,
+        "layout": "grid",
+        "layout_opts": {},
+        "layout_state": {
+          "biased_cols": {},
+          "biased_rows": {}
+        },
+        "title": "ubuntu-8gb-fsn1-1: zsh",
+        "windows": [
+          {
+            "at_prompt": false,
+            "cmdline": [
+              "zsh"
+            ],
+            "columns": 71,
+            "created_at": 1733577381604405243,
+            "cwd": "/home/freeo/pcloud/cubecloud/devinfra/04int/nzt-int-1",
+            "env": {
+              "KITTY_SHELL_INTEGRATION": "enabled",
+              "KITTY_WINDOW_ID": "1",
+              "PWD": "/home/freeo",
+              "ZDOTDIR": "/usr/lib/kitty/shell-integration/zsh"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "kitten",
+                  "ssh",
+                  "root@nztint1"
+                ],
+                "cwd": "/home/freeo/pcloud/cubecloud/devinfra/04int/nzt-int-1",
+                "pid": 177850
+              },
+              {
+                "cmdline": [],
+                "cwd": null,
+                "pid": 177861
+              },
+              {
+                "cmdline": [
+                  "/usr/bin/ssh",
+                  "-t",
+                  "-o",
+                  "ControlMaster=auto",
+                  "-o",
+                  "ControlPath=/run/user/1000/kssh-32054-%C",
+                  "-o",
+                  "ControlPersist=yes",
+                  "-o",
+                  "ServerAliveInterval=60",
+                  "-o",
+                  "ServerAliveCountMax=5",
+                  "-o",
+                  "TCPKeepAlive=no",
+                  "--",
+                  "root@nztint1",
+                  "exec",
+                  "sh",
+                  "-c",
+                  "'eval \"$(echo \"$0\" | tr \\\\\\v\\\\\\f\\\\\\r\\\\\\b \\\\\\047\\\\\\134\\\\\\n\\\\\\041)\"' ",
+                  "'#\b/bin/sh\r# Copyright (C) 2022 Kovid Goyal <kovid at kovidgoyal.net>\r# Distributed under terms of the GPLv3 license.\r\r{ \funalias command; \funset -f command; } >/dev/null 2>&1\rtdir=\"\"\rshell_integration_dir=\"\"\recho_on=\"1\"\r\rcleanup_on_bootstrap_exit() {\r    [ \"$echo_on\" = \"1\" ] && command stty \"echo\" 2> /dev/null < /dev/tty\r    echo_on=\"0\"\r    [ -n \"$tdir\" ] && command rm -rf \"$tdir\"\r    tdir=\"\"\r}\r\rdie() {\r    if [ -e /dev/stderr ]; then\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\" > /dev/stderr;\r    elif [ -e /dev/fd/2 ]; then\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\" > /dev/fd/2;\r    else\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\";\r    fi\r    cleanup_on_bootstrap_exit;\r    exit 1;\r}\r\rpython_detected=\"0\"\rdetect_python() {\r    if [ python_detected = \"1\" ]; then\r        [ -n \"$python\" ] && return 0\r        return 1\r    fi\r    python_detected=\"1\"\r    python=$(command -v python3)\r    [ -z \"$python\" ] && python=$(command -v python2)\r    [ -z \"$python\" ] && python=$(command -v python)\r    if [ -z \"$python\" -o \b -x \"$python\" ]; then python=\"\"; return 1; fi\r    return 0\r}\r\rperl_detected=\"0\"\rdetect_perl() {\r    if [ perl_detected = \"1\" ]; then\r        [ -n \"$perl\" ] && return 0\r        return 1\r    fi\r    perl_detected=\"1\"\r    perl=$(command -v perl)\r    if [ -z \"$perl\" -o \b -x \"$perl\" ]; then perl=\"\"; return 1; fi\r    return 0\r}\r\rif command -v base64 > /dev/null 2> /dev/null; then\r    base64_encode() { command base64 | command tr -d \f\fn\f\fr; }\r    base64_decode() { command base64 -d; }\relif command -v openssl > /dev/null 2> /dev/null; then\r    base64_encode() { command openssl enc -A -base64; }\r    base64_decode() { command openssl enc -A -d -base64; }\relif command -v b64encode > /dev/null 2> /dev/null; then\r    base64_encode() { command b64encode - | command sed \u000b1d;$d\u000b | command tr -d \f\fn\f\fr; }\r    base64_decode() { command fold -w 76 | command b64decode -r; }\relif detect_python; then\r    pybase64() { command \"$python\" -c \"import sys, base64; getattr(sys.stdout, \u000bbuffer\u000b, sys.stdout).write(base64.standard_b64$1(getattr(sys.stdin, \u000bbuffer\u000b, sys.stdin).read()))\"; }\r    base64_encode() { pybase64 \"encode\"; }\r    base64_decode() { pybase64 \"decode\"; }\relif detect_perl; then\r    base64_encode() { command \"$perl\" -MMIME::Base64 -0777 -ne \u000bprint encode_base64($_)\u000b; }\r    base64_decode() { command \"$perl\" -MMIME::Base64 -ne \u000bprint decode_base64($_)\u000b; }\relse\r    die \"base64 executable not present on remote host, ssh kitten cannot function.\"\rfi\r\rdcs_to_kitty() { printf \"\f033P@kitty-$1|%s\f033\f134\" \"$(printf \"%s\" \"$2\" | base64_encode)\" > /dev/tty; }\rdebug() { dcs_to_kitty \"print\" \"debug: $1\"; }\r\r# If $HOME is configured set it here\r\r# ensure $HOME is set\r[ -z \"$HOME\" ] && HOME=~\r# ensure $USER is set\r[ -z \"$USER\" ] && USER=\"$LOGNAME\"\r[ -z \"$USER\" ] && USER=\"$(command whoami 2> /dev/null)\"\r\rleading_data=\"\"\rlogin_shell=\"\"\rlogin_cwd=\"\"\r\rrequest_data=\"0\"\rtrap \"cleanup_on_bootstrap_exit\" EXIT\r[ \"$request_data\" = \"1\" ] && {\r    command stty \"-echo\" < /dev/tty\r    dcs_to_kitty \"ssh\" \"id=\"REQUEST_ID\":pwfile=\"PASSWORD_FILENAME\":pw=\"DATA_PASSWORD\"\"\r}\r\rread_base64_from_tty() {\r    while IFS= read -r line; do\r        [ \"$line\" = \"KITTY_DATA_END\" ] && return 0\r        printf \"%s\" \"$line\"\r    done\r}\r\runtar_and_read_env() {\r    # extract the tar file atomically, in the sense that any file from the\r    # tarfile is only put into place after it has been fully written to disk\r    command -v tar > /dev/null 2> /dev/null || die \"tar is not available on this server. The ssh kitten requires tar.\"\r    tdir=$(command mktemp -d \"$HOME/.kitty-ssh-kitten-untar-XXXXXXXXXXXX\")\r    [ $? = 0 ] || die \"Creating temp directory failed\"\r    # suppress STDERR for tar as tar prints various warnings if for instance, timestamps are in the future\r    old_umask=$(umask)\r    umask 000\r    read_base64_from_tty | base64_decode | command tar \"xpzf\" \"-\" \"-C\" \"$tdir\" 2> /dev/null\r    umask \"$old_umask\"\r    . \"$tdir/bootstrap-utils.sh\"\r    . \"$tdir/data.sh\"\r    [ -z \"$KITTY_SSH_KITTEN_DATA_DIR\" ] && die \"Failed to read SSH data from tty\"\r    case \"$KITTY_SSH_KITTEN_DATA_DIR\" in\r        /*) data_dir=\"$KITTY_SSH_KITTEN_DATA_DIR\" ;;\r        *) data_dir=\"$HOME/$KITTY_SSH_KITTEN_DATA_DIR\"\r    esac\r    shell_integration_dir=\"$data_dir/shell-integration\"\r    unset KITTY_SSH_KITTEN_DATA_DIR\r    login_shell=\"$KITTY_LOGIN_SHELL\"\r    unset KITTY_LOGIN_SHELL\r    login_cwd=\"$KITTY_LOGIN_CWD\"\r    unset KITTY_LOGIN_CWD\r    kitty_remote=\"$KITTY_REMOTE\"\r    unset KITTY_REMOTE\r    compile_terminfo \"$tdir/home\"\r    mv_files_and_dirs \"$tdir/home\" \"$HOME\"\r    [ -e \"$tdir/root\" ] && mv_files_and_dirs \"$tdir/root\" \"\"\r    command rm -rf \"$tdir\"\r    tdir=\"\"\r}\r\rget_data() {\r    started=\"n\"\r    while IFS= read -r line; do\r        if [ \"$started\" = \"y\" ]; then\r            [ \"$line\" = \"OK\" ] && break\r            die \"$line\"\r        else\r            if [ \"$line\" = \"KITTY_DATA_START\" ]; then\r                started=\"y\"\r            else\r                leading_data=\"$leading_data$line\"\r            fi\r        fi\r    done\r    untar_and_read_env\r}\r\r# ask for the SSH data\rget_data\rcleanup_on_bootstrap_exit\rprepare_for_exec\r# If a command was passed to SSH execute it here\r\r\r# Used in the tests\r\r\rexec_login_shell\r'"
+                ],
+                "cwd": "/home/freeo/pcloud/cubecloud/devinfra/04int/nzt-int-1",
+                "pid": 177865
+              }
+            ],
+            "id": 1,
+            "is_active": false,
+            "is_focused": false,
+            "is_self": false,
+            "last_cmd_exit_status": 0,
+            "last_reported_cmdline": "zsh",
+            "lines": 46,
+            "pid": 32060,
+            "title": "ubuntu-8gb-fsn1-1: zsh",
+            "user_vars": {}
+          },
+          {
+            "at_prompt": false,
+            "cmdline": [
+              "/usr/bin/kitten",
+              "ssh",
+              "--kitten=cwd=/root",
+              "--kitten=env=KITTY_WINDOW_ID=10",
+              "--kitten=env=WINDOWID=94371851",
+              "root@nztint1"
+            ],
+            "columns": 71,
+            "created_at": 1733592058067661615,
+            "cwd": "/home/freeo",
+            "env": {
+              "KITTY_WINDOW_ID": "10",
+              "PWD": "/home/freeo"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "/usr/bin/kitten",
+                  "ssh",
+                  "--kitten=cwd=/root",
+                  "--kitten=env=KITTY_WINDOW_ID=10",
+                  "--kitten=env=WINDOWID=94371851",
+                  "root@nztint1"
+                ],
+                "cwd": "/home/freeo",
+                "pid": 194141
+              },
+              {
+                "cmdline": [],
+                "cwd": null,
+                "pid": 194153
+              },
+              {
+                "cmdline": [
+                  "/usr/bin/ssh",
+                  "-t",
+                  "-o",
+                  "ControlMaster=auto",
+                  "-o",
+                  "ControlPath=/run/user/1000/kssh-32054-%C",
+                  "-o",
+                  "ControlPersist=yes",
+                  "-o",
+                  "ServerAliveInterval=60",
+                  "-o",
+                  "ServerAliveCountMax=5",
+                  "-o",
+                  "TCPKeepAlive=no",
+                  "--",
+                  "root@nztint1",
+                  "exec",
+                  "sh",
+                  "-c",
+                  "'eval \"$(echo \"$0\" | tr \\\\\\v\\\\\\f\\\\\\r\\\\\\b \\\\\\047\\\\\\134\\\\\\n\\\\\\041)\"' ",
+                  "'#\b/bin/sh\r# Copyright (C) 2022 Kovid Goyal <kovid at kovidgoyal.net>\r# Distributed under terms of the GPLv3 license.\r\r{ \funalias command; \funset -f command; } >/dev/null 2>&1\rtdir=\"\"\rshell_integration_dir=\"\"\recho_on=\"1\"\r\rcleanup_on_bootstrap_exit() {\r    [ \"$echo_on\" = \"1\" ] && command stty \"echo\" 2> /dev/null < /dev/tty\r    echo_on=\"0\"\r    [ -n \"$tdir\" ] && command rm -rf \"$tdir\"\r    tdir=\"\"\r}\r\rdie() {\r    if [ -e /dev/stderr ]; then\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\" > /dev/stderr;\r    elif [ -e /dev/fd/2 ]; then\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\" > /dev/fd/2;\r    else\r        printf \"\f033[31m%s\f033[m\fn\fr\" \"$*\";\r    fi\r    cleanup_on_bootstrap_exit;\r    exit 1;\r}\r\rpython_detected=\"0\"\rdetect_python() {\r    if [ python_detected = \"1\" ]; then\r        [ -n \"$python\" ] && return 0\r        return 1\r    fi\r    python_detected=\"1\"\r    python=$(command -v python3)\r    [ -z \"$python\" ] && python=$(command -v python2)\r    [ -z \"$python\" ] && python=$(command -v python)\r    if [ -z \"$python\" -o \b -x \"$python\" ]; then python=\"\"; return 1; fi\r    return 0\r}\r\rperl_detected=\"0\"\rdetect_perl() {\r    if [ perl_detected = \"1\" ]; then\r        [ -n \"$perl\" ] && return 0\r        return 1\r    fi\r    perl_detected=\"1\"\r    perl=$(command -v perl)\r    if [ -z \"$perl\" -o \b -x \"$perl\" ]; then perl=\"\"; return 1; fi\r    return 0\r}\r\rif command -v base64 > /dev/null 2> /dev/null; then\r    base64_encode() { command base64 | command tr -d \f\fn\f\fr; }\r    base64_decode() { command base64 -d; }\relif command -v openssl > /dev/null 2> /dev/null; then\r    base64_encode() { command openssl enc -A -base64; }\r    base64_decode() { command openssl enc -A -d -base64; }\relif command -v b64encode > /dev/null 2> /dev/null; then\r    base64_encode() { command b64encode - | command sed \u000b1d;$d\u000b | command tr -d \f\fn\f\fr; }\r    base64_decode() { command fold -w 76 | command b64decode -r; }\relif detect_python; then\r    pybase64() { command \"$python\" -c \"import sys, base64; getattr(sys.stdout, \u000bbuffer\u000b, sys.stdout).write(base64.standard_b64$1(getattr(sys.stdin, \u000bbuffer\u000b, sys.stdin).read()))\"; }\r    base64_encode() { pybase64 \"encode\"; }\r    base64_decode() { pybase64 \"decode\"; }\relif detect_perl; then\r    base64_encode() { command \"$perl\" -MMIME::Base64 -0777 -ne \u000bprint encode_base64($_)\u000b; }\r    base64_decode() { command \"$perl\" -MMIME::Base64 -ne \u000bprint decode_base64($_)\u000b; }\relse\r    die \"base64 executable not present on remote host, ssh kitten cannot function.\"\rfi\r\rdcs_to_kitty() { printf \"\f033P@kitty-$1|%s\f033\f134\" \"$(printf \"%s\" \"$2\" | base64_encode)\" > /dev/tty; }\rdebug() { dcs_to_kitty \"print\" \"debug: $1\"; }\r\r# If $HOME is configured set it here\r\r# ensure $HOME is set\r[ -z \"$HOME\" ] && HOME=~\r# ensure $USER is set\r[ -z \"$USER\" ] && USER=\"$LOGNAME\"\r[ -z \"$USER\" ] && USER=\"$(command whoami 2> /dev/null)\"\r\rleading_data=\"\"\rlogin_shell=\"\"\rlogin_cwd=\"\"\r\rrequest_data=\"0\"\rtrap \"cleanup_on_bootstrap_exit\" EXIT\r[ \"$request_data\" = \"1\" ] && {\r    command stty \"-echo\" < /dev/tty\r    dcs_to_kitty \"ssh\" \"id=\"REQUEST_ID\":pwfile=\"PASSWORD_FILENAME\":pw=\"DATA_PASSWORD\"\"\r}\r\rread_base64_from_tty() {\r    while IFS= read -r line; do\r        [ \"$line\" = \"KITTY_DATA_END\" ] && return 0\r        printf \"%s\" \"$line\"\r    done\r}\r\runtar_and_read_env() {\r    # extract the tar file atomically, in the sense that any file from the\r    # tarfile is only put into place after it has been fully written to disk\r    command -v tar > /dev/null 2> /dev/null || die \"tar is not available on this server. The ssh kitten requires tar.\"\r    tdir=$(command mktemp -d \"$HOME/.kitty-ssh-kitten-untar-XXXXXXXXXXXX\")\r    [ $? = 0 ] || die \"Creating temp directory failed\"\r    # suppress STDERR for tar as tar prints various warnings if for instance, timestamps are in the future\r    old_umask=$(umask)\r    umask 000\r    read_base64_from_tty | base64_decode | command tar \"xpzf\" \"-\" \"-C\" \"$tdir\" 2> /dev/null\r    umask \"$old_umask\"\r    . \"$tdir/bootstrap-utils.sh\"\r    . \"$tdir/data.sh\"\r    [ -z \"$KITTY_SSH_KITTEN_DATA_DIR\" ] && die \"Failed to read SSH data from tty\"\r    case \"$KITTY_SSH_KITTEN_DATA_DIR\" in\r        /*) data_dir=\"$KITTY_SSH_KITTEN_DATA_DIR\" ;;\r        *) data_dir=\"$HOME/$KITTY_SSH_KITTEN_DATA_DIR\"\r    esac\r    shell_integration_dir=\"$data_dir/shell-integration\"\r    unset KITTY_SSH_KITTEN_DATA_DIR\r    login_shell=\"$KITTY_LOGIN_SHELL\"\r    unset KITTY_LOGIN_SHELL\r    login_cwd=\"$KITTY_LOGIN_CWD\"\r    unset KITTY_LOGIN_CWD\r    kitty_remote=\"$KITTY_REMOTE\"\r    unset KITTY_REMOTE\r    compile_terminfo \"$tdir/home\"\r    mv_files_and_dirs \"$tdir/home\" \"$HOME\"\r    [ -e \"$tdir/root\" ] && mv_files_and_dirs \"$tdir/root\" \"\"\r    command rm -rf \"$tdir\"\r    tdir=\"\"\r}\r\rget_data() {\r    started=\"n\"\r    while IFS= read -r line; do\r        if [ \"$started\" = \"y\" ]; then\r            [ \"$line\" = \"OK\" ] && break\r            die \"$line\"\r        else\r            if [ \"$line\" = \"KITTY_DATA_START\" ]; then\r                started=\"y\"\r            else\r                leading_data=\"$leading_data$line\"\r            fi\r        fi\r    done\r    untar_and_read_env\r}\r\r# ask for the SSH data\rget_data\rcleanup_on_bootstrap_exit\rprepare_for_exec\r# If a command was passed to SSH execute it here\r\r\r# Used in the tests\r\r\rexec_login_shell\r'"
+                ],
+                "cwd": "/home/freeo",
+                "pid": 194158
+              }
+            ],
+            "id": 10,
+            "is_active": true,
+            "is_focused": true,
+            "is_self": false,
+            "last_cmd_exit_status": 130,
+            "last_reported_cmdline": "zsh",
+            "lines": 46,
+            "pid": 194141,
+            "title": "ubuntu-8gb-fsn1-1: zsh",
+            "user_vars": {}
+          },
+          {
+            "at_prompt": false,
+            "cmdline": [
+              "/usr/bin/nvim",
+              "/tmp/tmpzpgbw96g/install.sh"
+            ],
+            "columns": 71,
+            "created_at": 1733594200561331786,
+            "cwd": "/tmp/tmpzpgbw96g",
+            "env": {
+              "KITTY_WINDOW_ID": "37",
+              "PWD": "/tmp/tmpzpgbw96g"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "/usr/bin/nvim",
+                  "/tmp/tmpzpgbw96g/install.sh"
+                ],
+                "cwd": "/tmp/tmpzpgbw96g",
+                "pid": 225214
+              }
+            ],
+            "id": 37,
+            "is_active": false,
+            "is_focused": false,
+            "is_self": false,
+            "last_cmd_exit_status": 0,
+            "last_reported_cmdline": "",
+            "lines": 46,
+            "pid": 225214,
+            "title": "nvim",
+            "user_vars": {}
+          }
+        ]
+      },
+      {
+        "active_window_history": [
+          5
+        ],
+        "enabled_layouts": [
+          "fat",
+          "grid",
+          "horizontal",
+          "splits",
+          "stack",
+          "tall",
+          "vertical"
+        ],
+        "groups": [
+          {
+            "id": 2,
+            "windows": [
+              5
+            ]
+          }
+        ],
+        "id": 2,
+        "is_active": true,
+        "is_focused": true,
+        "layout": "fat",
+        "layout_opts": {
+          "bias": 50,
+          "full_size": 1,
+          "mirrored": false
+        },
+        "layout_state": {
+          "biased_map": {},
+          "main_bias": [
+            0.5,
+            0.5
+          ],
+          "num_full_size_windows": 1
+        },
+        "title": "kitty @ ls > kitty-dump.json",
+        "windows": [
+          {
+            "at_prompt": false,
+            "cmdline": [
+              "zsh"
+            ],
+            "columns": 146,
+            "created_at": 1733590957461815145,
+            "cwd": "/home/freeo/wb",
+            "env": {
+              "KITTY_SHELL_INTEGRATION": "enabled",
+              "KITTY_WINDOW_ID": "5",
+              "PWD": "/home/freeo",
+              "ZDOTDIR": "/usr/lib/kitty/shell-integration/zsh"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "kitten",
+                  "@",
+                  "ls"
+                ],
+                "cwd": "/home/freeo/wb",
+                "pid": 317446
+              }
+            ],
+            "id": 5,
+            "is_active": true,
+            "is_focused": true,
+            "is_self": true,
+            "last_cmd_exit_status": 0,
+            "last_reported_cmdline": "kitty @ ls > kitty-dump.json",
+            "lines": 46,
+            "pid": 178982,
+            "title": "kitty @ ls > kitty-dump.json",
+            "user_vars": {}
+          }
+        ]
+      },
+      {
+        "active_window_history": [
+          30,
+          39
+        ],
+        "enabled_layouts": [
+          "fat",
+          "grid",
+          "horizontal",
+          "splits",
+          "stack",
+          "tall",
+          "vertical"
+        ],
+        "groups": [
+          {
+            "id": 5,
+            "windows": [
+              30
+            ]
+          },
+          {
+            "id": 6,
+            "windows": [
+              39
+            ]
+          }
+        ],
+        "id": 3,
+        "is_active": false,
+        "is_focused": false,
+        "layout": "grid",
+        "layout_opts": {},
+        "layout_state": {
+          "biased_cols": {},
+          "biased_rows": {}
+        },
+        "title": "\u2026/pcloud/cubecloud/gitops-int1",
+        "windows": [
+          {
+            "at_prompt": true,
+            "cmdline": [
+              "zsh"
+            ],
+            "columns": 71,
+            "created_at": 1733593675882217716,
+            "cwd": "/home/freeo/pcloud/cubecloud/gitops-int1",
+            "env": {
+              "KITTY_SHELL_INTEGRATION": "enabled",
+              "KITTY_WINDOW_ID": "30",
+              "PWD": "/home/freeo",
+              "ZDOTDIR": "/usr/lib/kitty/shell-integration/zsh"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "zsh"
+                ],
+                "cwd": "/home/freeo/pcloud/cubecloud/gitops-int1",
+                "pid": 217062
+              }
+            ],
+            "id": 30,
+            "is_active": true,
+            "is_focused": true,
+            "is_self": false,
+            "last_cmd_exit_status": 0,
+            "last_reported_cmdline": "rg hcube",
+            "lines": 46,
+            "pid": 217062,
+            "title": "\u2026/pcloud/cubecloud/gitops-int1",
+            "user_vars": {}
+          },
+          {
+            "at_prompt": false,
+            "cmdline": [
+              "zsh"
+            ],
+            "columns": 71,
+            "created_at": 1733598038811244317,
+            "cwd": "/home/freeo",
+            "env": {
+              "KITTY_SHELL_INTEGRATION": "enabled",
+              "KITTY_WINDOW_ID": "39",
+              "PWD": "/home/freeo",
+              "ZDOTDIR": "/usr/lib/kitty/shell-integration/zsh"
+            },
+            "foreground_processes": [
+              {
+                "cmdline": [
+                  "/usr/bin/python",
+                  "-O",
+                  "/usr/bin/ranger",
+                  "--choosedir=/tmp/ranger_cd.akA86AFAhK",
+                  "--",
+                  "/home/freeo"
+                ],
+                "cwd": "/home/freeo/pcloud/cubecloud/gitops-int1/dev/whoami",
+                "pid": 301362
+              },
+              {
+                "cmdline": [
+                  "nvim",
+                  "--",
+                  "/home/freeo/pcloud/cubecloud/gitops-int1/dev/whoami/whoami.yaml"
+                ],
+                "cwd": "/home/freeo/pcloud/cubecloud/gitops-int1/dev/whoami",
+                "pid": 311726
+              }
+            ],
+            "id": 39,
+            "is_active": false,
+            "is_focused": false,
+            "is_self": false,
+            "last_cmd_exit_status": 0,
+            "last_reported_cmdline": "rcd",
+            "lines": 46,
+            "pid": 300939,
+            "title": "rcd",
+            "user_vars": {}
+          }
+        ]
+      }
+    ],
+    "wm_class": "kitty",
+    "wm_name": "kitty"
+  }
+]

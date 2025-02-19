@@ -239,10 +239,9 @@ class fzf_select(Command):
 
         env = os.environ.copy()
         env["FZF_DEFAULT_COMMAND"] = fzf_default_command
-        env[
-            "FZF_DEFAULT_OPTS"
-        ] = '--height=40% --layout=reverse --ansi --preview="{}"'.format(
-            """
+        env["FZF_DEFAULT_OPTS"] = (
+            '--height=40% --layout=reverse --ansi --preview="{}"'.format(
+                """
             (
                 batcat --color=always {} ||
                 bat --color=always {} ||
@@ -250,6 +249,7 @@ class fzf_select(Command):
                 tree -ahpCL 3 -I '.git' -I '*.py[co]' -I '__pycache__' {}
             ) 2>/dev/null | head -n 100
         """
+            )
         )
 
         fzf = self.fm.execute_command(
@@ -283,3 +283,123 @@ class sk_select(Command):
                 self.fm.cd(selected)
             else:
                 self.fm.select_file(selected)
+
+
+class tv_files_select(Command):
+    def execute(self):
+        import subprocess
+        from ranger.ext.get_executables import get_executables
+
+        if "tv" not in get_executables():
+            self.fm.notify("Could not find tv(television)", bad=True)
+            return
+
+        tv = self.fm.execute_command(
+            "tv files ", universal_newlines=True, stdout=subprocess.PIPE
+        )
+        stdout, _ = tv.communicate()
+        if tv.returncode == 0:
+            selected = os.path.abspath(stdout.strip())
+            if os.path.isdir(selected):
+                self.fm.cd(selected)
+            else:
+                self.fm.select_file(selected)
+
+
+class tv_text_select(Command):
+    def execute(self):
+        import subprocess
+        from ranger.ext.get_executables import get_executables
+
+        if "tv" not in get_executables():
+            self.fm.notify("Could not find tv(television)", bad=True)
+            return
+
+        tv = self.fm.execute_command(
+            "tv text ", universal_newlines=True, stdout=subprocess.PIPE
+        )
+        stdout, _ = tv.communicate()
+        if tv.returncode == 0:
+            selected = os.path.abspath(stdout.strip())
+            if os.path.isdir(selected):
+                self.fm.cd(selected)
+            else:
+                self.fm.select_file(selected)
+
+
+class tv_ranger_select(Command):
+    def execute(self):
+        import subprocess
+        from ranger.ext.get_executables import get_executables
+
+        if "tv" not in get_executables():
+            self.fm.notify("Could not find tv(television)", bad=True)
+            return
+
+        # 'fd --type d | tv dirs --preview "eza -a --icons=always --color=always --color-scale --oneline {}"',
+        # tv ranger: defined here:
+        # /home/freeo/dotfiles/config/television/custom_channels.toml
+        tv = self.fm.execute_command(
+            'tv ranger --passthrough-keybindings "tab"',
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+        )
+        stdout, _ = tv.communicate()
+        if tv.returncode == 0:
+            # tv: undo single quotes
+            # tv wraps elements with space chars in general with single quotes
+            # the passthrough-keybinding somehow add's "tab\n" to the tv output.
+            # selected = os.path.abspath(stdout.strip().strip("'").strip("tab\n"))
+            selected = os.path.abspath(
+                stdout.strip().strip("'").replace("tab\n", "", 1)
+            )
+            self.fm.notify(selected, bad=False)
+            if os.path.isdir(selected):
+                self.fm.cd(selected)
+            else:
+                self.fm.select_file(selected)
+
+
+class tab_switch_or_create(Command):
+    """
+    :tab_switch_or_create <number>
+
+    Switch to the tab number if it exists, otherwise create a new tab.
+    """
+
+    def execute(self):
+        tab_number = int(self.arg(1))
+        if tab_number <= len(self.fm.tabs):
+            self.fm.tab_move(tab_number - 1)
+        else:
+            self.fm.tab_new()
+            self.fm.tab_move(tab_number - 1)
+
+
+class diff(Command):
+    def execute(self):
+        if len(self.fm.thistab.get_selection()) != 2:
+            self.fm.notify("Please select exactly two files to diff", bad=True)
+            return
+
+        file1, file2 = self.fm.thistab.get_selection()
+        self.fm.run(f"nvim -d '{file1.path}' '{file2.path}'")
+
+    def tab(self, tabnum):
+        return self._tab_directory_content()
+
+
+# class vim_open(Command):
+class v(Command):
+    def execute(self):
+        import subprocess
+        from ranger.ext.get_executables import get_executables
+
+        if "nvim" not in get_executables():
+            self.fm.notify("Could not find neovim", bad=True)
+            return
+
+        r = self.fm.execute_command(
+            "nvim -c 'lua Snacks.explorer({focus = \"input\"})'"
+        )
+        self.fm.notify(r, bad=True)

@@ -7,6 +7,7 @@ bg: &bg "black"
 black: &black "black"
 white: &white "white"
 blue: &blue "blue"
+lightblue: &lightblue "#6fffff"
 steel: &steel "steelblue"
 dark: &dark "darkblue"
 alice: &alice "aliceblue"
@@ -32,17 +33,18 @@ k9s:
     logoColor: *black
   prompt:
     fgColor: *black
-    # bgColor: *bg
     bgColor: default
     suggestColor: *green
   info:
     fgColor: *royal
+    # fgColor: *fuchsia
     # sectionColor: *steel
     sectionColor: default
   dialog:
-    fgColor: "black"
-    # bgColor: *bg
-    buttonFgColor: *fg
+    # fgColor: "black"
+    fgColor: *lightblue
+    buttonFgColor: "black"
+    # buttonFgColor: *fg
     buttonBgColor: "#FFFF00"
     buttonFocusFgColor: "black"
     buttonFocusBgColor: *green
@@ -51,14 +53,12 @@ k9s:
     fieldFgColor: *purpur
   frame:
     border:
-      # fgColor: *fg
       fgColor: *black
       bgColor: *dark
       focusColor: *alice
     menu:
       fgColor: *black
       keyColor: *black
-      # numKeyColor: *cadet
       numKeyColor: *purpur
     crumbs:
       fgColor: *fg
@@ -74,7 +74,6 @@ k9s:
       completedColor: *gray
     title:
       fgColor: *black
-      # bgColor: *bg
       bgColor: default
       counterColor: default
       highlightColor: *purpur
@@ -83,16 +82,20 @@ k9s:
   views:
     table:
       fgColor: *fg
+      # fgColor: *fuchsia
       # bgColor: *bg
       bgColor: default
       cursorFgColor: *fg
-      cursorBgColor: *fuchsia
+      # cursorFgColor: *fuchsia
+      # cursorBgColor: *fuchsia
       markColor: *mslate
       header:
-        fgColor: *fg
+        # fgColor: *fg
+        fgColor: *steel
         # bgColor: *bg
         # fgColor: default
         bgColor: default
+        # bgColor: *lightblue
         sorterColor: *purpur
     xray:
       fgColor: *blue

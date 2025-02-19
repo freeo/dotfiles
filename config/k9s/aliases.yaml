@@ -1,5 +1,6 @@
 aliases:
   dp: deployments
+  dep: deployments
   sec: v1/secrets
   jo: jobs
   cr: clusterroles
@@ -9,3 +10,6 @@ aliases:
   np: networkpolicies
   ax: apisixroutes
   p: pods
+  mw: manifestworks
+  dae: daemonset
+  ss: statefulset

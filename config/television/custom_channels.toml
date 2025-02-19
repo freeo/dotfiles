@@ -1,0 +1,68 @@
+[[cable_channel]]
+name = "dir"
+source_command = "fd -t d -H . $HOME"
+preview_command = "lsd -Al1 --icon always {}"
+
+[[cable_channel]]
+name = "eza"
+source_command = "fd -t d"
+preview_command = "eza -a --icons=always --color=always --color-scale=all --color-scale-mode=gradient --oneline {}"
+
+# ranger-cli: "map /" files AND dirs
+[[cable_channel]]
+# ~/dotfiles/config/ranger/commands.py
+name = "ranger"
+# fd: can't use dirs nor files, because they are mutually exclusive. it must be: fd .
+# source_command = "fd . | awk -F'/' '{print NF-1, $0}' | sort -n | cut -d' ' -f2-"
+# source_command = "fd -H . | awk -F'/' '{print NF-1 ($(NF)==\"\" ? \"0\" : \"1\"), $0}' | sort -n | cut -d' ' -f2-"
+source_command = "fd -H --ignore-file ~/.config/fd/ignore_fdchute . | fdchute "
+# source_command = "lsd -AR --oneline --icon never --group-dirs=last --literal"
+
+# DUAL PREVIEW: directory AND file support
+# TODO: rewrite SCOPE.SH because it's more sophisticated
+# bash only! not zsh. Note the () group after the first block: [ -d {} ] && it's a directory || ( files block: all contained in parens! )
+preview_command = "[ -d {} ] && lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --icon always --blocks size,name {} || ([ -f {} ] && bat -f {})"
+
+# preview_command = "[ -d {} ] && lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --blocks size,name {} || ([ -f {} ] && highlight --out-format=truecolor --style=edit-kwrite {})"
+# DIRECTORY preview cmd:
+# preview_command = "lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --blocks size,name {}"
+# WIP scope.sh
+# preview_command = "/home/freeo/dotfiles/config/ranger/scope.sh /home/freeo/dotfiles/config/ranger/scope_old.sh 800 800 /tmp/ False"
+# or this previewer:
+# https://github.com/jarun/nnn/blob/master/plugins/preview-tui
+
+# ## Script arguments
+# FILE_PATH="${1}"         # Full path of the highlighted file
+# PV_WIDTH="${2}"          # Width of the preview pane (number of fitting characters)
+# ## shellcheck disable=SC2034 # PV_HEIGHT is provided for convenience and unused
+# PV_HEIGHT="${3}"         # Height of the preview pane (number of fitting characters)
+# IMAGE_CACHE_PATH="${4}"  # Full path that should be used to cache image preview
+# PV_IMAGE_ENABLED="${5}"  # 'True' if image previews are enabled, 'False' otherwise.
+
+[[cable_channel]]
+name = "fd"
+# source_command = "lsd -a --oneline --group-dirs=first --literal"
+source_command = "lsd -a --oneline --group-dirs=first --literal --icon always"
+preview_command = ":files:"
+# preview_command = "lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --blocks size,name {}"
+
+[[cable_channel]]
+name = "j" # justfile
+source_command = "lsd -a --oneline --group-dirs=first --literal --icon always"
+preview_command = ":files:"
+
+[[cable_channel]]
+name = "long"
+source_command = 'for i in {1..1000}; do echo "This is line number $i"; sleep .5; done'
+preview_command = "echo {}"
+
+[[cable_channel]]
+name = "fdchutedev"
+source_command = 'fd -H --ignore-file ~/.config/fd/ignore_fdchute . ~/ | ~/repos/fdchute/main '
+preview_command = "echo {}"
+
+# tv text does special stuff! Can't be replicated easily...
+# [[cable_channel]]
+# name = "docs"
+# source_command = "fd 'doc_*.' --extension org"
+# preview_command = ":basic:"

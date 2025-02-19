@@ -1,6 +1,4 @@
-# copy .vim .zi
-# copy --dest=.vim .vim
-copy --dest=.zi .zi
+copy .vim .zi
 copy --dest=.config/ranger dotfiles/config/ranger
 copy --dest=.zshrc dotfiles/zshrc
 copy --dest=.config/nvim dotfiles/config/nvim
@@ -8,13 +6,13 @@ copy --dest=.config/nvim dotfiles/config/nvim
 # # color_scheme Tokyo Night Day
 share_connections yes
 
-# hostname hcube
-# copy --dest=bootstrap /home/freeo/pcloud/cubecloud/devinfra/01dev/hzn-hcube/bootstrap
-# copy --dest=.zshrc dotfiles/zshrc
-# copy --dest=.config/ranger dotfiles/config/ranger
-# copy --dest=.config/nvim dotfiles/config/nvim
-# color_scheme Tokyo Night Day
-# share_connections yes
+hostname hcube
+copy --dest=bootstrap /home/freeo/pcloud/cubecloud/devinfra/01dev/hzn-hcube/bootstrap
+copy --dest=.zshrc dotfiles/zshrc
+copy --dest=.config/ranger dotfiles/config/ranger
+copy --dest=.config/nvim dotfiles/config/nvim
+color_scheme Tokyo Night Day
+share_connections yes
 
 # hostname smcdev
 # copy --dest=bootstrap /home/freeo/cubecloud/devinfra/01dev/hzn-smcdev/bootstrap
@@ -23,4 +21,4 @@ share_connections yes
 # # color_scheme Tokyo Night Day
 # share_connections yes
 
-# hostname cloudkoloss
+hostname cloudkoloss

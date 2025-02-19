@@ -14,7 +14,7 @@ k9s:
     crumbsless: false
     reactive: true
     noIcons: false
-    defaultsToFullScreen: false
+    defaultsToFullScreen: true
   skipLatestRevCheck: false
   disablePodCounting: false
   shellPod:
@@ -30,7 +30,7 @@ k9s:
       labels: {}
   logger:
     tail: 100
-    buffer: 5000
+    buffer: 20000
     sinceSeconds: -1
     textWrap: false
     showTime: false
