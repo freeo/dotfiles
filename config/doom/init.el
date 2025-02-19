@@ -44,7 +44,8 @@
        ;; (emoji +github +ascii)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;; hydra
-       indent-guides     ; highlighted indent columns
+       ;; broken somehow, wait until emacs 30
+       ;; indent-guides     ; highlighted indent columns
        ligatures         ; ligatures and symbols to make your code pretty again
        ;; minimap           ; show a map of the code on the side
        modeline          ; snazzy, Atom-inspired modeline, plus API
@@ -77,7 +78,7 @@
        word-wrap         ; soft wrapping with language-aware indent
 
        :emacs
-       (dired +ranger +icons) ; making dired pretty [functional]
+       (dired +icons) ; making dired pretty [functional]
        electric          ; smarter, keyword-based electric-indent
        (ibuffer +icons)  ; interactive buffer management
        undo              ; persistent, smarter undo for your inevitable mistakes
@@ -97,26 +98,26 @@
        :tools
        ;;ansible
        ;; debugger          ; FIXME stepping through code, to help you add bugs
-       ;; (debugger +lsp)          ; not with eglot lsp
+       (debugger +lsp)      ; not with eglot lsp ; go: requires "lldb" to be installed
        direnv
        docker
-       editorconfig      ; let someone else argue about tabs vs spaces
+       editorconfig        ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
-       gist              ; interacting with github gists
+       gist                ; interacting with github gists
        lookup              ; navigate your code and its documentation
-       lsp              ; lsp-mode
+       lsp                 ; lsp-mode
        ;; (lsp +eglot)              ; M-x vscode
-       (magit +forge)            ; a git porcelain for Emacs
-       ;;make              ; run make tasks from Emacs
-       pass              ; password manager for nerds
+       tree-sitter         ; syntax and parsing, sitting in a tree...
+       (magit +forge)      ; a git porcelain for Emacs
+       ;; make              ; run make tasks from Emacs
+       pass                ; password manager for nerds
        ;;pdf               ; pdf enhancements
        ;;prodigy           ; FIXME managing external services & code builders
        ;;rgb               ; creating color strings
-       taskrunner        ; taskrunner for all your projects
-       terraform         ; infrastructure as code
+       taskrunner          ; taskrunner for all your projects
+       terraform           ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
-       ;;tree-sitter       ; syntax and parsing, sitting in a tree...
        ;;upload            ; map local to remote projects via ssh/ftp
 
        :os
@@ -146,7 +147,7 @@
        ;;fsharp            ; ML stands for Microsoft's Language
        ;;fstar             ; (dependent) types and (monadic) effects and Z3
        ;;gdscript          ; the language you waited for
-       (go +lsp)         ; the hipster dialect
+       (go +lsp +tree-sitter)         ; the hipster dialect
        ;;(graphql +lsp)    ; Give queries a REST
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
@@ -185,9 +186,9 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       (web +lsp)               ; the tubes
-       yaml              ; JSON, but readable
-       ;;zig               ; C, but simpler
+       (web +lsp)          ; the tubes
+       (yaml +lsp +tree-sitter)         ; JSON, but readable
+       zig                 ; C, but simpler
 
        :email
        ;;(mu4e +org +gmail)

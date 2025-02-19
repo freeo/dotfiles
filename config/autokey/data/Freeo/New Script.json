@@ -1,0 +1,28 @@
+{
+    "type": "script",
+    "description": "New Script",
+    "store": {},
+    "modes": [
+        3
+    ],
+    "usageCount": 143,
+    "prompt": false,
+    "omitTrigger": false,
+    "showInTrayMenu": true,
+    "abbreviation": {
+        "abbreviations": [],
+        "backspace": true,
+        "ignoreCase": false,
+        "immediate": false,
+        "triggerInside": false,
+        "wordChars": "[\\w]"
+    },
+    "hotkey": {
+        "modifiers": [],
+        "hotKey": "<f7>"
+    },
+    "filter": {
+        "regex": null,
+        "isRecursive": false
+    }
+}

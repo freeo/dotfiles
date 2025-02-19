@@ -15,6 +15,19 @@ function GetClients()
     return cc
 end
 
+local rainbow_colors = {
+    "#FF6F61",  -- Soft Coral
+    "#6B5B93",  -- Soft Lavender
+    "#88B04B",  -- Soft Olive Green
+    "#F7CAC9",  -- Soft Pink
+    "#92A8D1",  -- Soft Sky Blue
+    "#955251",  -- Soft Burgundy
+    "#B9C8A3",  -- Soft Sage Green
+    "#F6C5A0",  -- Soft Peach
+    "#E2B2D4",  -- Soft Lilac
+    "#F2E6D5"   -- Soft Cream
+}
+
 -- Minimize and move to the first of all minimized clients (all after last visible client)
 function clientstate.MinimizeSorted()
     -- The client currently has the input focus, so it cannot be
@@ -92,6 +105,7 @@ function clientstate.MinimizeSorted()
 
     awmlog("Final State")
     for i, v in ipairs(clients) do
+        awmlog(v)
         awmlog(i .. " " .. v.window .. " x:" .. v.x .. " w:" .. v.width .. " " .. tostring(v.minimized) .. " " .. v.name)
     end
     awmlog("---------------\n")

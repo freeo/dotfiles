@@ -75,6 +75,9 @@ function clientstate.MinimizeSorted()
                 -- swappedOnce = true
             elseif c.minimized then
                 awmlog("found minimized! break")
+                -- XXX DONE: test: for good measure! one last swap. Introduced this, because there seem to be edge cases
+                -- nope, this garbles the order completely. Not a quick fix.
+                -- awful.client.swap.byidx(1, focused)
                 break
             end
             ::continue::

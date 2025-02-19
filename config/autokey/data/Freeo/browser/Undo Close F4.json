@@ -2,10 +2,8 @@
     "type": "script",
     "description": "Undo Close F4",
     "store": {},
-    "modes": [
-        3
-    ],
-    "usageCount": 0,
+    "modes": [],
+    "usageCount": 2,
     "prompt": false,
     "omitTrigger": false,
     "showInTrayMenu": false,
@@ -19,7 +17,7 @@
     },
     "hotkey": {
         "modifiers": [],
-        "hotKey": "<f4>"
+        "hotKey": null
     },
     "filter": {
         "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser",

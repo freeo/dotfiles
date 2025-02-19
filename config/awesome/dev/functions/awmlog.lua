@@ -6,7 +6,7 @@ function awmlog(obj)
         return
     else
         -- Open the file in append mode
-        local filename = "/home/freeo/wb/awm/debug.log"
+        local filename = "/home/freeo/wb/awm/debug-dev.log"
         local file = io.open(filename, "a")
 
         -- Check if the file was opened successfully

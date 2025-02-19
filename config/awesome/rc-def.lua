@@ -1,0 +1,1 @@
+/home/freeo/.config/awesome/defaultrc.lua

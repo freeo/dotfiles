@@ -86,6 +86,7 @@
 (package! sudo-edit)
 (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 (package! mermaid-mode)
+(package! ob-mermaid) ;; org-mode: mermaid src block -> diagram directly below
 (package! org-download)
 (package! org-fancy-priorities)
 ;; (package! ellama)
@@ -94,3 +95,8 @@
 (package! string-inflection)
 ;; for a evil verb key: g~
 (package! evil-string-inflection)
+(package! yaml-pro)
+(package! just-mode)
+(package! justl :recipe (:host github :repo "psibi/justl.el"))
+(package! sops)
+(package! highlight-indent-guides)

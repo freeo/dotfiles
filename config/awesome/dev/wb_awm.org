@@ -1,0 +1,35 @@
+
+How and =where=
+#+begin_src bash
+kitty --detach --hold --directory ~/repos/awesome pwd
+#+end_src
+
+#+RESULTS:
+
+execute full lua test suite:
+#+begin_src
+make check-integration
+#+end_src
+
+run select tests:
+#+begin_src bash
+z ./tests
+./run.sh test-titlebar.lua test-awesomerc.lua
+#+end_src
+
+Required for tests:
+#+begin_src
+xterm
+lua-lgi-git (don't use lua-lgi! Last release is from 2017...)
+#+end_src
+
+
+
+
+
+* TODO yikes
+
+test
+
+** jokes
+ hurr durr

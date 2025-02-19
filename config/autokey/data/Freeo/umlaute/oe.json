@@ -24,7 +24,7 @@
         "hotKey": ";"
     },
     "filter": {
-        "regex": "draw.io|Signal|Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|libreoffice.libreoffice-writer|Msgcompose.thunderbird",
+        "regex": "draw.io|Signal|Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|libreoffice|Msgcompose.thunderbird|vivaldi|Navigator.floorp|/usr/bin/chromium-snapshot-bin",
         "isRecursive": false
     }
 }

@@ -1,4 +1,3 @@
-
 #!/bin/zsh
 # PROFILING this .zshrc:
 # NOTE: Last line of this script is necessary to know when to stop
@@ -86,18 +85,18 @@ alias l='eza -la'
 # }
 alias pcat='pygmentize -f terminal256 -O style=native -g'
 
-alias RC='python3 $HOME/dotfiles/scripts/rcselect.py'
-alias RCZ='nvim ~/.zshrc'
-alias RCV='nvim ~/.config/nvim/init.vim'
-alias RCA='nvim ~/.config/awesome/rc.lua'
-alias RCK='nvim ~/.config/kitty/kitty.conf'
-
-
+export PATH="$PATH:$HOME/.local/share/bob/nvim-bin"
 export PATH="$PATH:$HOME/.config/emacs/bin"
 export PATH="$PATH:$HOME/.cargo/env"
 export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:$HOME/dotfiles/scripts"
 export PATH="$PATH:$HOME/.linkerd2/bin"
+
+alias RC='python3 $HOME/dotfiles/scripts/rcselect.py'
+alias RCZ='nvim ~/.zshrc'
+alias RCV='nvim ~/.config/nvim/init.vim'
+alias RCA='nvim ~/.config/awesome/rc.lua'
+alias RCK='nvim ~/.config/kitty/kitty.conf'
 
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❯❯❯'
 typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='😎❮'
@@ -162,10 +161,18 @@ function linuxSettings () {
   if [ $? -eq 0 ]; then
       alias draw.io="flatpak run com.jgraph.drawio.desktop"
   fi
-  
-  alias neog9='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
+
+  alias tosh2='xrandr --output HDMI-0 --mode 1920x1080 --rate 50.00 --pos 0x0'
+  alias ng92='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144'
+
+  alias tosh='xrandr --output DP-0 --off \
+              --output HDMI-0 --mode 1920x1080 --pos 0x0 --rate 50.00 --dpi 96'
+  alias ng9='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --off'
   alias xboth='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
   alias xdp0='xrandr --output DP-0 --mode 5120x1440 --rate 120 --dpi 144 --output HDMI-0 --mode 1920x1080 --rate 60 --pos 5120x180 --dpi 96'
+
+  alias a8="bash /home/freeo/dotfiles/scripts/toggle_neog9.sh"
+  alias a9="xrandr --listactivemonitors | grep HDMI-0 >/dev/null && xrandr --output HDMI-0 --off || xrandr --output HDMI-0 --mode 1920x1080 --rate 50 --pos 5120x0 --dpi 96"
 
   # snap requires the dirty sudo workaround. snap alias also breaks autocomplete
   # ---
@@ -176,6 +183,8 @@ function linuxSettings () {
   # XXX guard! what before linuxbrew?
   # alias nvim='/home/linuxbrew/.linuxbrew/bin/nvim' # tested, works
   alias pbcopy='xclip -selection clipboard'
+  alias clip='xclip -selection clipboard'
+  alias clipboard='xclip -selection clipboard'
   alias pbpaste='xclip -selection clipboard -o'
 
 
@@ -208,6 +217,20 @@ function linuxSettings () {
 
   # workaround to restart network adapter
   alias fkasus="echo 1 | sudo tee "/sys/bus/pci/devices/$(lspci -D | grep 'Ethernet Controller I225-V' | awk '{print $1}')/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan"
+
+  alias fkdhcp="echo 1 | sudo tee "/sys/bus/pci/devices/$(lspci -D | grep 'Ethernet Controller I225-V' | awk '{print $1}')/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan"
+
+  alias fkdhcp="echo 1 | sudo tee "/sys/bus/pci/devices/{}/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan"
+
+# 0000:05:00.0 Ethernet controller: Intel Corporation Ethernet Controller 10-Gigabit X540-AT2 (rev 01)
+# 0000:05:00.1 Ethernet controller: Intel Corporation Ethernet Controller 10-Gigabit X540-AT2 (rev 01)
+
+# echo 1 | sudo tee "/sys/bus/pci/devices/0000:05:00.0/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan
+
+# lspci -D | grep '10-Gigabit X540-AT2' | awk '{print $1}'
+# lspci -D | grep '10-Gigabit X540-AT2' | awk '{print $1}' | xargs -I {} echo "/yay/{}/remove"
+# lspci -D | grep '10-Gigabit X540-AT2' | awk '{print $1}' | xargs -I {} echo 1 | sudo tee "/sys/bus/pci/devices/{}/remove" && sleep 1 && echo 1 | sudo tee /sys/bus/pci/rescan
+
 
   # since I started with tiling window managers (currently awesome)
   export GTK2_RC_FILES=/usr/share/themes/Adwaita-dark/gtk-2.0/gtkrc
@@ -248,7 +271,12 @@ zinit light darvid/zsh-poetry
 zinit light fdw/ranger-zoxide # provides: r "input"
 zinit light lukechilds/zsh-nvm
 zinit light zdharma/fast-syntax-highlighting
-zinit light trapd00r/zsh-syntax-highlighting-filetypes
+
+# Issue:
+# _zsh_highlight-zle-buffer:25: permission denied:
+# _zsh_highlight-zle-buffer:27: not an identifier:
+# zinit light trapd00r/zsh-syntax-highlighting-filetypes
+
 # provides:
 #   archive
 #   unarchive
@@ -260,10 +288,11 @@ zinit light zimfw/input # try out: maybe fixes some nested prompt issues, like i
 zinit light zsh-users/zsh-autosuggestions
 zinit ice wait'1' lucid
 zinit light mellbourn/zabb
-zinit load wfxr/forgit
+# zinit load wfxr/forgit # XXX checkout "grc"
 zinit light zsh-users/zsh-completions # XXX
 # zinit light zimfw/completion
 zinit light MichaelAquilina/zsh-you-should-use
+
 
 # zi light zimfw/exa # creates bad aliases
 
@@ -435,6 +464,17 @@ HISTFILE=~/.zsh_history
 HISTSIZE=1000000   # the number of items for the internal history list
 SAVEHIST=1000000   # maximum number of items for the history file
 
+if [[ -f ~/.atuin/bin/atuin ]]; then
+  export PATH=~/.atuin/bin:$PATH
+fi
+
+# atuin: before fzf!
+# So that the default atuin mapping "arrow up" can be overwritten by fzf
+if hash atuin 2>/dev/null; then
+  zinit load atuinsh/atuin
+fi
+
+
 # Fuzzy Finder needs to be loaded *after* ZLE, otherwise it won't be available on
 # startup, but only after manually sourcing this .zshrc
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -443,13 +483,37 @@ SAVEHIST=1000000   # maximum number of items for the history file
 #
 # Load key-bindings (pacman package provides this file), most notably CTRL-R
 FZFKEYBINDINGS=/usr/share/fzf/key-bindings.zsh
+# ^K doubles as literal 'k' and arrow up. Nice, because I can use the same keypress to go up.
+bindkey -M viins '^K' fzf-history-widget
+bindkey -M vicmd '^K' fzf-history-widget
+bindkey -M viins '^[[A' fzf-history-widget
+bindkey -M vicmd '^[[A' fzf-history-widget
+
+
 [ -f $FZFKEYBINDINGS ] && source $FZFKEYBINDINGS
 # configures fzf to use fd, rg
 zinit light zimfw/fzf
 # fallback if fzf not installed:
 if ! typeset -f fzf-history-widget &>/dev/null; then
   bindkey '^r' history-incremental-search-backward
+  bindkey '^K' history-incremental-search-backward
 fi
+
+
+# atuin: after fzf!
+# overwrite default fzf keybindings
+if hash atuin 2>/dev/null; then
+  bindkey -M viins '^R' _atuin_search_widget
+  bindkey -M vicmd '^R' _atuin_search_widget
+  bindkey -M viins '^K' _atuin_up_search_widget
+  bindkey -M vicmd '^K' _atuin_up_search_widget
+  bindkey -M viins '^[[A' _atuin_up_search_widget
+  bindkey -M vicmd '^[[A' _atuin_up_search_widget
+fi
+
+
+
+zinit light Aloxaf/fzf-tab
 
 bindkey '^s' history-incremental-search-forward
 
@@ -539,12 +603,20 @@ bindkey jk vi-cmd-mode
 # bindkey -v
 
 # Yank to the system clipboard
-function vi-yank-xclip {
+function vi-yank-clipboard {
   zle vi-yank
-  echo "$CUTBUFFER" | pbcopy -i
+  if [[ -n $KITTY_WINDOW_ID ]]; then
+    echo "$CUTBUFFER" | kitten clipboard
+  elif command -v pbcopy &> /dev/null; then
+    echo "$CUTBUFFER" | pbcopy
+  elif command -v xclip &> /dev/null; then
+    echo "$CUTBUFFER" | xclip -selection clipboard
+  else
+    print "No clipboard utility available" >&2
+  fi
 }
-zle -N vi-yank-xclip
-bindkey -M vicmd 'y' vi-yank-xclip
+zle -N vi-yank-clipboard
+bindkey -M vicmd 'y' vi-yank-clipboard
 
 # https://doronbehar.com/articles/ZSH-easter-eggs/
 autoload -Uz url-quote-magic
@@ -608,6 +680,7 @@ if hash switcher 2>/dev/null; then
   source <(switcher init zsh)
   # optionally use alias `s` instead of `switch`
   # source <(alias s=switch)
+  alias s=switch
   # optionally use command completion
   source <(switch completion zsh)
 fi
@@ -719,6 +792,12 @@ fi
 
 if hash direnv 2>/dev/null; then
   eval "$(direnv hook zsh)"
+  alias da="direnv allow"
+fi
+
+# ubuntu compatibility for package fd-find
+if hash fdfind 2>/dev/null; then
+  alias fd="fdfind"
 fi
 
 # source <(manage completion)
@@ -804,10 +883,12 @@ alias df='df -h'
 alias du='du -h'
 
 
-if [[ $(hostname) = "pop-os" ]]; then
+
+if [[ $(hostname) = "cloudkoloss" ]]; then
+  source ~/dotfiles_private/k8s-port-forwards.sh
+elif [[ $(hostname) == "pop-os" ]]; then
   source ~/dotfiles_private/corp_vpn.sh
   source ~/dotfiles_private/variables_functions.sh
-
 elif [[ $(hostname) == freeo-mba* ]]; then
 fi
 
@@ -840,13 +921,13 @@ alias zz=__zoxide_zi
 
 # alias vim="nvim"
 alias v='nvim'
-alias j='echo "use z for zoxide! or r for ranger+zoxide! doing the jump anyway..." && z '
+alias vk="$(where kitten) edit-in-kitty"
+alias j=just
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
-# alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
-alias rg="rg -i -uu"
+alias rg="rg -i -uu -L"
 
 if hash cargo 2>/dev/null ; then
   if test -f "$HOME/.cargo/env" ; then
@@ -854,7 +935,14 @@ if hash cargo 2>/dev/null ; then
   fi
 fi
 
-
+function yy() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
 
 
 # /home/freeo/.emacs.d/.local/straight/build-28.0.60/vterm/etc/emacs-vterm-zsh.sh
@@ -884,6 +972,9 @@ rcd() {
 # This binds Ctrl-O to ranger_cd:
 # bindkey ^o ranger-cd
 # bindkey -s "^o" "rcd\n"
+# yazi
+# bindkey -s "^o" "^E^Uyy^M"
+# ranger
 bindkey -s "^o" "^E^Urcd^M"
 # Ctrl+Alt+o : sudo ranger .
 bindkey -s "^[^o" "^E^Usudo ranger .^M"
@@ -894,6 +985,17 @@ bindkey -s "^p" "zz\n"
 
 # broot
 # bindkey -s "^p" "br\n"
+
+zle-empty-enter-ranger() {
+  if [[ -z "$BUFFER" ]]; then
+    BUFFER="rcd"
+    zle accept-line  # Simulates pressing 
+  else
+    zle accept-line
+  fi
+}
+zle -N zle-empty-enter-ranger
+bindkey '^M' zle-empty-enter-ranger
 
 function alias_expand {
   if [[ $ZSH_VERSION ]]; then
@@ -1061,6 +1163,24 @@ if hash pyenv 2>/dev/null; then
   eval "$(pyenv init -)"
 fi
 
+
+function huehuehue (){
+echo "TODO: Gate: hueadm can connect to bridge?"
+cat << EOF | tv | zsh
+echo "VaporWave   = Violet    yellow   (pleasant!)        "; hueadm group 200 scene=PabuZd2VKFG6mhb
+echo "BluePlanet = Green     RealBlue (video self illum)  "; hueadm group 200 scene=5suARnK-Aiinak0
+echo "Magneto     = yellow    green/turq                  "; hueadm group 200 scene=1WKjP6Y8eG49e5S
+echo "Hal         = RedViolet yellow                      "; hueadm group 200 scene=cB4y9U2uNsGrSqW
+echo "CK          = RED       VIOLET                      "; hueadm group 200 scene=nJlNrTw8CfcZOyzG
+echo "Disturbia   = red       violet                      "; hueadm group 200 scene=M8f7eeYRIYBWmWt
+echo "Tyrell      = Green     LightBlue                   "; hueadm group 200 scene=HXiHuBbAKjeyCku
+echo "Energize    = White x2                              "; hueadm group 200 scene=3ZjGyKkArZKgrMx
+echo "Concentrate = WarmWhite x2                          "; hueadm group 200 scene=Y0uEZz5dblWdv1u
+echo "Relax       = flux x2                               "; hueadm group 200 scene=p3LtLU4Mc3TP6Qa
+echo "Off.                                                "; hueadm group 0 off
+EOF
+}
+
 alias hueVaporWave="hueadm group 200 scene=PabuZd2VKFG6mhb"
 alias hueBluePlanet="hueadm group 200 scene=5suARnK-Aiinak0"
 alias hueMagneto="hueadm group 200 scene=1WKjP6Y8eG49e5S"
@@ -1071,7 +1191,7 @@ alias hueTyrell="hueadm group 200 scene=HXiHuBbAKjeyCku"
 alias hueEnergize="hueadm group 200 scene=3ZjGyKkArZKgrMx"
 alias hueOff="hueadm group 0 off"
 
-function huehuehue (){
+function huehuehue_old (){
 cat << EOF
 VaporWave   = Violet    yellow   (pleasant!)
 BluePlanet = Green     RealBlue (video self illum)
@@ -1092,10 +1212,10 @@ function meet () {
 }
 
 alias lackit="kitten ssh vagrant@lackit.local"
-alias lvidia="kitten ssh vagrant@lvidia.local"
+alias lvidia="kitten ssh lvidia@lvidia.local"
 alias alpine="kubectl exec -it pod/alpine -- /bin/sh"
-alias alpineCreate="set -x; kubectl apply -f /home/freeo/cubecloud/gitops-lackit/dev/alpine.yaml; sleep 3; set +x; kubectl exec -it pod/alpine -- /bin/sh; "
-alias alpineDelete="kubectl delete -f /home/freeo/cubecloud/gitops-lackit/dev/alpine.yaml"
+alias alpineCreate="set -x; kubectl apply -f /home/freeo/cubecloud/gitops-int/dev/alpine.yaml; sleep 3; set +x; kubectl exec -it pod/alpine -- /bin/sh; "
+alias alpineDelete="kubectl delete -f /home/freeo/cubecloud/gitops-int/dev/alpine.yaml"
 
 
 
@@ -1103,8 +1223,10 @@ HOST=$(hostname)
 
 case "$HOST" in
   "cloudkoloss")
+    # default kubeconfig/context
+    export KUBECONFIG="/home/$USER/.kube/nztint1.mk8s.yaml"
     # export KUBECONFIG="/home/$USER/.kube/lackit.k3s.yaml"
-    export KUBECONFIG="/home/$USER/.kube/lvidia.k3s.yaml"
+    # export KUBECONFIG="/home/$USER/.kube/lvidia.k3s.yaml"
     ;;
   "lackit")
     export KUBECONFIG="/home/$USER/.kube/config.yaml"
@@ -1113,11 +1235,14 @@ case "$HOST" in
     ;;
   "lvidia")
     export KUBECONFIG="/home/$USER/.kube/config.yaml"
-    alias sukitten="sudo /home/vagrant/.local/share/kitty-ssh-kitten/kitty/bin/kitten"
+    alias sukitten="sudo /home/$USER/.local/share/kitty-ssh-kitten/kitty/bin/kitten"
     alias cpk3scfg="sukitten transfer /etc/rancher/k3s/k3s.yaml /home/freeo/.kube/lvidia.k3s.yaml"
     ;;
   *)
-    export KUBECONFIG="/home/$USER/.kube/config.yaml"
+    # messes with root
+    # export KUBECONFIG="/home/$USER/.kube/config.yaml"
+    alias sukitten="sudo /home/$USER/.local/share/kitty-ssh-kitten/kitty/bin/kitten"
+    alias cpk3scfg="sukitten transfer /etc/rancher/k3s/k3s.yaml /home/freeo/.kube/$(hostname).k3s.yaml"
     ;;
 esac
 
@@ -1142,16 +1267,39 @@ MOUSE() {
   done
 }
 
+alias chmodquery='stat -c "%a %n"'
 alias mouse="MOUSE enable"
 # context files must contain "current-context: mycontext"
 alias k9v='k9s --kubeconfig ~/.kube/lvidia.k3s.yaml'
 alias k9l='k9s --kubeconfig ~/.kube/lackit.k3s.yaml'
-alias chmodquery='stat -c "%a %n"'
+alias k9h='k9s --kubeconfig ~/.kube/hcube.k3s.yaml'
+alias k9i='k9s --kubeconfig ~/.kube/nztint1.mk8s.yaml'
+alias k9i1='k9s --kubeconfig ~/.kube/nztint1.mk8s.yaml'
+alias k9i2='k9s --kubeconfig ~/.kube/nztint2.mk8s.yaml'
+alias k9n='k9s --kubeconfig ~/.kube/nebiusdev.k8s.yaml'
+alias k9d='k9stunnelsmcdev && export HTTPS_PROXY=socks5://localhost:1080 && k9s --kubeconfig ~/.kube/smchead1.mk8s.yaml'
 
-gpu="0000:01:00.0"
-aud="0000:01:00.1"
-gpu_vd="$(cat /sys/bus/pci/devices/$gpu/vendor) $(cat /sys/bus/pci/devices/$gpu/device)"
-aud_vd="$(cat /sys/bus/pci/devices/$aud/vendor) $(cat /sys/bus/pci/devices/$aud/device)"
+if hash go-task 2>/dev/null ; then
+  alias task=go-task
+fi
+
+if hash lazygit 2>/dev/null ; then
+  alias lg=lazygit
+fi
+
+function grafanatunnel() {
+  k port-forward -n monitoring svc/kpromstack-grafana 1081:80
+
+  local SSH_CMD=(/usr/bin/ssh -L 1081:localhost:1081 kusuo@hcube -N -f)
+}
+
+
+
+
+# gpu="0000:01:00.0"
+# aud="0000:01:00.1"
+# gpu_vd="$(cat /sys/bus/pci/devices/$gpu/vendor) $(cat /sys/bus/pci/devices/$gpu/device)"
+# aud_vd="$(cat /sys/bus/pci/devices/$aud/vendor) $(cat /sys/bus/pci/devices/$aud/device)"
 
 function bind_vfio {
   echo "$gpu" > "/sys/bus/pci/devices/$gpu/driver/unbind"
@@ -1168,5 +1316,97 @@ function unbind_vfio {
   echo 1 > "/sys/bus/pci/rescan"
 }
 
+amdg9() {
+  xrandr --output HDMI-A-0 --mode 5120x1440 --rate 59.98 --dpi 144 --pos 0x0 --output DisplayPort-0 --off
+}
+
+amdtv() {
+  xrandr --output HDMI-A-0 --off --output DisplayPort-0 --mode 1920x1080 --rate 60 --pos 5120x0 --dpi 96
+}
+
+amdboth() {
+  xrandr --output HDMI-A-0 --mode 5120x1440 --rate 59.98 --dpi 144 --pos 0x0 --output DisplayPort-0 --mode 1920x1080 --rate 60 --pos 5120x0 --dpi 96
+}
+
+function gots () {
+timestamp=$1
+# timestamp="1723491985.0371428"
+
+# Extract the integer part
+seconds=${timestamp%.*}
+
+# Convert to human-readable format
+human_readable_date=$(date -d @$seconds "+%Y-%m-%d %H:%M:%S")
+
+# Print the result
+echo "$human_readable_date"
+}
+
+
+function argocurrentcommit () {
+ARGO_OUTPUT=$(argocd app get $1 -o json)
+COMMIT_SHA=$(echo $ARGO_OUTPUT | jq -r '.status.sync.revision')
+COMMIT_SHA=$(echo $ARGO_OUTPUT | jq -r '.status.sync.revision')
+
+if [ -z "$COMMIT_SHA" ]; then
+  echo "Failed to retrieve commit SHA for application $APPNAME."
+  exit 1
+fi
+
+echo "Application $1 is currently synced to commit $COMMIT_SHA."
+
+# Change directory to your local clone of the Git repository
+cd /path/to/your/repo || exit
+
+# Get the commit message
+COMMIT_MESSAGE=$(git show -s --format=%B $COMMIT_SHA)
+
+echo "The commit message is: $COMMIT_MESSAGE"
+
+}
+
+if [[ -n $SSH_CONNECTION ]]; then
+  # Currently in an SSH session
+  # edit-in-kitty works well, but it breaks file navigation inside of nvim.
+  # export VISUAL="$(where kitten) edit-in-kitty"
+else
+  # NOT in an SSH session
+fi
+
+# for file in $HOME/dotfiles/scripts/zshsource/*.sh; do
+FOLDER="$HOME/dotfiles/scripts/zshsource"
+if [ -d "$FOLDER" ] && [ "$(ls -A "$FOLDER")" ]; then
+  for file in "$FOLDER"/*.sh; do
+    source "$file"
+  done
+fi
+
+
+# SMCKOHYA=$HOME/pcloud/cubecloud/smckohya.sh
+# if [ -f $SMCKOHYA ]; then
+#     source $SMCKOHYA
+# fi
+
+export PATH="$HOME/.local/share/gem/ruby/3.3.0/bin:$PATH"
+
+export PATH="$PATH:$HOME/.nebius/bin/"
+# The next line enables shell command completion for Nebius CLI.
+if [ -f '/home/freeo/.nebius/completion.zsh.inc' ]; then source '/home/freeo/.nebius/completion.zsh.inc'; fi
+
 # PROFILING endpoint:
 # zprof
+
+fpath+=~/.zfunc
+
+
+# echo "hueadm group 200 scene=PabuZd2VKFG6mhb" | tv | zsh
+# zsh -c "hueadm group 200 scene=1WKjP6Y8eG49e5S"
+
+
+# The next line updates PATH for Nebius CLI.
+if [ -f '/home/freeo/.nebius/path.zsh.inc' ]; then source '/home/freeo/.nebius/path.zsh.inc'; fi
+
+# cocogitto
+if hash cog 2>/dev/null ; then
+  cog generate-completions zsh > ~/.zfunc/_cog
+fi

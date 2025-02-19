@@ -41,6 +41,7 @@
 (global-subword-mode 1)                           ; Iterate through CamelCase words
 
 
+;; OLD1
 ;; (use-package! mixed-pitch
 ;;   :hook
 ;;   ;; If you want it in all text modes:
@@ -55,27 +56,49 @@
 ;;   ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'highlight-indent-guides-odd-face)
 ;;   )
 
+;; OLD2
+;; (use-package! mixed-pitch
+;;   :hook
+;;   (text-mode . (lambda ()
+;;                  ;; (unless (string-match-p "\\.log$" (buffer-file-name))
+;;                  (unless (string-match-p "\\.\\(log\\|txt\\)$" (buffer-file-name))
+;;                    (mixed-pitch-mode 1)))))
+
+
+;; XXX observe: required this. OLD2 resulted in an error when executing a bash src block in org/babel with "ls" output (and more)
 (use-package! mixed-pitch
   :hook
   (text-mode . (lambda ()
-                 ;; (unless (string-match-p "\\.log$" (buffer-file-name))
-                 (unless (string-match-p "\\.\\(log\\|txt\\)$" (buffer-file-name))
+                 (when (and (buffer-file-name)
+                            (not (string-match-p "\\.\\(log\\|txt\\)$" (buffer-file-name))))
                    (mixed-pitch-mode 1)))))
+;; :config
+;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'org-block)
+;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'org-table)
+;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'org-code)
+;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'org-verb))
 
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16 )
+;; (set-face-attribute 'default nil :family "Iosevka")
+;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+
+
+
+
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 17 )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 )
       ;; (setq doom-font (font-spec :family "FuraCode Nerd Font Mono" :size 16 :style "Regular" )
       ;; (setq doom-font (font-spec :family "FiraCode Nerd Font Mono" :size 16 :weight 'medium )
-      doom-variable-pitch-font (font-spec :family "Lexend" :size 16 :weight 'light )
+      doom-variable-pitch-font (font-spec :family "Lexend" :size 17 :weight 'light )
+      ;; doom-variable-pitch-font (font-spec :family "Noto Sans" :size 16 :weight 'light )
                                         ; doom-variable-pitch-font (font-spec :family "ReadexPro" :size 16 :weight 'light )
                                         ; doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC" :size 16 )
                                         ; doom-variable-pitch-font (font-spec :family "Liberation Serif" :size 16 )
-      ;; Noto Serif CJK SC Semibold :weight 'light
-      ;; mixed-pitch-face (font-spec :family "Lexend" :size 16 :weight 'light )
-      ;; doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
-      doom-symbol-font (font-spec :family "Noto Color Emoji" :size 16)
-      doom-emoji-font (font-spec :family "Noto Color Emoji" :size 16)
+      doom-symbol-font (font-spec :family "Noto Color Emoji" :size 17)
+      doom-emoji-font (font-spec :family "Noto Color Emoji" :size 17)
       doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 20 :weight 'bold))
+;; Noto Serif CJK SC Semibold :weight 'light
+;; mixed-pitch-face (font-spec :family "Lexend" :size 16 :weight 'light )
+;; doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
 
                                         ; (use-package font-lock
                                         ;   :defer t
@@ -87,18 +110,51 @@
 
 ;; (push "/home/freeo/.config/doom/theme-source/" custom-theme-load-path )
 
+(set-fontset-font t 'unicode "Symbols Nerd Font Mono" nil 'append)
+
+
 (setq use-default-font-for-symbols nil)
 
 (setq-default tab-width 2)
 
 ;; (add-to-list 'mixed-pitch-fixed-pitch-faces 'whitespace)
 
+;; init.el: indent-guides
+;; (use-package indent-bars
+;;   :config
+;;   (require 'indent-bars-ts) 		; not needed with straight
+;;   :custom
+;;   ;; (indent-bars-color '(highlight :face-bg t :blend 0.5))
+;;   (setq
+;;    indent-bars-no-stipple-char "┃"
+;;    indent-bars-pattern "."
+;;    indent-bars-width-frac 0.5
+;;    indent-bars-pad-frac 0.25
+;;    indent-bars-color-by-depth nil
+;;    indent-bars-highlight-current-depth '(:face default :blend 0.4))
+;;   (indent-bars-no-descend-lists t) ; no extra bars in continued func arg lists
+
+;;   (indent-bars-prefer-character "┃")
+;;   (indent-bars-treesit-support t)
+;;   (indent-bars-treesit-ignore-blank-lines-types '("module"))
+;;   ;; Add other languages as needed
+;;   (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+;; 	                        if_statement with_statement while_statement)))
+;;   ;; Note: wrap may not be needed if no-descend-list is enough
+;;   ;;(indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
+;;   ;;				      list list_comprehension
+;;   ;;				      dictionary dictionary_comprehension
+;;   ;;				      parenthesized_expression subscript)))
+;;   :hook ((org-mode go-mode emacs-lisp python-base-mode yaml-mode) . indent-bars-mode)
+
+;;   )
+
 
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function.
-(setq doom-theme 'kalisi-light)
+(setq doom-theme 'kalisi-light) ;; XXX
 ;; (setq doom-theme 'doom-gruvbox-light)
 ;; (setq doom-theme 'doom-opera-light)
 ;; (setq doom-theme 'doom-solarized-light) ;; underscorce in markdown cmds sometimes UNREADABLE
@@ -142,6 +198,8 @@
 (yas-global-mode 1)
 
 
+
+
 (defun global-hot-bookmark (workspace filename)
   ;; (message workspace filename)
   ;; (with-current-buffer (window-buffer)
@@ -168,6 +226,7 @@
       :desc "kill buffer" "k" #'kill-current-buffer
       :desc "zoxide travel" "z" #'zoxide-travel
       :desc "2nd Brain" "0" (cmd! (projectile-switch-project-by-name "/home/freeo/Dropbox/org-roam"))
+      :desc "recently used files" "`" #'helm-recentf
 
       (:prefix-map ("f" . "")
        :desc "file open 2nd Brain" "f" #'vterm
@@ -179,7 +238,7 @@
        :desc "vterm toggle" "T" #'+vterm/toggle
        )
       (:prefix-map ("TAB" . "workspace")
-       :desc "kill workspace, consistent binding" "k" #'+workspace/delete
+       :desc "kill workspace, consistent binding" "k" #'+workspace/kill
        :desc "left workspace, consistent binding" "h" #'+workspace/switch-left
        :desc "right workspace, consistent binding" "l" #'+workspace/switch-right
        ;; :desc "kill workspace, consistent binding" "l" #'+workspace/load ;; default for "l"
@@ -215,8 +274,10 @@
        ;; :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
        :desc "hot:doom config.el"  "3" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/config.el"))
        :desc "hot:.zshrc"          "4" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/zshrc"))
-       :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc4.3-git.lua"))
+       :desc "hot:awesome.rc"      "5" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/awesome/rc.lua"))
        :desc "hot:kalisi.el"       "6" (cmd! (global-hot-bookmark "dotfiles" "~/dotfiles/config/doom/themes/kalisi-light-theme.el"))
+       :desc "reload kalisi"       "k" (cmd! (kalisi-reload))
+       :desc "reload kalisi"       "g" (cmd! (my-centaur-tabs-list-groups))
        )
 
       (:prefix-map ("p" . "project")
@@ -268,6 +329,8 @@
       :n "<f2>" #'centaur-tabs-forward
       :n "<C-f1>" #'centaur-tabs-backward-group
       :n "<C-f2>" #'centaur-tabs-forward-group
+      ;; :n "C-<" #'centaur-tabs-move-current-tab-to-left
+      ;; :n "C->" #'centaur-tabs-move-current-tab-to-right
       :n "<f3>" #'+workspace/switch-left
       :n "<f4>" #'+workspace/switch-right
       ;; :n "<f3>" #'evil-prev-buffer
@@ -384,14 +447,15 @@
                       (set-window-configuration wnd))))
       (error "no more than 2 files should be marked"))))
 
+(map! :map ranger-normal-mode-map
+      "e" #'ora-ediff-files)
+
 ;; drag and drop in dired, only supported in X
 (setq dired-mouse-drag-files t)
 
 ;; ranger-emacs-mode-map C-SPC
 ;; ranger-normal-mode-map t
 
-(map! :map ranger-normal-mode-map
-      "e" #'ora-ediff-files)
 
 ;; image--repeat-map -
 ;; image-map i -
@@ -623,6 +687,8 @@ helm-ff-fuzzy-matching t
 (add-hook 'web-mode-hook #'cmd-mode-autosave-hook)
 (add-hook 'org-mode-hook #'cmd-mode-autosave-hook)
 ;; (add-hook 'text-mode-hook #'org-mode)
+;; (advice-add 'magit-status :before #'save-buffer)
+
 
 (use-package! super-save
   :ensure t
@@ -704,11 +770,14 @@ helm-ff-fuzzy-matching t
 
 (after! projectile
   ;; alien doesn't work right now: unwanted: .gitignore'd files are unreachable using projectile-find-file
-  ;; (setq projectile-indexing-method 'alien)
-  (setq projectile-indexing-method 'hybrid)
+  (setq projectile-indexing-method 'alien)
+  ;; (setq projectile-indexing-method 'hybrid)
   (setq projectile-enable-caching nil)
   ;; git ls-files filters out more than the .gitignore and therefore seems unreliable. More hits is fine for me
-  (setq projectile-git-command "fd --type f --print0 -H -I -E '.git'")
+  ;; 2024-08-14: this worked until i upgraded doom. Now projectile complains about malformed .project file through fd:
+  ;; [fd error]: Malformed pattern in custom ignore file. .project: No such file or directory (os error 2).
+  ;; Temporarily shutting this off until this is fixed
+  ;; (setq projectile-git-command "fd --type f --print0 -H -I -E '.git'")
 
   ;; (setq projectile-generic-command "fd --type f --print0 -H -I")
   )
@@ -718,17 +787,25 @@ helm-ff-fuzzy-matching t
 
 ;; LSP
 (use-package lsp-mode
+  :ensure t
+  ;; :custom
+  ;; (lsp-diagnostics-provider :none)
   :commands (lsp lsp-deferred)
   :hook (lsp-mode . efs/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
   :config
-  (lsp-enable-which-key-integration t))
+  (lsp-enable-which-key-integration t)
+  (setq lsp-diagnostics-flycheck-default-level "warning")
+  )
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'bottom))
+
+(custom-set-faces
+ '(flycheck-warning ((t (:underline (:style wave :color "#808080"))))))
 
 
 (setq fancy-splash-image
@@ -772,6 +849,56 @@ helm-ff-fuzzy-matching t
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 (add-hook 'go-mode-hook #'yas-minor-mode)
 
+(setq lsp-go-use-gofumpt t)
+
+;; '((tab-mark 9 [9474 9] [92 9]))))
+;; (after! whitespace
+;;   (setq whitespace-style '(face tabs tab-mark spaces space-mark))
+;;   ;; (setq whitespace-display-mappings
+;;   ;;       '((tab-mark 9 [?\u00BB 9] [92 9])))
+;;   )
+;; (tab-mark     ?\t    [?» ?\t] [?\\ ?\t])	; tab - right guillemet
+;;
+
+(custom-set-faces!
+  '(whitespace-tab :background "#f0a0a0" :foreground "#505050" ))
+
+
+;; ("^\t*\\(\t\\)" 0 'whitespace-tab append)
+;;
+(defun highlight-non-indentation-tabs-go ()
+  (interactive)
+  (font-lock-add-keywords
+   nil
+   '(
+     ;; best, but still bad.
+     ("^\t*.*?\\(\t\\)" 1 'whitespace-tab append)
+
+     ;; ("^\w\|[[:punct:]]\\(\t\\)" 1 'whitespace-tab nil)
+     ;; ("^\t*[^\n\t]*\\(\t\\)" 1 'whitespace-tab nil)
+     ;; ("^\t*?\w*?\\(\t*\\)" 1 'whitespace-tab nil)
+     ;; ("\\(\\w\\)\\(\t\\)" 0 'whitespace-tab append)
+     ;; ("^\t*\\(\w\\)" 0 'whitespace-tab append)
+     )))
+;; XXX off for now... just use manual search for \t
+;; (add-hook 'go-mode-hook #'highlight-non-indentation-tabs-go)
+
+;; (defun highlight-non-indentation-tabs ()
+;;   (font-lock-add-keywords
+;;    nil
+;;    '(("^\t*\\(\t\\)" 1 'whitespace-tab append)
+;;      ("[^\n\t]\\(\t\\)" 1 'whitespace-tab append))))
+;; (add-hook 'go-mode-hook #'highlight-non-indentation-tabs-go)
+
+;; Global Mode works, but overrides highlight-indent-guides
+;; use this only when necessary!
+;; (use-package! whitespace
+;;   :config
+;;   (setq whitespace-style '(face trailing tabs tab-mark trailing newline newline-mark))
+;;   (setq whitespace-display-mappings
+;;         '((tab-mark ?\t [?» ?\t] [?\\ ?\t])  ; Display tabs as » followed by a tab space
+;;           ))
+;;   (global-whitespace-mode +1))
 
 (defun my-setup-dap-node ()
   "Require dap-node feature and run dap-node-setup if VSCode module isn't already installed"
@@ -803,6 +930,76 @@ helm-ff-fuzzy-matching t
 
 ;; (dap-go-setup)
 ;; (require 'dap-go)
+(require 'dap-dlv-go)
+;;
+;; (after! flycheck
+;;   (setq-default flycheck-disabled-checkers '(go-gofmt go-golint))
+;;   (flycheck-add-next-checker 'go-build '(warning . golangci-lint))
+;;   (flycheck-add-next-checker 'go-test '(warning . golangci-lint)))
+
+;; (dap-register-debug-template
+;;  "Go Debug"
+;;  (list :type "go"
+;;        :request "launch"
+;;        :name "Debug Go Program"
+;;        :mode "auto"
+;;        :program "${workspaceFolder}/main.go"
+;;        :args []
+;;        :env nil
+;;        :envFile nil))
+
+(map! :map dap-mode-map
+      :leader
+      :prefix ("d" . "dap")
+      ;; basics
+      :desc "dap next"          "n" #'dap-next
+      :desc "dap step in"       "i" #'dap-step-in
+      :desc "dap step out"      "o" #'dap-step-out
+      :desc "dap continue"      "c" #'dap-continue
+      :desc "dap hydra"         "h" #'dap-hydra
+      :desc "dap debug restart" "r" #'dap-debug-restart
+      :desc "dap debug"         "s" #'dap-debug
+
+      ;; debug
+      :prefix ("dd" . "Debug")
+      :desc "dap debug recent"  "r" #'dap-debug-recent
+      :desc "dap debug last"    "l" #'dap-debug-last
+
+      ;; eval
+      :prefix ("de" . "Eval")
+      :desc "eval"                "e" #'dap-eval
+      :desc "eval region"         "r" #'dap-eval-region
+      :desc "eval thing at point" "s" #'dap-eval-thing-at-point
+      :desc "add expression"      "a" #'dap-ui-expressions-add
+      :desc "remove expression"   "d" #'dap-ui-expressions-remove
+
+      :prefix ("db" . "Breakpoint")
+      :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
+      :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
+      :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
+      :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
+
+
+(use-package! flycheck-golangci-lint
+  :after flycheck)
+;; :config
+;; (setq flycheck-golangci-lint-config "~/.golangci.yml")) ; Path to your golangci-lint config
+
+(after! flycheck
+  (setq-default flycheck-disabled-checkers '(go-gofmt go-golint))
+  (flycheck-add-next-checker 'go-build '(warning . golangci-lint) t)
+  (flycheck-add-next-checker 'go-test '(warning . golangci-lint)) t)
+
+;; Promising! Improve.
+(with-eval-after-load 'go-mode
+  (defun go-gotestfmt ()
+    (interactive)
+    (compile (concat "cd " default-directory "; grc gotestsum --format-icons=hivis --format=testdox"))
+    ;; (defun go-gotestfmt (args)
+    ;; (let ((cmd (concat "go test -test.v -json " args " | grc gotestfmt")))
+    ;; (setq +go-test-last (concat "cd " default-directory ";" cmd))
+    ;; (+go--spawn cmd)))
+    ))
 
 ;;; jsonnet-language-server -- Summary
 ;; Development lsp registration for Emacs lsp-mode.
@@ -874,10 +1071,16 @@ helm-ff-fuzzy-matching t
 ;; (setq centaur-tabs-adjust-buffer-order t)
 ;; (setq centaur-tabs-adjust-buffer-order 'right)
 (setq centaur-tabs-height 20)
+;; (setq centaur-tabs-style "chamfer")
+;; (setq centaur-tabs-style "rounded")
 (setq centaur-tabs-style "bar")
-(setq centaur-tabs-set-bar 'under)
-(setq x-underline-at-descent-line t)
+;; (setq centaur-tabs-set-bar 'over)
+;; (setq x-underline-at-descent-line t) ;; recommended fix for non-spacemacs
 (setq centaur-tabs-set-close-button nil)
+(setq centaur-tabs-show-new-tab-button nil)
+;; centaur-tabs-active-bar-face
+
+
 
 ;; DONE: chat and wb_ck.org not switchable via F1/F2
 ;; continue testing
@@ -889,9 +1092,56 @@ helm-ff-fuzzy-matching t
         centaur-tabs-height 24
         centaur-tabs-set-modified-marker t
         centaur-tabs-modified-marker "●" ;; nice!
-        centaur-tabs-buffer-groups-function #'centaur-tabs-projectile-buffer-groups))
+        ;; centaur-tabs-buffer-groups-function #'centaur-tabs-projectile-buffer-groups)
+        )
 
+  (defun centaur-tabs-buffer-groups ()
+    "`centaur-tabs-buffer-groups' control buffers' group rules.
 
+Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+All buffer name start with * will group to \"Emacs\".
+Other buffer group by `centaur-tabs-get-group-name' with project name."
+    (list
+     (cond
+      ((or (string-equal "*" (substring (buffer-name) 0 1))
+           (memq major-mode '(magit-process-mode
+                              magit-status-mode
+                              magit-diff-mode
+                              magit-log-mode
+                              magit-file-mode
+                              magit-blob-mode
+                              magit-blame-mode
+                              )))
+       "Emacs")
+      ;; ((derived-mode-p 'prog-mode)
+      ;;  "Editing")
+      ((derived-mode-p 'dired-mode)
+       "Dired")
+      ((memq major-mode '(helpful-mode
+                          help-mode))
+       "Help")
+      ;; ((memq major-mode '(org-mode
+      ;;                     org-agenda-clockreport-mode
+      ;;                     org-src-mode
+      ;;                     org-agenda-mode
+      ;;                     org-beamer-mode
+      ;;                     org-indent-mode
+      ;;                     org-bullets-mode
+      ;;                     org-cdlatex-mode
+      ;;                     org-agenda-log-mode
+      ;;                     diary-mode))
+      ;;  "OrgMode")
+      (t
+       (centaur-tabs-get-group-name (current-buffer))))))
+
+  )
+
+(defun my-centaur-tabs-list-groups ()
+  "List and switch to centaur-tabs buffer groups using completing-read."
+  (interactive)
+  (let* ((groups (centaur-tabs-get-groups))
+         (selected-group (completing-read "Select group: " groups nil t)))
+    (centaur-tabs-switch-group selected-group)))
 
 
 (setq avy-all-windows t)
@@ -1054,6 +1304,42 @@ helm-ff-fuzzy-matching t
   (shell-command
    (concat "yq -o=json -i " buffer-file-name)))
 
+(defun yaml2json-region (start end)
+  "Convert selected YAML region to JSON using yq."
+  (interactive "r")
+  (let ((temp-file (make-temp-file "yaml2json-")))
+    (write-region start end temp-file)
+    (shell-command-on-region
+     start end
+     (format "yq -o=json %s" temp-file)
+     t t "*yaml2json-error*" t)
+    (delete-file temp-file)))
+
+(defun json2yaml-region (start end)
+  "Convert selected JSON region to YAML using yq."
+  (interactive "r")
+  (let ((temp-file (make-temp-file "yaml2json-")))
+    (write-region start end temp-file)
+    (shell-command-on-region
+     start end
+     (format "yq -p json -o yaml %s" temp-file)
+     t t "*yaml2json-error*" t)
+    (delete-file temp-file)))
+
+;; (setq lsp-headerline-breadcrumb-mode t)
+;; (setq lsp-headerline-breadcrumb-segments '(project file symbols))
+
+(after! lsp-mode
+  (setq lsp-headerline-breadcrumb-enable t)
+  (setq lsp-headerline-breadcrumb-segments '(project file symbols))
+  (setq lsp-headerline-breadcrumb-icons-enable t))
+
+;; Enable LSP for YAML files
+(after! lsp-yaml
+  (add-hook 'yaml-mode-hook #'lsp!))
+
+
+
 ;; https://github.com/TommyX12/company-tabnine
 (use-package company-tabnine :ensure t)
 (add-to-list 'company-backends #'company-tabnine)
@@ -1065,18 +1351,35 @@ helm-ff-fuzzy-matching t
 (setq company-global-modes '(not org-mode))
 
 (global-org-modern-mode)
+;; officailly recommended font, used for bullet points, checkboxes etc.
+;; Fixes org bullets issue: displaying utf placeholder
+;; must be set after org-modern-mode
+(set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+;; (set-face-attribute 'org-quote nil :family "Lexend" :weight 'light :slant 'oblique :foreground "#08298c" :background "#e0e0e0")
+
 
 (setq org-hide-emphasis-markers t)
 
+;; UPDATE: breaking change in doom
+;; https://github.com/doomemacs/doomemacs/commit/0d9e188b26ca1d01a57598e37171e5333272cad7
+;; (add-hook 'org-mode-hook 'highlight-indent-guides-mode) ;; somehow this doesn't exist anymore?!
+;; until emacs 30, I install the package manually in packages.el instead of init.el 'indent-guides', which now uses 'indent-bars' by default
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'fill)
+(setq highlight-indent-guides-auto-enabled nil)
 
 ;; (add-hook! 'org-mode-hook (lambda () (setq highlight-indent-guides-mode t)))
-(add-hook 'org-mode-hook 'highlight-indent-guides-mode)
 ;; (setq highlight-indent-guides-method 'column) ;; quite nice, but fill is fuller
-(setq highlight-indent-guides-method 'fill)
 ;; (setq highlight-indent-guides-method 'bitmap) ;; 3rd place
 ;; (setq highlight-indent-guides-method 'character) ;; default, bad influence on wrapped lines, also has gaps since it's not using full height
 
-(setq highlight-indent-guides-auto-enabled nil)
+
+;; (use-package! highlight-indent-guides
+;;   :hook (org-mode . highlight-indent-guides-mode)
+;;   :config
+;;   (setq highlight-indent-guides-auto-enabled nil)
+;;   (setq highlight-indent-guides-method 'fill))
+
 
 (add-hook 'org-mode-hook 'org-appear-mode)
 (setq org-appear-autolinks t)
@@ -1155,12 +1458,19 @@ helm-ff-fuzzy-matching t
 
 
 
+
 ;; auto-dark: takes care of dbus messages. No further config necessary!
+;; XXX: auto-dark issue: On startup emacs only renders updates when entering the command line mode, e.g. ":". Otherwise it's doesn't render, only a white screen. It keeps asking, if kalisi-....el should be loaded, so there's an obvious problem.
+;; required to fix the issue, but has a security concern
+;; known issue https://github.com/LionyxML/auto-dark-emacs/issues/64 OPEN
 (after! doom-ui
-  (setq! auto-dark-dark-theme 'doom-ayu-mirage
-         auto-dark-light-theme 'kalisi-light)
-  (auto-dark-mode 1))
-;; dbus code war archived to old-code.el in this f
+  :config
+  (setq custom-safe-themes t) ; temporary workaround
+  (setq! auto-dark-themes '((doom-ayu-mirage) (kalisi-light)))
+  (auto-dark-mode))
+
+
+;; dbus code was archived to old-code.el in this file
 
                                         ; this macro was copied from here: https://stackoverflow.com/a/22418983/4921402
 (defmacro define-and-bind-quoted-text-object (name key start-regex end-regex)
@@ -1207,7 +1517,9 @@ helm-ff-fuzzy-matching t
           ;; ("TODO" . (:background "black" :foreground "white" :weight bold))
           ("WIP" . (:background "orange" :foreground "white" :weight bold))
           ("WONTDO" . (:background "gray" :foreground "white" :weight bold))
-          ("BLOCKED" . (:background "red" :foreground "black" :weight bold)))))
+          ("BLOCKED" . (:background "red" :foreground "black" :weight bold))))
+  (set-face-attribute 'org-quote nil :family "Lexend" :weight 'light :inherit 'org-block :foreground "#08298c" :background "#eeeeee")
+  )
 ;; ("CANCELLED" . (:background "gray" :foreground "white" :weight bold))
 
 
@@ -1283,6 +1595,27 @@ helm-ff-fuzzy-matching t
 ;; Drag-and-drop to `dired`
 (add-hook 'dired-mode-hook 'org-download-enable)
 
+(defun dired-do-rename-suggest (&optional arg)
+  "Rename current file or all marked files, suggesting the current name.
+Places the cursor on the dot before the file extension in the minibuffer."
+  (interactive "P")
+  (let* ((files (dired-get-marked-files nil arg))
+         (len (length files))
+         (file (car files))
+         (name (file-name-nondirectory file))
+         (dir (file-name-directory file))
+         (ext-pos (or (string-match-p "\\.[^.]*\\'" name) (length name))))
+    (if (> len 1)
+        (dired-do-rename arg)
+      (let* ((initial-input (cons name (max 0 (1+ ext-pos))))
+             (new-name (read-string "Rename to: " initial-input)))
+        (dired-rename-file file (expand-file-name new-name dir) nil)
+        (revert-buffer)
+        (dired-goto-file (expand-file-name new-name dir))))))
+
+(after! dired
+  (evil-define-key '(normal visual) dired-mode-map
+    "R" 'dired-do-rename-suggest))
 
 
 ;; YOU DON'T NEED NONE OF THIS CODE FOR SIMPLE INSTALL
@@ -1368,3 +1701,119 @@ helm-ff-fuzzy-matching t
   (setq docker-command "podman"))
 
 (require 'string-inflection)
+
+;; YAML-PRO
+;;
+;; requirements: install this fork of tree-sitter-yaml:
+;;
+;; z wb
+;; git clone --depth 1 https://github.com/tree-sitter-grammars/tree-sitter-yaml
+;; make
+;; sudo make install
+;;
+;; this copies the *.so file (and symlinks) to this folder:
+;; /usr/local/lib
+;; most notably: libtree-sitter-yaml.so
+(add-to-list 'treesit-extra-load-path "/usr/local/lib")
+
+(defun go-test-function-around-cursor ()
+  "Run the Go test corresponding to the function at point."
+  (interactive)
+  (let* ((func-name (go-get-funcname-around-cursor))
+         (test-func-name (concat "Test" func-name))
+         (test-file (concat (file-name-sans-extension (buffer-file-name)) "_test.go")))
+    (if (and func-name (file-exists-p test-file))
+        (progn
+          (save-buffer)
+          (with-current-buffer (find-file-noselect test-file)
+            (goto-char (point-min))
+            (if (re-search-forward (concat "^func[[:space:]]+" test-func-name) nil t)
+                (progn
+                  (message "Running test function: %s" test-func-name)
+                  (go-test--run-test test-func-name))
+              (message "No test function found for %s" func-name))))
+      (message "No corresponding test file found or function name is nil."))))
+
+(defun go-get-funcname-around-cursor ()
+  "Get the name of the current Go function using LSP."
+  (when (and (bound-and-true-p lsp-mode)
+             (lsp--capability "documentSymbolProvider"))
+    (let ((symbols (lsp--get-document-symbols)))
+      (cl-labels ((find-symbol (symbols)
+                    (seq-find (lambda (sym)
+                                (let ((range (gethash "range" sym)))
+                                  (and (>= (point) (lsp--position-to-point (gethash "start" range)))
+                                       (<= (point) (lsp--position-to-point (gethash "end" range))))))
+                              symbols)))
+        (when-let ((symbol (find-symbol symbols)))
+          (gethash "name" symbol))))))
+
+(defun go-test--run-test (test-func-name)
+  "Run the Go test for the given TEST-FUNC-NAME."
+  (let ((default-directory (projectile-project-root)))
+    (compile (format "go test ./... -run '^%s$'" test-func-name))))
+
+(after! go-mode
+  (map! :localleader
+        :map go-mode-map
+        "t p" #'go-test-function-around-cursor))
+
+(url-handler-mode 1)
+
+(use-package! sops
+  :bind (("C-c C-c" . sops-save-file)
+         ("C-c C-k" . sops-cancel)
+         ("C-c C-d" . sops-edit-file))
+  :init
+  (global-sops-mode 1))
+
+;; (setq debug-on-error t)
+
+
+;; IDEA: replicate nvim behaviour with * _ and substrings. Not easy. Leave for now. I want str1_str2 to be matched with * on str2
+;; (defun my/evil-asterisk ()
+;;   "Search for symbol under cursor as a substring match."
+;;   (interactive)
+;;   (let ((symbol (thing-at-point 'symbol t)))
+;;     (if symbol
+;;         (progn
+;;           (setq isearch-forward t)
+;;           (evil-search symbol 'forward t))
+;;       (user-error "No symbol under cursor"))))
+
+;; (defun my/evil-symbol-or-word-asterisk ()
+;;   "Search for the full symbol or word under cursor."
+;;   (interactive)
+;;   (let ((bounds (bounds-of-thing-at-point 'symbol)))
+;;     (if bounds
+;;         (let ((symbol (buffer-substring-no-properties (car bounds) (cdr bounds))))
+;;           ;; Use exact match if there's an underscore in the symbol
+;;           (if (string-match-p "_" symbol)
+;;               (evil-search symbol 'forward t) ;; Exact match
+;;             ;; Otherwise, search as substring
+;;             (my/evil-asterisk)))
+;;       (user-error "No symbol or word under cursor"))))
+;;
+;; Remap * and # to the new function
+;; (map! :n "*" #'my/evil-symbol-or-word-asterisk
+;;       :n "#" #'(lambda () (interactive) ;; For backward search
+;;                  (let ((evil-search-wrap t))
+;;                    (evil-ex-search-backward-symbol-or-word))))
+
+
+
+;; (defun my/evil-search-symbol-or-word ()
+;;   "Search for symbol or word under cursor, allowing substring matches."
+;;   (interactive)
+;;   (let* ((bounds (bounds-of-thing-at-point 'symbol))
+;;          (symbol (if bounds (buffer-substring-no-properties (car bounds) (cdr bounds)) nil)))
+;;     (if symbol
+;;         (let ((search-term (if (string-match-p "_" symbol)
+;;                                (regexp-quote symbol)  ; Exact match for words with underscore
+;;                              (concat "\\<" (regexp-quote symbol)))))  ; Substring match otherwise
+;;           (evil-push-search-history search-term 'forward)
+;;           (evil-search search-term t t)
+;;           (setq evil-ex-search-pattern (evil-ex-make-search-pattern search-term)))
+;;       (user-error "No symbol under cursor"))))
+
+;; (map! :n "*" #'my/evil-search-symbol-or-word)

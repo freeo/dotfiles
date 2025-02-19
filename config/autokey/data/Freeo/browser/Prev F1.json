@@ -5,7 +5,7 @@
     "modes": [
         3
     ],
-    "usageCount": 229,
+    "usageCount": 330,
     "prompt": false,
     "omitTrigger": false,
     "showInTrayMenu": false,
@@ -22,7 +22,7 @@
         "hotKey": "<f1>"
     },
     "filter": {
-        "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|/usr/bin/chromium-snapshot-bin",
+        "regex": "Navigator.firefox|Navigator.Tor Browser|chromium-browser|google-chrome|brave-browser|/usr/bin/chromium-snapshot-bin|vivaldi|Navigator.floorp|firefox",
         "isRecursive": false
     }
 }
