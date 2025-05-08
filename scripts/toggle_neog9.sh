@@ -7,14 +7,35 @@ echo "$timestamp"
 
 function isG9on () {
   # xrandr -q --verbose | grep "DP-0 connected"
-  xrandr -q | grep "Screen 0: minimum 8 x 8, current 5120 x 1440, maximum 32767 x 32767"
-
   # xrandr -q | sed -n '/DP-0/,/^DP-1/p' | grep "*"
   # xrandr -q | sed -n '/DP-0/,/^DP-1/p'
 
-  r=$?
-  echo isG9on: $r
-  return $r
+  # old, only 1 value: 5120x1440
+  # xrandr -q | grep "Screen 0: minimum 8 x 8, current 5120 x 1440, maximum 32767 x 32767"
+  # r=$?
+  # echo isG9on: $r
+  # return $r
+
+  resolutions=(
+      "Screen 0: minimum 8 x 8, current 5120 x 1440, maximum 32767 x 32767"
+      "Screen 0: minimum 8 x 8, current 3840 x 1080, maximum 32767 x 32767"
+  )
+
+  # for debug:
+  # xrandr -q | grep -q "Screen 0: minimum 8 x 8, current 3840 x 1080, maximum 32767 x 32767"
+
+  # 1 = off, 0 = on, because of grep errorcode
+  isG9on=1
+
+  for r in "${resolutions[@]}"; do
+      if xrandr -q | grep -q "$r"; then
+          isG9on=0
+          break
+      fi
+  done
+
+  echo "isG9on: $isG9on"
+  return $isG9on
 }
 
 function isG9off () {

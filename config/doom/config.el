@@ -480,6 +480,25 @@
 ;; helm-projectile-switch-project
 ;; projectile-switch-project-by-name
 
+;; NOTE: Open...
+;; https://github.com/doomemacs/doomemacs/issues/8288
+;; (defun projectile-known-projects ()
+;;   "Initialize the known projects.
+
+;; This might potentially clean up redundant projects and discover new ones if
+;; `projectile-auto-cleanup-known-projects' or `projectile-auto-discover' are
+;; enabled."
+;;   ;; load the known projects
+;;   (unless projectile-known-projects
+;;     (projectile-load-known-projects))
+;;   ;; (when projectile-auto-cleanup-known-projects
+;;   ;; (projectile--cleanup-known-projects))
+;;   ;; (when (and projectile-auto-discover projectile-project-search-path)
+;;   ;; (when projectile-project-search-path
+;;   ;; (projectile-discover-projects-in-search-path))
+;;   ;; return the list of known projects
+;;   projectile-known-projects)
+
 ;; (setq foreground vterm-color-red)
 
 ;; evilnc-comment-operator (start end type))
@@ -1677,11 +1696,12 @@ Places the cursor on the dot before the file extension in the minibuffer."
 (use-package! gptel
   :config
   (setq
-   gptel-model "codestral:latest"
+   ;; gptel-model "codestral:latest"
+   gptel-model "gemma3:12b"
    gptel-backend (gptel-make-ollama "Ollama"
                    :host "localhost:11434"
                    :stream t
-                   :models '("codestral:latest")))
+                   :models '("gemma3:12b")))
 
   )
 

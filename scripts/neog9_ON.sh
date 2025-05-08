@@ -40,7 +40,9 @@ start=$(date +%s%3N)  # Get the current time in milliseconds
 # fastest wake up time, until xrandr reports the correct modes
 xrandr --output DP-0 --mode 1024x768 --rate 60
 
-timeout_duration=5
+# timeout_duration=5
+# increasing due to new nvidia drivers, which are inconsistent
+timeout_duration=10
 
 sleep 1 # skip first "on" cycle: xrandr doesn't show any modes after 0.5 secs until about 1.3 secs
 

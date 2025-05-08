@@ -1,0 +1,7 @@
+{
+  "default chooser":{
+    "prefix":"j",
+    "body":"default:\n\t@just --choose\n",
+    "description":"fuzzy finder as default option"
+  }
+}

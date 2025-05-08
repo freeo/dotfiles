@@ -8,6 +8,7 @@
 [core]
 	editor = nvim
 	pager = delta --max-line-length 5120 --max-line-distance 0.8
+  # pager = delta --features "$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo dark-mode || echo light-mode)"
 
 	excludesfile = ~/.gitignore
 # [includeIf "gitdir:github/"]
@@ -53,3 +54,50 @@
 	smudge = git-lfs smudge -- %f
 [url "git@gitlab.com:"]
 	insteadOf = https://gitlab.com/
+
+[delta "dark-mode"]
+  navigate = true    # use n and N to move between diff sections
+  dark = true
+  syntax-theme = bluloco-dark
+  plus-style = syntax "#2B5A3F"
+  plus-emph-style = syntax "#2D6363"
+  minus-style = syntax "#4D3034"
+  minus-emph-style = syntax "#6A3234"
+  hunk-header-style = omit
+  file-style =  normal 
+  file-decoration-style = blue ul ol
+  file-modified-label = [M]
+  file-added-label = [A]
+  file-removed-label = [D]
+  file-renamed-label = [R]
+  file-copied-label = [C]
+  inline-hint = yellow
+  map-styles = \
+    bold purple => syntax "#2B5A3F", \
+    bold cyan => syntax "#4D3034", \
+    bold blue => syntax "#2B5A3F", \
+    bold yellow => syntax "#4D3034",
+
+[delta "light-mode"]
+  navigate = true    # use n and N to move between diff sections
+  light = true
+  syntax-theme = bluloco-light
+  plus-style = syntax "#B5F6C6"
+  plus-emph-style = syntax "#A8F0C8"
+  minus-style = syntax "#F8DDE0"
+  minus-emph-style = syntax "#F7BEC5"
+  hunk-header-style = omit
+  file-style =  normal 
+  file-decoration-style = blue ul ol
+  file-modified-label = [M]
+  file-added-label = [A]
+  file-removed-label = [D]
+  file-renamed-label = [R]
+  file-copied-label = [C]
+  inline-hint = yellow
+  map-styles = \
+    bold purple => syntax "#B5F6C6", \
+    bold cyan => syntax "#F8DDE0",  \
+    bold blue => syntax "#B5F6C6", \
+    bold yellow => syntax "#F8DDE0", 
+

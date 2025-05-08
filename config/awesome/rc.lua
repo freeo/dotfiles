@@ -39,6 +39,23 @@ naughty.connect_signal("request::display_error", function(message, startup)
 end)
 -- }}}
 
+-- Naughty Config: Notifications
+
+naughty.config.defaults.timeout = 5
+naughty.config.defaults.screen = 1
+naughty.config.defaults.position = "top_middle"
+naughty.config.defaults.margin = 10
+--naughty.config.default_preset.height           = 50
+--naughty.config.default_preset.width            = 100
+naughty.config.defaults.gap = 1
+naughty.config.defaults.ontop = true
+naughty.config.defaults.icon_size = 16
+naughty.config.defaults.fg = "#ffffff"
+naughty.config.defaults.bg = beautiful.bg_normal
+naughty.config.defaults.border_width = 2
+naughty.config.defaults.hover_timeout = nil
+naughty.config.presets.normal.border_color = beautiful.fg_focus
+
 -- Enable hotkeys help widget for tmux, vim and other apps
 -- when client with a matching name is opened:
 -- require("awful.hotkeys_popup.keys")
@@ -1194,6 +1211,8 @@ awful.spawn.easy_async_with_shell("(date; uptime --since; uptime -p; echo '----'
     -- naughty.notify({ text = "System uptime: " .. uptime })
 end)
 
+microphone.Off()
+
 -- necessary for it to work on startup
 gears.timer {
     timeout   = 15, -- determine time!
@@ -1643,6 +1662,11 @@ ruled.client.connect_signal("request::rules", function()
     })
 
     ruled.client.append_rule({
+        rule = { class = "pavucontrol" },
+        properties = { tag = "bbb" },
+    })
+
+    ruled.client.append_rule({
         rule = { class = "strawberry" },
         properties = { tag = "music" },
     })
@@ -1826,6 +1850,7 @@ run_once("solaar", "", "/usr/bin/python /usr/bin/solaar")
 run_once("protonmail-bridge")
 run_once("emacs")
 -- run_once("/usr/lib/firefox/firefox")
+run_once("/usr/bin/vivaldi")
 run_once("hueadm group 0 off")
 run_once("dropbox")
 -- run_once("hexchat")
@@ -1833,6 +1858,17 @@ run_once("dropbox")
 run_once("networkd-notify")
 -- run_once("systemctl --user start xidlehook.service")
 run_once("signal-desktop")
+-- MINOR: workaround: don't run pavucontrol permanently, just start it once, so that microphone.Off()/Toggle() work.
+-- TODO: inspect what exactly pavucontrol is spawning, which the toggle doesn't work without.
+run_once("pavucontrol")
+gears.timer {
+    timeout   = 10, -- determine time!
+    single_shot = true,
+    autostart = true,
+    callback  = function()
+        awful.spawn.with_shell("pkill pavucontrol")
+    end
+}
 
 
 
@@ -1852,22 +1888,6 @@ awful.spawn.with_shell("xset r rate 230 40")
 awful.spawn.with_shell("eval `ssh-agent -s`")
 awful.spawn.with_shell("ssh-add")
 
--- Naughty Config: Notifications
-
-naughty.config.defaults.timeout = 5
-naughty.config.defaults.screen = 1
-naughty.config.defaults.position = "top_middle"
-naughty.config.defaults.margin = 10
---naughty.config.default_preset.height           = 50
---naughty.config.default_preset.width            = 100
-naughty.config.defaults.gap = 1
-naughty.config.defaults.ontop = true
-naughty.config.defaults.icon_size = 16
-naughty.config.defaults.fg = "#ffffff"
-naughty.config.defaults.bg = beautiful.bg_normal
-naughty.config.defaults.border_width = 2
-naughty.config.defaults.hover_timeout = nil
-naughty.config.presets.normal.border_color = beautiful.fg_focus
 
 -------------------------
 -- Second Level Config --

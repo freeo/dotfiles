@@ -92,6 +92,8 @@ export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:$HOME/dotfiles/scripts"
 export PATH="$PATH:$HOME/.linkerd2/bin"
 
+
+
 alias RC='python3 $HOME/dotfiles/scripts/rcselect.py'
 alias RCZ='nvim ~/.zshrc'
 alias RCV='nvim ~/.config/nvim/init.vim'
@@ -716,8 +718,10 @@ alias sc='sudo systemctl'
 alias scs='sudo systemctl --type=service'
 
 alias lazypodman='DOCKER_HOST=unix:///run/user/1000/podman/podman.sock lazydocker'
+alias docker=podman
 # fdr: fd in root
 alias fdr="fd --exclude /mnt --exclude /home -uu"
+
 
 
 export LC_ALL=en_US.UTF-8
@@ -923,6 +927,7 @@ alias zz=__zoxide_zi
 alias v='nvim'
 alias vk="$(where kitten) edit-in-kitty"
 alias j=just
+alias jc=just --choose
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
@@ -1138,6 +1143,7 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+
 function timer () {
 TIMER_TITLE="Default Timer Title"
 TIMER_TITLE="Default Timer Text"
@@ -1285,6 +1291,10 @@ fi
 
 if hash lazygit 2>/dev/null ; then
   alias lg=lazygit
+  # alias lg="lazygit --use-config-file ~/dotfiles/config/lazygit/config-dark.yml"
+  alias lgl=lazygit
+  alias lgd="lazygit --use-config-file ~/dotfiles/config/lazygit/config-dark.yml"
+
 fi
 
 function grafanatunnel() {
@@ -1410,3 +1420,23 @@ if [ -f '/home/freeo/.nebius/path.zsh.inc' ]; then source '/home/freeo/.nebius/p
 if hash cog 2>/dev/null ; then
   cog generate-completions zsh > ~/.zfunc/_cog
 fi
+
+# mise-en-place
+eval "$(/usr/bin/mise activate zsh)"
+
+export MASON_BIN="/home/freeo/.local/share/nvim/mason/bin"
+case ":$PATH:" in
+  *":$MASON_BIN:"*) ;;
+  *) export PATH="$MASON_BIN:$PATH" ;;
+esac
+
+function leftvscreen (){
+echo "TODO: make this into a function"
+cat << EOF | tv | zsh
+echo "LeftVScreen ON "; xrandr --delmonitor LeftVScreen
+echo "LeftVScreen OFF "; xrandr --setmonitor LeftVScreen 2560/0x1440/1+0+0 none
+EOF
+}
+
+
+

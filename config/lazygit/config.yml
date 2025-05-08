@@ -1,0 +1,22 @@
+git:
+  paging:
+    colorArg: always
+    pager: delta --features light-mode --paging=never
+gui:
+  nerdFontsVersion: "3"
+  theme:
+    defaultFgColor:
+      - black
+    activeBorderColor:
+      - magenta
+      - bold
+    inactiveBorderColor:
+      - default
+    selectedLineBgColor:
+      - reverse 
+    selectedRangeBgColor:
+      - reverse
+    cherryPickedCommitBgColor:
+      - white
+    cherryPickedCommitFgColor:
+      - magenta

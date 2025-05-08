@@ -1,0 +1,51 @@
+<mxfile host="Electron" modified="2024-09-24T11:11:57.373Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.0.2 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="wEqMnP6YWTGEsO9b0Gjl" version="23.0.2" type="device">
+  <diagram name="Page-1" id="9Zww0tfxyHllKvsAbqCR">
+    <mxGraphModel dx="1287" dy="1215" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1125" pageHeight="1404" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;" edge="1" parent="1" source="7Kkv4h8T5DrbW6cNQmZ1-1" target="7Kkv4h8T5DrbW6cNQmZ1-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-1" value="toggle_neog9" style="rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-2" value="neog9_ON" style="rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;" edge="1" parent="1" source="7Kkv4h8T5DrbW6cNQmZ1-3" target="7Kkv4h8T5DrbW6cNQmZ1-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-3" value="awm: &quot;8&quot;" style="rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;" edge="1" parent="1" source="7Kkv4h8T5DrbW6cNQmZ1-7" target="7Kkv4h8T5DrbW6cNQmZ1-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-11" value="yes" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="7Kkv4h8T5DrbW6cNQmZ1-9">
+          <mxGeometry x="-0.1642" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;" edge="1" parent="1" source="7Kkv4h8T5DrbW6cNQmZ1-7" target="7Kkv4h8T5DrbW6cNQmZ1-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="603" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-13" value="no" style="edgeLabel;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="7Kkv4h8T5DrbW6cNQmZ1-12">
+          <mxGeometry x="-0.665" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-7" value="is off?" style="rhombus;" vertex="1" parent="1">
+          <mxGeometry x="563" y="250" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="7Kkv4h8T5DrbW6cNQmZ1-10" value="xrandr dp-0 off&#xa;(in toggle_neog9)" style="rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
