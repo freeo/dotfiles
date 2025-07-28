@@ -65,7 +65,8 @@ client.connect_signal("jack_source_on", function()
 	local c = client.focus
 	if c then
 		-- local color_highlight_mic_on = "#B200FF"
-		local color_highlight_mic_on = "#DD00FF"
+		-- local color_highlight_mic_on = "#DD00FF"
+		local color_highlight_mic_on = "#00DD00"
 		c.border_color = color_highlight_mic_on
 		beautiful.border_focus = color_highlight_mic_on
 	end
