@@ -1,0 +1,40 @@
+# Television channel for display configurations
+# Place this file in ~/.config/television/cable/displays.toml
+
+[metadata]
+name = "xrandr"
+description = "Switch between display configurations using xrandr"
+requirements = ["python", "xrandr"]
+
+[source]
+command = "cat ~/dotfiles/scripts/xrandr/displays.txt"
+# every ":" needs to be escaped with \\ because the are part of the default tv syntax as well! 
+# so: split:X:0 when X is "::" results in: "{split:\\:\\::0}"
+display = "{split:\\:\\::0}"  # Show only the human-readable part (before ::)
+output = "{split:\\:\\::1}"   # Output the command part (after ::) for execution
+
+[preview] 
+command = "echo 'Will execute: {split:::1}' && echo '' && python ~/dotfiles/scripts/xrandr/detect.py | grep -E '^(NEOG9|TOSHIBA)'"
+# env = { TERM = "xterm-kitty" }
+
+# [keybindings]
+# toggle_selection_down = ["p"]
+# toggle_selection_up = ["n"]
+
+[ui]
+# ui_scale = 60
+layout = "portrait"
+input_header = "Select Display Configuration:"
+
+[ui.preview_panel]
+size = 50
+header = "Display Setup Preview"
+footer = "Press Enter to apply configuration"
+
+[ui.status_bar]
+separator_open = "["
+separator_close = "]"
+
+[keybindings]
+shortcut = "f2"
+confirm_selection = ["enter", "ctrl-y"]

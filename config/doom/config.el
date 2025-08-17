@@ -218,7 +218,88 @@
                             )
   )
 
+(defun jump-to-newest-region (workspace filename)
+  "Jump to the newest region in wb_log.org based on date headings.
+   The newest region is determined by the date in the heading with
+   format '** mmdd dayname'."
+  (interactive)
+  ;; copy&paste from global-hot-bookmark
+  (+workspace/switch-to workspace)
+  (run-with-timer 0 nil (lambda (filename)
+                          (if (string= buffer-file-name (expand-file-name filename)) ()
+                            ;; (message "not equal")
+                            ;; (if (string= (frame-parameter nil 'name) == " *Minibuf-1* - Doom Emacs"))
+                            (if (string= buffer-file-name nil)
+                                (find-file filename)
+                              (find-file-other-window filename)
+                              )
+                            ;; (find-file filename)
+                            )
+                          ) filename
+                            )
 
+  (let ((file-path (expand-file-name filename))
+        (current-year (string-to-number (format-time-string "%Y")))
+        (entries '()))
+
+    ;; Open the file if not already open
+    (find-file file-path)
+
+    ;; Go to the beginning of the buffer
+    (goto-char (point-min))
+
+    ;; Collect all date entries with their corresponding years
+    (let ((current-context-year current-year))
+      (while (not (eobp))
+        (cond
+         ;; Year header
+         ((looking-at "^\\*\\* \\(20[0-9][0-9]\\) \\*\\*\\*\\*\\*\\*")
+          (setq current-context-year (string-to-number (match-string 1))))
+
+         ;; Date header
+         ((looking-at "^\\*\\* \\([0-9][0-9][0-9][0-9]\\) \\([A-Za-z]+\\) ")
+          (let* ((date-str (match-string 1))
+                 (month (string-to-number (substring date-str 0 2)))
+                 (day (string-to-number (substring date-str 2 4)))
+                 (header-point (point))
+                 ;; Save year, month, day, and point into our collection
+                 (entry (list current-context-year month day header-point)))
+            (push entry entries))))
+        (forward-line 1)))
+
+    ;; Sort entries by date (year, then month, then day) - newer dates first
+    (setq entries
+          (sort entries
+                (lambda (a b)
+                  (or (> (nth 0 a) (nth 0 b))
+                      (and (= (nth 0 a) (nth 0 b))
+                           (> (nth 1 a) (nth 1 b)))
+                      (and (= (nth 0 a) (nth 0 b))
+                           (= (nth 1 a) (nth 1 b))
+                           (> (nth 2 a) (nth 2 b)))))))
+
+    ;; If we found date entries, jump to the newest one (first in the sorted list)
+    (if entries
+        (let ((newest-point (nth 3 (car entries))))
+          (goto-char newest-point)
+
+          ;; ;; Find the content after this header
+          ;; ;; First skip to end of the current header line
+          ;; (end-of-line)
+          ;; (forward-line 1)
+
+          ;; ;; Now find the content - either it's right here, or after a subtitle
+          ;; (if (looking-at "^\\*\\* ")
+          ;;     ;; We found a subtitle, find its content
+          ;;     (progn
+          ;;       (end-of-line)
+          ;;       (forward-line 1))
+          ;;   ;; Otherwise, we're already at the content
+          ;;   )
+          )
+
+      ;; If no entries found, inform the user
+      (message "No date headers found in the format '** mmdd dayname'"))))
 
 
 (map! :leader
@@ -268,7 +349,8 @@
       (:prefix-map ("r" . "Alrrrrighty Then!")
        :desc "refactor anzu" "r" 'anzu-replace-at-cursor-thing
        :desc "hot:wb_ck.org"       "`" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/chat"))
-       :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
+       ;; :desc "hot:wb_ck.org"       "1" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
+       :desc "hot:wb_ck.org"       "1" (cmd! (jump-to-newest-region "cloudkoloss" "~/pcloud/cloudkoloss/wb_ck.org"))
        :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/agenda.org"))
        ;; :desc "hot:website.org"       "2" (cmd! (global-hot-bookmark "cloudkoloss" "~/pcloud/cloudkoloss/website.org"))
        ;; :desc "hot:todo.org"        "2" (cmd! (global-hot-bookmark "foam-workbench" "~/pcloud/org-roam/todo.org"))
@@ -885,20 +967,22 @@ helm-ff-fuzzy-matching t
 
 ;; ("^\t*\\(\t\\)" 0 'whitespace-tab append)
 ;;
-(defun highlight-non-indentation-tabs-go ()
-  (interactive)
-  (font-lock-add-keywords
-   nil
-   '(
-     ;; best, but still bad.
-     ("^\t*.*?\\(\t\\)" 1 'whitespace-tab append)
+;; Highlight indentation tabs in red! Not just for go, as it spills into other functions as well.
+;; (defun highlight-non-indentation-tabs-go ()
+;;   (interactive)
+;;   (font-lock-add-keywords
+;;    nil
+;;    '(
+;;      ;; best, but still bad.
+;;      ("^\t*.*?\\(\t\\)" 1 'whitespace-tab append)
 
-     ;; ("^\w\|[[:punct:]]\\(\t\\)" 1 'whitespace-tab nil)
-     ;; ("^\t*[^\n\t]*\\(\t\\)" 1 'whitespace-tab nil)
-     ;; ("^\t*?\w*?\\(\t*\\)" 1 'whitespace-tab nil)
-     ;; ("\\(\\w\\)\\(\t\\)" 0 'whitespace-tab append)
-     ;; ("^\t*\\(\w\\)" 0 'whitespace-tab append)
-     )))
+;;      ;; ("^\w\|[[:punct:]]\\(\t\\)" 1 'whitespace-tab nil)
+;;      ;; ("^\t*[^\n\t]*\\(\t\\)" 1 'whitespace-tab nil)
+;;      ;; ("^\t*?\w*?\\(\t*\\)" 1 'whitespace-tab nil)
+;;      ;; ("\\(\\w\\)\\(\t\\)" 0 'whitespace-tab append)
+;;      ;; ("^\t*\\(\w\\)" 0 'whitespace-tab append)
+;;      )))
+
 ;; XXX off for now... just use manual search for \t
 ;; (add-hook 'go-mode-hook #'highlight-non-indentation-tabs-go)
 
@@ -967,6 +1051,7 @@ helm-ff-fuzzy-matching t
 ;;        :env nil
 ;;        :envFile nil))
 
+
 (map! :map dap-mode-map
       :leader
       :prefix ("d" . "dap")
@@ -978,25 +1063,55 @@ helm-ff-fuzzy-matching t
       :desc "dap hydra"         "h" #'dap-hydra
       :desc "dap debug restart" "r" #'dap-debug-restart
       :desc "dap debug"         "s" #'dap-debug
-
-      ;; debug
-      :prefix ("dd" . "Debug")
+      ;; debug submenu
+      :prefix ("d" . "Debug")
       :desc "dap debug recent"  "r" #'dap-debug-recent
       :desc "dap debug last"    "l" #'dap-debug-last
-
-      ;; eval
-      :prefix ("de" . "Eval")
+      ;; eval submenu
+      :prefix ("e" . "Eval")
       :desc "eval"                "e" #'dap-eval
       :desc "eval region"         "r" #'dap-eval-region
       :desc "eval thing at point" "s" #'dap-eval-thing-at-point
       :desc "add expression"      "a" #'dap-ui-expressions-add
       :desc "remove expression"   "d" #'dap-ui-expressions-remove
-
-      :prefix ("db" . "Breakpoint")
+      ;; breakpoint submenu
+      :prefix ("b" . "Breakpoint")
       :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
       :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
       :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
       :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
+
+;; (map! :map dap-mode-map
+;;       :leader
+;;       :prefix ("d" . "dap")
+;;       ;; basics
+;;       :desc "dap next"          "n" #'dap-next
+;;       :desc "dap step in"       "i" #'dap-step-in
+;;       :desc "dap step out"      "o" #'dap-step-out
+;;       :desc "dap continue"      "c" #'dap-continue
+;;       :desc "dap hydra"         "h" #'dap-hydra
+;;       :desc "dap debug restart" "r" #'dap-debug-restart
+;;       :desc "dap debug"         "s" #'dap-debug
+
+;;       ;; debug
+;;       :prefix ("dd" . "Debug")
+;;       ;; :desc "dap debug recent"  "r" #'dap-debug-recent
+;;       ;; :desc "dap debug last"    "l" #'dap-debug-last
+
+;;       ;; eval
+;;       :prefix ("de" . "Eval")
+;;       :desc "eval"                "e" #'dap-eval
+;;       :desc "eval region"         "r" #'dap-eval-region
+;;       :desc "eval thing at point" "s" #'dap-eval-thing-at-point
+;;       :desc "add expression"      "a" #'dap-ui-expressions-add
+;;       :desc "remove expression"   "d" #'dap-ui-expressions-remove
+
+;;       :prefix ("db" . "Breakpoint")
+;;       :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
+;;       :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
+;;       :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
+;;       :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
+
 
 
 (use-package! flycheck-golangci-lint
@@ -1837,3 +1952,47 @@ Places the cursor on the dot before the file extension in the minibuffer."
 ;;       (user-error "No symbol under cursor"))))
 
 ;; (map! :n "*" #'my/evil-search-symbol-or-word)
+
+;;; newline-converter.el --- Convert literal \n strings to actual newlines
+
+(defun convert-literal-newlines ()
+  "Convert all literal '\\n' strings to actual newlines in the current buffer or region."
+  (interactive)
+  (let ((start (if (use-region-p) (region-beginning) (point-min)))
+        (end (if (use-region-p) (region-end) (point-max))))
+    (save-excursion
+      (goto-char start)
+      (let ((count 0))
+        (while (search-forward "\\n" end t)
+          (replace-match "\n")
+          (setq count (1+ count))
+          ;; Update end position since we're changing the buffer
+          (setq end (- end 1)))
+        (message "Converted %d literal newline%s to actual newlines"
+                 count (if (= count 1) "" "s"))))))
+
+(defun convert-literal-newlines-region ()
+  "Convert literal '\\n' strings to actual newlines in the selected region."
+  (interactive)
+  (if (use-region-p)
+      (convert-literal-newlines)
+    (message "No region selected. Use convert-literal-newlines for entire buffer.")))
+
+;; Keybinding setup for Doom Emacs
+;; Add this to your config.el or a separate configuration file
+(map! :leader
+      :desc "Convert literal newlines" "v n" #'convert-literal-newlines)
+
+;; "v" as parent map for "vibe coding functions. Should include all the common often used vibe coding scripts."
+
+;; Alternative keybindings you can use:
+;; (map! :leader
+;;       :desc "Convert literal newlines in region" "c r n" #'convert-literal-newlines-region)
+;;
+;; (global-set-key (kbd "C-c C-n") #'convert-literal-newlines)
+;;
+;; (map! :mode text-mode
+;;       :localleader
+;;       :desc "Convert literal newlines" "n" #'convert-literal-newlines)
+
+(provide 'newline-converter)

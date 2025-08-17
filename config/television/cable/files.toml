@@ -1,0 +1,15 @@
+[metadata]
+name = "files"
+description = "A channel to select files and directories"
+requirements = ["fd", "lsd"]
+
+[source]
+command = ["fd -t f", "fd -t f -H"]
+
+[preview]
+command = "[ -d {} ] && lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --icon always --blocks size,name {} || ([ -f {} ] && bat -f {})"
+env = { BAT_THEME = "ansi" }
+# [ -d {} ] && lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --icon always --blocks size,name {} || ([ -f {} ] && bat -f {})
+
+[keybindings]
+shortcut = "f1"

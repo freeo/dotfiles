@@ -44,3 +44,8 @@ export XSECURELOCK_SAVER=saver_xscreensaver
 export XSECURELOCK_FONT="Noto Mono"
 export XSECURELOCK_PASSWORD_PROMPT="asterisks"
 export XSECURELOCK_AUTH_BACKGROUND_COLOR="#550000"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/freeo/.lmstudio/bin"
+# End of LM Studio CLI section
+

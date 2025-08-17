@@ -1881,8 +1881,7 @@ run_once("protonmail-bridge")
 run_once("emacs")
 -- run_once("/usr/lib/firefox/firefox")
 -- run_once("/usr/bin/vivaldi")
-run_once("/opt/vivaldi-snapshot/vivaldi-snapshot")
--- run_once("/opt/vivaldi/vivaldi-bin")
+run_once("/opt/vivaldi-snapshot/vivaldi-snapshot", "", "/opt/vivaldi-snapshot/vivaldi-bin")
 run_once("hueadm group 0 off")
 run_once("dropbox")
 -- run_once("hexchat")
@@ -2283,6 +2282,11 @@ end)
 
 local dictation = require("widgets.dictation")
 
+-- Add this near the top of your rc.lua with other require statements
+local television_widget = require("widgets.television")
+-- Initialize the widget (add this after your screen setup)
+television_widget.init()
+
 awful.keyboard.append_global_keybindings({
 
 	-- Dictation
@@ -2300,4 +2304,40 @@ awful.keyboard.append_global_keybindings({
 		awful.spawn("rofi-rbw")
 		-- awful.spawn("bwmenu") -- bit outdated, doesn't work ootb from paru: bitwarden-rofi
 	end, { description = "launch Bitwarden-Rofi", group = "launcher" }),
+
+	awful.key({ modkey, "Control" }, "7", function()
+			television_widget.toggle()
+	end, {description = "toggle television popup", group = "launcher"}),
+
+		-- Television popup keybinding
+	awful.key({ modkey, "Mod1" }, "p", function()
+			television_widget.toggle()
+	end, {description = "toggle television popup", group = "launcher"})
+
 })
+
+-- In your awful.rules.rules table
+-- awful.rules.rules = {
+-- {
+--     rule = { class = "dev.warp.Warp" },
+--     properties = {},
+--     callback = function(c)
+--         local lgi = require("lgi")
+--         local cairo = lgi.cairo
+
+--         local img_surface = cairo.ImageSurface.create_from_png("/home/freeo/icons/warp.png")
+--         if img_surface and img_surface.status == "SUCCESS" then
+--             c.icon = img_surface
+--             naughty.notify({
+--                 title = "Cairo success",
+--                 text = "Icon loaded with cairo"
+--             })
+--         else
+--             naughty.notify({
+--                 title = "Cairo failed",
+--                 text = "Status: " .. tostring(img_surface and img_surface.status)
+--             })
+--         end
+--     end
+-- }
+-- }

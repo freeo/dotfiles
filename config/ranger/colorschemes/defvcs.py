@@ -43,15 +43,10 @@ class AttrDict(dict):
 class Default(ColorScheme):
     progress_bar_color = blue
 
-    # palette_light = {"directory": 0}
-    # palette_dark = {"directory": 252}
-
     palette_light = AttrDict({"directory": 0})
     palette_dark = AttrDict({"directory": 250})
     palette_dark.vcsignored = 70
     palette_light.vcsignored = 0
-    # palette_dark.selected =
-    # palette_light.selected =
 
     colors = AttrDict({})
 
@@ -66,14 +61,14 @@ class Default(ColorScheme):
         )
 
         gnome_mode = result.stdout.strip().strip("'")
+        if gnome_mode in ("default", "prefer-light"):
+            self.colors = self.palette_light
+            self.darkmode = False
+            self.lightmode = True
         if gnome_mode == "prefer-dark":
             self.colors = self.palette_dark
             self.darkmode = True
             self.lightmode = False
-        elif gnome_mode == "prefer-light":
-            self.colors = self.palette_light
-            self.darkmode = False
-            self.lightmode = True
 
     def use(self, context):  # pylint: disable=too-many-branches,too-many-statements
         fg, bg, attr = default_colors

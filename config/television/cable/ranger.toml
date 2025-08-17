@@ -1,0 +1,23 @@
+[metadata]
+name = "ranger"
+description = "A channel just for ranger"
+requirements = ["fd", "lsd"]
+
+[source]
+# fd: can't use dirs nor files, because they are mutually exclusive. it must be: fd .
+# source_command = "fd . | awk -F'/' '{print NF-1, $0}' | sort -n | cut -d' ' -f2-"
+# source_command = "fd -H . | awk -F'/' '{print NF-1 ($(NF)==\"\" ? \"0\" : \"1\"), $0}' | sort -n | cut -d' ' -f2-"
+command = ["fd -H --ignore-file ~/.config/fd/ignore_fdchute . | fdchute "]
+# source_command = "lsd -AR --oneline --icon never --group-dirs=last --literal"
+
+[preview]
+# DUAL PREVIEW: directory AND file support
+# TODO: rewrite SCOPE.SH because it's more sophisticated
+# bash only! not zsh. Note the () group after the first block: [ -d {} ] && it's a directory || ( files block: all contained in parens! )
+command = "[ -d {} ] && lsd -A --color always --classify --oneline --group-dirs=first --literal --total-size --size short --icon always --blocks size,name {} || ([ -f {} ] && bat -f {})"
+env = { BAT_THEME = "ansi" }
+
+# [keybindings]
+# shortcut = "f1"
+
+

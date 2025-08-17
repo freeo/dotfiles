@@ -13,10 +13,10 @@
 # template: if app x exists
 # if hash x 2>/dev/null ; then
 
-if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
-  # seed to avoid unreadable green
-  fortune | lolcat --seed 1337 --spread 4
-fi
+# if hash fortune 2>/dev/null && hash lolcat 2>/dev/null ; then
+#   # seed to avoid unreadable green
+#   fortune | lolcat --seed 1337 --spread 4
+# fi
 # echoti setab [%?%p1%{8}%<%t4%p1%d%e%p1%{16}%<%t10%p1%{8}%-%d%e48;5;%p1%d%;m
 
 # Outdated!
@@ -66,7 +66,7 @@ if [[ $TERM = "xterm-kitty" ]]; then
 fi
 
 # Common settings ###################
-export NVM_LAZY_LOAD=true # for zsh-nvm
+# export NVM_LAZY_LOAD=true # for zsh-nvm
 
 export AUTO_NOTIFY_THRESHOLD=10
 # export AUTO_NOTIFY_EXPIRE_TIME=3000 # milliseconds, linux only
@@ -263,6 +263,8 @@ function darwinSettings () {
   stty lnext undef
   # successor: zoxide
   # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
+  #
+  alias gdu="echo 'ALIAS NOTE: gdu is a core utility and gdu-go is the actual application name.'; gdu-go"
 }
 
 br_exists=$HOME/.config/broot/launcher/bash/br
@@ -271,7 +273,7 @@ br_exists=$HOME/.config/broot/launcher/bash/br
 zinit light Tarrasch/zsh-bd
 zinit light darvid/zsh-poetry
 zinit light fdw/ranger-zoxide # provides: r "input"
-zinit light lukechilds/zsh-nvm
+# zinit light lukechilds/zsh-nvm
 zinit light zdharma/fast-syntax-highlighting
 
 # Issue:
@@ -437,7 +439,12 @@ freeohelp () {
   # echo "mdv      - markdown viewer"
 }
 
-setopt zle
+# guard for justfile, which can't deal with these settings
+if [[ -o interactive ]]; then
+    setopt zle
+fi
+setopt aliases
+setopt no_nomatch
 setopt vi
 setopt autocd
 setopt extendedhistory
@@ -717,7 +724,12 @@ alias scus='sudo systemctl --type=service --user'
 alias sc='sudo systemctl'
 alias scs='sudo systemctl --type=service'
 
-alias lazypodman='DOCKER_HOST=unix:///run/user/1000/podman/podman.sock lazydocker'
+if hash lazydocker 2>/dev/null ; then
+  alias lazypodman='DOCKER_HOST=unix:///run/user/1000/podman/podman.sock lazydocker'
+  # NOTE: this MASKS "lp": "print files", it sends print jobs to CUPS.
+  alias lp=lazypodman
+fi
+
 alias docker=podman
 # fdr: fd in root
 alias fdr="fd --exclude /mnt --exclude /home -uu"
@@ -742,6 +754,7 @@ bindkey '^ ' forward-word
 
 export PATH=~/.poetry/bin:$PATH
 
+# XXX Probably delete, using mise now
 # outsourced to powerlevel10k in general
 # lazy load nvm with zsh-nvm
 # https://armno.in.th/2020/08/24/lazyload-nvm-to-reduce-zsh-startup-time/
@@ -887,14 +900,33 @@ alias df='df -h'
 alias du='du -h'
 
 
+source_folder() {
+  local folder="$1"
+  # Check if folder exists and is a directory
+  if [[ -d "$folder" ]]; then
+    # Use an array to safely handle no matches
+    local sh_files=("$folder"/*.sh)
+    # If no .sh files, the array will contain the literal pattern
+    if [[ -e "${sh_files[1]}" ]]; then
+      for file in "$folder"/*.sh; do
+        source "$file"
+      done
+      # echo "sourced $file"
+    fi
+  fi
+}
 
-if [[ $(hostname) = "cloudkoloss" ]]; then
-  source ~/dotfiles_private/k8s-port-forwards.sh
-elif [[ $(hostname) == "pop-os" ]]; then
-  source ~/dotfiles_private/corp_vpn.sh
-  source ~/dotfiles_private/variables_functions.sh
-elif [[ $(hostname) == freeo-mba* ]]; then
-fi
+
+# SECURE functions, aliases, envvars
+source_folder ~/dotfiles_private/
+
+# if [[ $(hostname) = "cloudkoloss" ]]; then
+#   source ~/dotfiles_private/k8s-port-forwards.sh
+# elif [[ $(hostname) == "pop-os" ]]; then
+#   source ~/dotfiles_private/corp_vpn.sh
+#   source ~/dotfiles_private/variables_functions.sh
+# elif [[ $(hostname) == freeo-mba* ]]; then
+# fi
 
 function updateprodip () {
   current_ips=$(az aks show -n $PRIVATE_CLUSTERNAME -g $PRIVATE_CLUSTER_RG | jq -r '.apiServerAccessProfile.authorizedIpRanges | join(",")')
@@ -927,12 +959,13 @@ alias zz=__zoxide_zi
 alias v='nvim'
 alias vk="$(where kitten) edit-in-kitty"
 alias j=just
-alias jc=just --choose
+alias jc="just --choose"
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
 alias rg="rg -i -uu -L"
+alias warp=warp-terminal
 
 if hash cargo 2>/dev/null ; then
   if test -f "$HOME/.cargo/env" ; then
@@ -954,7 +987,7 @@ function yy() {
 
 ## Preventing nested ranger instances
 unset -f ranger 2>/dev/null   # suppress first run, only required when running sz in same session
-RANGER_BIN=$(which ranger)
+RANGER_BIN=$(which ranger) # /usr/bin/ranger
 ranger() {
     if [ -z "$RANGER_LEVEL" ]; then
         $RANGER_BIN "$@"
@@ -1170,7 +1203,7 @@ if hash pyenv 2>/dev/null; then
 fi
 
 
-function huehuehue (){
+function hue (){
 echo "TODO: Gate: hueadm can connect to bridge?"
 cat << EOF | tv | zsh
 echo "VaporWave   = Violet    yellow   (pleasant!)        "; hueadm group 200 scene=PabuZd2VKFG6mhb
@@ -1186,6 +1219,8 @@ echo "Relax       = flux x2                               "; hueadm group 200 sc
 echo "Off.                                                "; hueadm group 0 off
 EOF
 }
+
+alias huehuehue=hue
 
 alias hueVaporWave="hueadm group 200 scene=PabuZd2VKFG6mhb"
 alias hueBluePlanet="hueadm group 200 scene=5suARnK-Aiinak0"
@@ -1290,12 +1325,18 @@ if hash go-task 2>/dev/null ; then
 fi
 
 if hash lazygit 2>/dev/null ; then
-  alias lg=lazygit
+  # alias lg=lazygit
   # alias lg="lazygit --use-config-file ~/dotfiles/config/lazygit/config-dark.yml"
   alias lgl=lazygit
   alias lgd="lazygit --use-config-file ~/dotfiles/config/lazygit/config-dark.yml"
-
+  alias lg='if [ "$(gsettings get org.gnome.desktop.interface color-scheme)" = "'\''prefer-dark'\''" ]; then \
+              lazygit --use-config-file ~/dotfiles/config/lazygit/config-dark.yml; \
+           else \
+              lazygit --use-config-file ~/dotfiles/config/lazygit/config-light.yml; \
+           fi'
 fi
+
+
 
 function grafanatunnel() {
   k port-forward -n monitoring svc/kpromstack-grafana 1081:80
@@ -1383,13 +1424,15 @@ else
   # NOT in an SSH session
 fi
 
+
 # for file in $HOME/dotfiles/scripts/zshsource/*.sh; do
-FOLDER="$HOME/dotfiles/scripts/zshsource"
-if [ -d "$FOLDER" ] && [ "$(ls -A "$FOLDER")" ]; then
-  for file in "$FOLDER"/*.sh; do
-    source "$file"
-  done
-fi
+# FOLDER="$HOME/dotfiles/scripts/zshsource"
+source_folder "$HOME/dotfiles/scripts/zshsource"
+# if [ -d "$FOLDER" ] && [ "$(ls -A "$FOLDER")" ]; then
+  # for file in "$FOLDER"/*.sh; do
+    # source "$file"
+  # done
+# fi
 
 
 # SMCKOHYA=$HOME/pcloud/cubecloud/smckohya.sh
@@ -1422,7 +1465,15 @@ if hash cog 2>/dev/null ; then
 fi
 
 # mise-en-place
-eval "$(/usr/bin/mise activate zsh)"
+case "$OSTYPE" in
+  darwin*)
+    MISE_BIN=/opt/homebrew/bin/mise
+  ;;
+  linux*)
+    MISE_BIN=/usr/bin/mise
+  ;;
+esac
+eval "$($MISE_BIN activate zsh)"
 
 export MASON_BIN="/home/freeo/.local/share/nvim/mason/bin"
 case ":$PATH:" in
@@ -1433,10 +1484,285 @@ esac
 function leftvscreen (){
 echo "TODO: make this into a function"
 cat << EOF | tv | zsh
-echo "LeftVScreen ON "; xrandr --delmonitor LeftVScreen
-echo "LeftVScreen OFF "; xrandr --setmonitor LeftVScreen 2560/0x1440/1+0+0 none
+echo "LeftVScreen OFF "; xrandr --delmonitor LeftVScreen
+echo "LeftVScreen ON "; xrandr --setmonitor LeftVScreen 2560/0x1440/1+0+0 none
 EOF
 }
 
+for dir in ~/scripts/*(/); do
+  PATH="$dir:$PATH"
+done
+export PATH
 
+# temporary: conda error:
+# Error while loading conda entry point: conda-content-trust (OpenSSL 3.0's legacy provider failed to load. This is a fatal error by default, but cryptography supports running without legacy algorithms by setting the environment variable CRYPTOGRAPHY_OPENSSL_NO_LEGACY. If you did not expect this error, you have likely made a mistake with your OpenSSL configuration.)
+export CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1
+
+# alias kyust="uv run ~/tools/kyutai-stt/stt_from_mic_rust_server.py"
+
+# careful: the kitty command opens a window that has the moshi-server command baked in! after closing moshi, the kitty instance is still found by pgrep! False-positive! TODO: shutdown the kitty tab: don't run via zsh, no --hold, just run directly. awesome: start minimized?
+kyust () {
+  # moshi-server worker --config config-stt-en-hf.toml
+    local server_cmd="moshi-server worker --config config-stt-en-hf.toml --port 5455"
+    local final_cmd="uv run ~/tools/kyutai-stt/stt_from_mic_rust_server.py --url ws://127.0.0.1:5455"
+
+    # Check if the moshi-server worker is already running with the specific config
+    if pgrep -f "$server_cmd" > /dev/null; then
+        echo "Moshi server is already running."
+    else
+        echo "Starting moshi server..."
+        kitty --detach --hold --directory=~/tools/kyutai-stt zsh -c "$server_cmd"
+
+        # Wait a moment for the server to start
+        sleep 2
+
+        # Verify the server started successfully
+        if pgrep -f "$server_cmd" > /dev/null; then
+            echo "Moshi server started successfully."
+        else
+            echo "Failed to start moshi server."
+            return 1
+        fi
+    fi
+
+    # Execute the final command only if server is running
+    if pgrep -f "$server_cmd" > /dev/null; then
+        echo "Executing final command..."
+        eval "$final_cmd"
+    else
+        echo "Server is not running. Cannot execute final command."
+        return 1
+    fi
+}
+
+
+# Function to open streaming commands in Neovim as read-only
+# Properly handles sudo authentication by running in foreground first
+nvim_tail() {
+    local temp_file=$(mktemp)
+    local needs_sudo=false
+    
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: nvim_tail <command> [args...]"
+        echo "Example: nvim_tail sudo journalctl -xe -f"
+        echo "Example: nvim_tail tail -f /var/log/syslog"
+        return 1
+    fi
+    
+    # Check if this is a sudo command
+    if [[ "$1" == "sudo" ]]; then
+        needs_sudo=true
+    fi
+    
+    echo "Starting: $*"
+    
+    if [[ "$needs_sudo" == true ]]; then
+        echo "This command requires sudo. You'll be prompted for your password..."
+        echo "The command will run in foreground first for authentication."
+        
+        # Test sudo authentication and cache credentials
+        echo "Authenticating..."
+        if ! sudo -v; then
+            echo "Authentication failed"
+            rm -f "$temp_file"
+            return 1
+        fi
+        
+        echo "Authentication successful. Starting background process..."
+    fi
+    
+    # Now run the command in background - sudo credentials should be cached
+    "$@" > "$temp_file" 2>&1 &
+    local bg_pid=$!
+    
+    # Give the command a moment to start
+    sleep 1
+    
+    # Check if process is still running
+    if ! kill -0 "$bg_pid" 2>/dev/null; then
+        echo "Command failed to start or terminated early"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    cleanup() {
+        if kill -0 "$bg_pid" 2>/dev/null; then
+            kill "$bg_pid" 2>/dev/null
+            sleep 0.5
+            kill -9 "$bg_pid" 2>/dev/null
+        fi
+        rm -f "$temp_file"
+    }
+    
+    trap cleanup EXIT INT TERM
+    
+    echo "Command running (PID: $bg_pid). Opening in Neovim..."
+    echo "In Neovim: use '/' to search, 'G' to go to end, ':q' to quit"
+    
+    nvim -R \
+        -c "set autoread" \
+        -c "set updatetime=250" \
+        -c "autocmd CursorHold,CursorHoldI * checktime" \
+        -c "autocmd FileChangedShell * execute 'normal! G'" \
+        "$temp_file"
+}
+
+# Alternative version that prompts for password upfront
+nvim_tail_auth() {
+    local temp_file=$(mktemp)
+    
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: nvim_tail_auth <command> [args...]"
+        echo "Example: nvim_tail_auth sudo journalctl -xe -f"
+        return 1
+    fi
+    
+    echo "Starting: $*"
+    
+    # If it's a sudo command, authenticate first
+    if [[ "$1" == "sudo" ]]; then
+        echo "Authenticating with sudo..."
+        if ! sudo -v; then
+            echo "Authentication failed"
+            rm -f "$temp_file"
+            return 1
+        fi
+        echo "Authentication successful!"
+    fi
+    
+    # Start the command in background
+    "$@" > "$temp_file" 2>&1 &
+    local bg_pid=$!
+    
+    sleep 1
+    
+    if ! kill -0 "$bg_pid" 2>/dev/null; then
+        echo "Command failed to start"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    cleanup() {
+        kill "$bg_pid" 2>/dev/null || true
+        sleep 0.5
+        kill -9 "$bg_pid" 2>/dev/null || true
+        rm -f "$temp_file"
+    }
+    
+    trap cleanup EXIT INT TERM
+    
+    echo "Process started (PID: $bg_pid). Opening Neovim..."
+    
+    nvim -R \
+        -c "set autoread" \
+        -c "set updatetime=200" \
+        -c "autocmd CursorHold,CursorHoldI * checktime" \
+        -c "autocmd FileChangedShell * execute 'normal! G'" \
+        -c "normal! G" \
+        "$temp_file"
+}
+
+# Version using named pipes for real-time streaming
+nvim_tail_pipe() {
+    local temp_file=$(mktemp)
+    local pipe_file=$(mktemp -u)
+    
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: nvim_tail_pipe <command> [args...]"
+        echo "Example: nvim_tail_pipe sudo journalctl -xe -f"
+        return 1
+    fi
+    
+    # Create named pipe
+    mkfifo "$pipe_file"
+    
+    cleanup() {
+        # Kill background jobs
+        jobs -p | xargs -r kill 2>/dev/null
+        sleep 0.5
+        jobs -p | xargs -r kill -9 2>/dev/null
+        rm -f "$temp_file" "$pipe_file"
+    }
+    
+    trap cleanup EXIT INT TERM
+    
+    echo "Starting: $*"
+    
+    # Handle sudo authentication if needed
+    if [[ "$1" == "sudo" ]]; then
+        echo "Authenticating..."
+        if ! sudo -v; then
+            echo "Authentication failed"
+            cleanup
+            return 1
+        fi
+    fi
+    
+    # Start command writing to pipe
+    "$@" > "$pipe_file" 2>&1 &
+    local cmd_pid=$!
+    
+    # Copy from pipe to file
+    cat "$pipe_file" > "$temp_file" &
+    local cat_pid=$!
+    
+    sleep 1
+    
+    if ! kill -0 "$cmd_pid" 2>/dev/null; then
+        echo "Command failed to start"
+        cleanup
+        return 1
+    fi
+    
+    echo "Command running (PID: $cmd_pid). Opening Neovim..."
+    
+    nvim -R \
+        -c "set autoread" \
+        -c "set updatetime=100" \
+        -c "autocmd CursorHold,CursorHoldI * checktime" \
+        -c "autocmd FileChangedShell * execute 'normal! G'" \
+        -c "normal! G" \
+        "$temp_file"
+}
+
+# Simple version for commands that don't need sudo
+nvim_tail_simple() {
+    local temp_file=$(mktemp)
+    
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: nvim_tail_simple <command> [args...]"
+        echo "Example: nvim_tail_simple tail -f /var/log/syslog"
+        echo "Note: This version doesn't handle sudo"
+        return 1
+    fi
+    
+    if [[ "$1" == "sudo" ]]; then
+        echo "This version doesn't handle sudo. Use nvim_tail instead."
+        return 1
+    fi
+    
+    "$@" > "$temp_file" 2>&1 &
+    local bg_pid=$!
+    
+    cleanup() {
+        kill "$bg_pid" 2>/dev/null || true
+        rm -f "$temp_file"
+    }
+    
+    trap cleanup EXIT INT TERM
+    
+    sleep 0.5
+    
+    nvim -R \
+        -c "set autoread" \
+        -c "set updatetime=100" \
+        -c "autocmd CursorHold,CursorHoldI * checktime" \
+        -c "autocmd FileChangedShell * execute 'normal! G'" \
+        -c "normal! G" \
+        "$temp_file"
+}
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/freeo/.lmstudio/bin"
+# End of LM Studio CLI section
 

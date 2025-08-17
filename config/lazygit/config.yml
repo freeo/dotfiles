@@ -1,22 +1,12 @@
 git:
   paging:
     colorArg: always
-    pager: delta --features light-mode --paging=never
-gui:
-  nerdFontsVersion: "3"
-  theme:
-    defaultFgColor:
-      - black
-    activeBorderColor:
-      - magenta
-      - bold
-    inactiveBorderColor:
-      - default
-    selectedLineBgColor:
-      - reverse 
-    selectedRangeBgColor:
-      - reverse
-    cherryPickedCommitBgColor:
-      - white
-    cherryPickedCommitFgColor:
-      - magenta
+    
+    # lazygit BREAKS delta autodetection! This should work OoTB, but it currently ignored
+    # https://github.com/jesseduffield/lazygit/issues/4366
+    # https://github.com/jesseduffield/lazygit/issues/4550
+
+    # pager: delta --features light-mode --paging=never
+    # pager: delta --detect-dark-light always --paging=never
+    # pager: delta --light --paging=never
+    pager: delta --paging=never

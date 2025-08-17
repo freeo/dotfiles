@@ -339,8 +339,9 @@ class tv_ranger_select(Command):
         # 'fd --type d | tv dirs --preview "eza -a --icons=always --color=always --color-scale --oneline {}"',
         # tv ranger: defined here:
         # /home/freeo/dotfiles/config/television/custom_channels.toml
+        # 'tv ranger --passthrough-keybindings "tab"', # passthrough was removed...
         tv = self.fm.execute_command(
-            'tv ranger --passthrough-keybindings "tab"',
+            "tv ranger",
             universal_newlines=True,
             stdout=subprocess.PIPE,
         )
@@ -403,3 +404,54 @@ class v(Command):
             "nvim -c 'lua Snacks.explorer({focus = \"input\"})'"
         )
         self.fm.notify(r, bad=True)
+
+
+# Add this to your ~/.config/ranger/rc.conf file
+
+
+class view_minimal(Command):
+    def execute(self):
+        self.fm.settings.viewmode = "miller"
+        self.fm.settings.column_ratios = [1]
+        self.fm.settings.preview_files = False
+        self.fm.settings.preview_directories = False
+        self.fm.settings.preview_images = False
+        self.fm.settings.display_size_in_main_column = False
+        self.fm.settings.display_size_in_status_bar = False
+        # self.fm.notify("Minimal view enabled")
+        self.fm.ui.redraw_window()
+
+
+class view_normal(Command):
+    def execute(self):
+        self.fm.settings.viewmode = "miller"
+        self.fm.settings.column_ratios = [1, 3, 4]
+        self.fm.settings.preview_files = True
+        self.fm.settings.preview_directories = True
+        self.fm.settings.preview_images = True
+        self.fm.settings.display_size_in_main_column = True
+        self.fm.settings.display_size_in_status_bar = True
+        # self.fm.notify("Normal view enabled")
+        self.fm.ui.redraw_window()
+
+
+class toggle_minimal(Command):
+    """Toggle between minimal single column view and normal multi-column view"""
+
+    def execute(self):
+        # Check current state by looking at column ratios
+        current_ratios = self.fm.settings.column_ratios
+
+        # If we're in single column mode (minimal), switch to normal
+        if current_ratios == [1, 1]:
+            # Create instance and call execute with access to self.fm
+            view_normal_cmd = view_normal("")
+            view_normal_cmd.fm = self.fm
+            view_normal_cmd.execute()
+            # self.fm.notify("Switched to normal view")
+        else:
+            # Create instance and call execute with access to self.fm
+            view_minimal_cmd = view_minimal("")
+            view_minimal_cmd.fm = self.fm
+            view_minimal_cmd.execute()
+            # self.fm.notify("Switched to minimal view")

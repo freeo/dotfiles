@@ -10,6 +10,12 @@ return {
   {
     -- true autosave
     "tmillr/sos.nvim",
+    -- This only evaluates during startup! filetype is evaluated later, so such cond's are useless.
+    -- Rather look at the autocmd or native support from the plugin
+    -- cond = function()
+    -- return not (vim.bo.filetype ~= "kitty-scrollback")
+    -- end,
+
     config = function()
       require("sos").setup({
         autowrite = true,
@@ -18,6 +24,13 @@ return {
         save_on_bufleave = true,
         ---Save all buffers when Neovim loses focus or is suspended.
         save_on_focuslost = true,
+      })
+      -- Disable for kitty-scrollback buffers
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "kitty-scrollback",
+        callback = function()
+          vim.cmd("SosDisable")
+        end,
       })
     end,
   },

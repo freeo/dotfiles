@@ -33,7 +33,6 @@
 [delta]
 	features = decorations
 	side-by-side = false
-  light = true
 [delta "interactive"]
 	keep-plus-minus-markers = false
 [delta "decorations"]
@@ -54,6 +53,8 @@
 	smudge = git-lfs smudge -- %f
 [url "git@gitlab.com:"]
 	insteadOf = https://gitlab.com/
+[url "git@github.com:"]
+	insteadOf = https://github.com/
 
 [delta "dark-mode"]
   navigate = true    # use n and N to move between diff sections

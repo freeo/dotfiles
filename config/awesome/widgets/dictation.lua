@@ -75,6 +75,7 @@ function DictationController.new()
 	self.is_running = false
 	self.stopping = false -- Track graceful shutdown state
 	self.mic_activation_time = nil -- Track when microphone was last activated
+	self.mic_successfully_activated = false -- Track if microphone has been successfully activated
 	self.callbacks = {
 		on_starting = function() end, -- Called immediately when process starts
 		on_start = function() end, -- Called when server is ready
@@ -144,17 +145,35 @@ function DictationController:start()
 	local spawn_result = awful.spawn.with_line_callback(cmd, {
 		stdout = function(line)
 			-- Filter dictation content based on config setting
-			local is_dictation_content = line:match("%[EndWord@") or 
-			                           (line:match("^%s*%w") and not line:match("^🎯") and not line:match("^✅") and 
-			                            not line:match("^🔧") and not line:match("^🎤") and not line:match("^🗣️") and
-			                            not line:match("^%-%-%-") and not line:match("^📤") and not line:match("^🟢") and
-			                            not line:match("^🚀") and not line:match("^🔗") and not line:match("^❌") and
-			                            not line:match("^⚠️") and not line:match("^🔄") and not line:match("^🛑") and
-			                            not line:match("^===") and not line:match("^Server:") and not line:match("^Device:") and
-			                            not line:match("^Output:") and not line:match("^🤖") and not line:match("^👤") and
-			                            not line:match("^Press Ctrl") and not line:match("^   Command:") and
-			                            not line:match("^   Working directory:") and not line:match("^   Terminating PID:"))
-			
+			local is_dictation_content = line:match("%[EndWord@")
+				or (
+					line:match("^%s*%w")
+					and not line:match("^🎯")
+					and not line:match("^✅")
+					and not line:match("^🔧")
+					and not line:match("^🎤")
+					and not line:match("^🗣️")
+					and not line:match("^%-%-%-")
+					and not line:match("^📤")
+					and not line:match("^🟢")
+					and not line:match("^🚀")
+					and not line:match("^🔗")
+					and not line:match("^❌")
+					and not line:match("^⚠️")
+					and not line:match("^🔄")
+					and not line:match("^🛑")
+					and not line:match("^===")
+					and not line:match("^Server:")
+					and not line:match("^Device:")
+					and not line:match("^Output:")
+					and not line:match("^🤖")
+					and not line:match("^👤")
+					and not line:match("^Press Ctrl")
+					and not line:match("^   Command:")
+					and not line:match("^   Working directory:")
+					and not line:match("^   Terminating PID:")
+				)
+
 			-- Always log system messages, only log dictation content if enabled
 			if not is_dictation_content or config.log_dictation_content then
 				self:_log("STDOUT: " .. line)
@@ -325,12 +344,15 @@ function UIManager.new()
 		forced_width = 50,
 	})
 
+	-- Create margin container (we'll update its color dynamically)
+	self.margin_container = wibox.container.margin(self.status_indicator, dpi(4), dpi(4), dpi(4), dpi(4), "#42239F")
+
 	-- Setup layout
 	self.container:setup({
 		{
 			direction = "north",
 			layout = wibox.container.rotate,
-			wibox.container.margin(self.status_indicator, dpi(4), dpi(4), dpi(4), dpi(4), "#42239F"),
+			self.margin_container,
 		},
 		{
 			self.text_widget,
@@ -353,47 +375,86 @@ function UIManager:hide()
 end
 
 function UIManager:update_status(state, mic_state)
+	-- Define coordinated color schemes for each state
+	local color_schemes = {
+		listening = {
+			background = "#4CAF50",    -- Green
+			margin = "#2E7D32",        -- Darker green
+			text = "#1B5E20",          -- Dark green for contrast
+			label = "dictate"
+		},
+		ready_muted = {
+			background = "#7e5edc",    -- Purple  
+			margin = "#5E35B1",        -- Darker purple
+			text = "#311B92",          -- Dark purple for contrast
+			label = "muted"
+		},
+		starting = {
+			background = "#FF9800",    -- Orange
+			margin = "#F57C00",        -- Darker orange
+			text = "#E65100",          -- Dark orange for contrast
+			label = "starting..."
+		},
+		inactive = {
+			background = "#9D6DCA",    -- Light purple
+			margin = "#7B1FA2",        -- Darker purple
+			text = "#4A148C",          -- Dark purple for contrast
+			label = "inactive"
+		},
+		error = {
+			background = "#F44336",    -- Red
+			margin = "#C62828",        -- Darker red
+			text = "#B71C1C",          -- Dark red for contrast
+			label = "error"
+		}
+	}
+	
+	local scheme
 	if state == "ready" or state == true then
 		-- When server is ready, color depends on microphone state
 		if mic_state ~= nil then
-			if mic_state then
-				self.status_indicator.bg = "#4CAF50" -- Green for mic on + server ready
-				self.text_widget.markup = "<span foreground='#FFFFFF'><b>listening</b></span>"
-			else
-				self.status_indicator.bg = "#7e5edc" -- Purple for mic off + server ready (as requested)
-				self.text_widget.markup = "<span foreground='#FFFFFF'><b>ready/muted</b></span>"
-			end
+			scheme = mic_state and color_schemes.listening or color_schemes.ready_muted
 		else
 			-- Check microphone state if not provided
 			check_microphone_state(function(is_mic_on)
-				if is_mic_on then
-					self.status_indicator.bg = "#4CAF50" -- Green
-					self.text_widget.markup = "<span foreground='#FFFFFF'><b>listening</b></span>"
-				else
-					self.status_indicator.bg = "#7e5edc" -- Purple
-					self.text_widget.markup = "<span foreground='#FFFFFF'><b>ready/muted</b></span>"
-				end
-				self.text_widget:emit_signal("widget::redraw_needed")
-				self.status_indicator:emit_signal("widget::redraw_needed")
+				local async_scheme = is_mic_on and color_schemes.listening or color_schemes.ready_muted
+				self:_apply_color_scheme(async_scheme)
 			end)
 			return -- Exit early, let callback handle the update
 		end
 	elseif state == "starting" then
-		self.status_indicator.bg = "#FF9800" -- Orange for starting
-		self.text_widget.markup = "<span foreground='#FFFFFF'><b>starting...</b></span>"
+		scheme = color_schemes.starting
 	else -- stopped/false/inactive
-		self.status_indicator.bg = "#9D6DCA" -- Purple for inactive
-		self.text_widget.markup = "<span foreground='#FFFFFF'><b>dictation</b></span>"
+		scheme = color_schemes.inactive
 	end
+	
+	self:_apply_color_scheme(scheme)
+end
 
+function UIManager:_apply_color_scheme(scheme)
+	if not scheme then return end
+	
+	-- Apply colors
+	self.status_indicator.bg = scheme.background
+	self.margin_container.color = scheme.margin
+	self.text_widget.markup = string.format("<span foreground='%s'><b>%s</b></span>", scheme.text, scheme.label)
+	
 	-- Force widget refresh
 	self.text_widget:emit_signal("widget::redraw_needed")
 	self.status_indicator:emit_signal("widget::redraw_needed")
+	self.margin_container:emit_signal("widget::redraw_needed")
 end
 
 function UIManager:show_error(message)
-	self.status_indicator.bg = "#F44336" -- Red for error
-	self.text_widget.markup = "<span foreground='#FFFFFF'><b>error</b></span>" -- White text on red background
+	-- Use the coordinated error color scheme
+	local error_scheme = {
+		background = "#F44336",    -- Red
+		margin = "#C62828",        -- Darker red
+		text = "#B71C1C",          -- Dark red for contrast
+		label = "error"
+	}
+	
+	self:_apply_color_scheme(error_scheme)
 
 	-- Show error notification
 	naughty.notify({
@@ -407,6 +468,30 @@ end
 -- Main Dictation Module
 -- ============================================================================
 
+-- Cleanup any leftover processes on module load/reload
+local function cleanup_leftover_processes()
+	if config.debug then
+		print("DEBUG: Cleaning up leftover dictation processes on module load")
+	end
+
+	-- Kill any existing moshi-server processes
+	awful.spawn.easy_async("pkill -f moshi-server", function(stdout, stderr, reason, exit_code)
+		if config.debug and exit_code == 0 then
+			print("DEBUG: Killed leftover moshi-server processes")
+		end
+	end)
+
+	-- Kill any existing just_dictate.py processes
+	awful.spawn.easy_async("pkill -f just_dictate.py", function(stdout, stderr, reason, exit_code)
+		if config.debug and exit_code == 0 then
+			print("DEBUG: Killed leftover just_dictate.py processes")
+		end
+	end)
+end
+
+-- Run cleanup on module load
+cleanup_leftover_processes()
+
 -- Initialize components
 local controller = DictationController.new()
 local ui = UIManager.new()
@@ -416,8 +501,12 @@ client.connect_signal("jack_source_on", function()
 	microphone_state.is_on = true
 	microphone_state.last_checked = os.time()
 
+	-- Mark that we've successfully activated the microphone
+	controller.mic_successfully_activated = true
+
 	if config.debug then
-		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time) or 999
+		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
+			or 999
 		print("DEBUG: jack_source_on signal - " .. time_since_activation .. "s after activation")
 	end
 
@@ -431,17 +520,25 @@ client.connect_signal("jack_source_off", function()
 	microphone_state.is_on = false
 	microphone_state.last_checked = os.time()
 
+	if config.debug then
+		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
+			or 999
+		print("DEBUG: jack_source_off signal - " .. time_since_activation .. "s after activation")
+	end
+
 	-- Update widget if dictation is running
 	if controller.is_running then
-		-- Check if this is happening shortly after microphone activation (possible race condition)
-		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time) or 999
-		
-		if time_since_activation < 3 then
-			-- This might be a spurious signal shortly after activation - try to recover
+		-- Check if this is happening very shortly after microphone activation (likely race condition)
+		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
+			or 999
+
+		-- Only treat as spurious if it happens within 1 second AND we haven't had a successful on signal yet
+		if time_since_activation < 1 and not controller.mic_successfully_activated then
+			-- This might be a spurious signal during startup - try to recover
 			if config.debug then
-				print("DEBUG: Microphone turned off " .. time_since_activation .. "s after activation - attempting recovery")
+				print("DEBUG: Spurious microphone off detected during startup - attempting recovery")
 			end
-			
+
 			gears.timer.start_new(0.2, function()
 				microphone.On()
 				-- Double-check state after recovery attempt
@@ -457,8 +554,11 @@ client.connect_signal("jack_source_off", function()
 				return false
 			end)
 		else
-			-- Normal microphone off signal - update widget
+			-- Normal microphone off signal (user action or intentional) - update widget immediately
 			ui:update_status("ready", false)
+			if config.debug then
+				print("DEBUG: Microphone off - updating widget to purple")
+			end
 		end
 	end
 end)
@@ -470,21 +570,22 @@ controller:set_callbacks({
 		ui:update_status("starting")
 		-- Turn on microphone when starting dictation
 		microphone.On()
-		
-		-- Set a flag to ignore immediate microphone off signals for a brief period
+
+		-- Set flags to track microphone activation
 		controller.mic_activation_time = os.time()
+		controller.mic_successfully_activated = false -- Reset for new session
 	end,
 
 	on_start = function()
 		if config.debug then
 			print("DEBUG: on_start callback called - setting to ready")
 		end
-		
+
 		-- Give microphone.On() time to take effect before checking state
 		gears.timer.start_new(0.5, function()
 			check_microphone_state(function(mic_is_on)
 				ui:update_status("ready", mic_is_on)
-				
+
 				-- If microphone is unexpectedly off, try turning it on again
 				if not mic_is_on and controller.is_running then
 					if config.debug then
@@ -502,7 +603,7 @@ controller:set_callbacks({
 			end)
 			return false
 		end)
-		
+
 		if config.debug then
 			naughty.notify({
 				title = "Dictation",

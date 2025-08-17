@@ -1,0 +1,31 @@
+# Television channel for display configurations
+# Place this file in ~/.config/television/cable/displays.toml
+
+[metadata]
+name = "learn"
+description = "learn :: syntax in tv"
+
+[source]
+command = "cat ~/dotfiles/scripts/xrandr/learntv/cmds.txt"
+# every ":" needs to be escaped with \\ because the are part of the default tv syntax as well! 
+# so: split:X:0 when X is "::" results in: "{split:\\:\\::0}"
+display = "{split:\\:\\::0}"
+output = "{split:\\:\\::1}"
+
+[keybindings]
+toggle_selection_down = ["p"]
+toggle_selection_up = ["n"]
+# ctrl-y = "actions:exe"
+
+# confirm_selection = ["enter", "ctrl-y"]
+
+# [preview] 
+# command = "echo 'Will execute: {split:::1}' && echo '' && python ~/dotfiles/scripts/xrandr/detect.py | grep -E '^(NEOG9|TOSHIBA)'"
+# env = { TERM = "xterm-kitty" }
+
+# [actions.exe]
+# description = "exec da shizzle"
+# command = "{}"
+# mode = "execute"
+# separator = " "
+
