@@ -430,26 +430,33 @@ handle_mime() {
 	## Text
 	text/* | */xml | application/javascript)
 		## Syntax highlight
-		if [[ "$(stat --printf='%s' -- "${FILE_PATH}")" -gt "${HIGHLIGHT_SIZE_MAX}" ]]; then
-			exit 2
-		fi
-		if [[ "$(tput colors)" -ge 256 ]]; then
-			local pygmentize_format='terminal256'
-			local highlight_format='xterm256'
-		else
-			local pygmentize_format='terminal'
-			local highlight_format='ansi'
-		fi
+		# if [[ "$(stat --printf='%s' -- "${FILE_PATH}")" -gt "${HIGHLIGHT_SIZE_MAX}" ]]; then
+		# 	exit 2
+		# fi
+		# if [[ "$(tput colors)" -ge 256 ]]; then
+		# 	local pygmentize_format='terminal256'
+		# 	local highlight_format='xterm256'
+		# else
+		# 	local pygmentize_format='terminal'
+		# 	local highlight_format='ansi'
+		# fi
 		# XXX moved bat above highlight
+		# echo -e "Testing ANSI codes:"
+		# echo -e "\033[38;2;255;100;0mTruecolor orange\033[0m"
+		# echo -e "\033[38;5;208m256-color orange\033[0m"
+		# Force bat into 256 colors, because ranger doesn't understand truecolor code
+		COLORTERM=8bit TERM=xterm-256color bat --plain --color=always \
+			"${FILE_PATH}" && exit 5
 		# env COLORTERM=8bit bat --color=always --style="${BAT_STYLE}" \
-		env COLORTERM=truecolor bat --color=always --style="${BAT_STYLE}" \
-			-- "${FILE_PATH}" && exit 5
-		env HIGHLIGHT_OPTIONS="${HIGHLIGHT_OPTIONS}" highlight \
-			--out-format="${highlight_format}" \
-			--style=edit-kwrite \
-			--force -- "${FILE_PATH}" && exit 5
-		pygmentize -f "${pygmentize_format}" -O "style=${PYGMENTIZE_STYLE}" \
-			-- "${FILE_PATH}" && exit 5
+		# env COLORTERM=truecolor bat --color=always --style="${BAT_STYLE}" \
+		# bat --color=always --theme="KalisiLight" \
+		# -- "${FILE_PATH}" && exit 5
+		# env HIGHLIGHT_OPTIONS="${HIGHLIGHT_OPTIONS}" highlight \
+		# --out-format="${highlight_format}" \
+		# --style=edit-kwrite \
+		# --force -- "${FILE_PATH}" && exit 5
+		# pygmentize -f "${pygmentize_format}" -O "style=${PYGMENTIZE_STYLE}" \
+		# -- "${FILE_PATH}" && exit 5
 		exit 2
 		;;
 

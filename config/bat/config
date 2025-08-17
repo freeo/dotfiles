@@ -6,7 +6,11 @@
 # for a list of all available themes
 # XXX moved to bluloco dark/light
 # --theme="ansi"
---theme="bluloco-light"
+# --theme="bluloco-light"
+# --theme="KalisiLight"
+--theme="auto:always"
+--theme-light="KalisiLight"
+--theme-dark="KalisiDark"
 
 # Enable this to use italic text on the terminal. This is not supported on all
 # terminal emulators (like tmux, by default):
