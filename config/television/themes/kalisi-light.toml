@@ -1,0 +1,28 @@
+# Television theme: kalisi-light
+background = '#ffffff'
+text_fg   = "#ff00ff"     # User-typed query text
+title_fg  = "#1B1F23"     # Panel titles
+
+border_fg = "#D0D7DE"     # Panel borders
+dimmed_text_fg = '#8000dd'
+# input
+input_text_fg = '#000000'
+result_count_fg = '#af3a03'
+# results
+result_name_fg = '#000000'
+result_line_number_fg = '#808080'
+result_value_fg = '#665c54'
+selection_fg = '#000000'
+# selection bar
+selection_bg = '#e0e0e0'
+match_fg  = "#00af30"     # Matched text in the input (if highlighted)
+# preview
+preview_title_fg = '#000000'
+# modes
+channel_mode_fg = '#ffffff'
+channel_mode_bg = '#9000ff'
+remote_control_mode_fg = '#504945'
+remote_control_mode_bg = '#d79921'
+send_to_channel_mode_fg = '#89dceb'
+
+
