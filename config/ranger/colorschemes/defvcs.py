@@ -186,7 +186,7 @@ class Default(ColorScheme):
                 fg = red if context.bad else green
             elif context.directory:
                 # fg = c["directory"]
-                fg = 253
+                fg = 28
             elif context.tab:
                 if context.good:
                     bg = 34
