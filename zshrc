@@ -261,9 +261,6 @@ function darwinSettings () {
   export GREP_COLOR=$GREP_COLORS
   # nvim: rnvimr (ranger-vim popup) workaround: fix Ctrl-V not requiring 2x presses
   stty lnext undef
-  # successor: zoxide
-  # [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
-  #
   alias gdu="echo 'ALIAS NOTE: gdu is a core utility and gdu-go is the actual application name.'; gdu-go"
 }
 
@@ -329,7 +326,9 @@ case "$OSTYPE" in
   ;;
 esac
 
-
+# common config
+# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#60c060,underline"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#60c060"
 
 # emacs-vterm
 

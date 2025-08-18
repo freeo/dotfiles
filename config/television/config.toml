@@ -57,15 +57,19 @@ input_bar_position = "top"
 # repository. You may also create your own theme by creating a new file in a `themes`
 # directory in your configuration directory (see the `config.toml` location above).
 theme = "kalisi-light"
+# [theme_overrides]
+# dark = "catppuccin-mocha"    # Your preferred dark theme
+# dark = "kalisi-light"    # Your preferred dark theme
+# light = "catppuccin-latte"   # Your preferred light theme
 
 # Previewers settings
 # ----------------------------------------------------------------------------
-[previewers.file]
+# [previewers.file]
 # The theme to use for syntax highlighting.
 # Bulitin syntax highlighting uses the same syntax highlighting engine as bat.
 # To get a list of your currently available themes, run `bat --list-themes`
 # Note that setting the BAT_THEME environment variable will override this setting.
-theme = "TwoDark"
+# theme = "TwoDark"
 
 # Keybindings
 # ----------------------------------------------------------------------------

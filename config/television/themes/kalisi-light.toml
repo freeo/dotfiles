@@ -1,20 +1,25 @@
 # Television theme: kalisi-light
-background = '#ffffff'
+
+# IMPORTANT: CAREFULLY BALANCED with kitty ANSI colors for now!
+
+# don't set bg for transparent
+# background = '#ffffff'
 text_fg   = "#ff00ff"     # User-typed query text
 title_fg  = "#1B1F23"     # Panel titles
 
 border_fg = "#D0D7DE"     # Panel borders
 dimmed_text_fg = '#8000dd'
 # input
-input_text_fg = '#000000'
+# input_text_fg = '#000000'
+input_text_fg = 'bright-blue'
 result_count_fg = '#af3a03'
 # results
-result_name_fg = '#000000'
+result_name_fg = 'bright-white'
 result_line_number_fg = '#808080'
 result_value_fg = '#665c54'
-selection_fg = '#000000'
 # selection bar
-selection_bg = '#e0e0e0'
+selection_fg = 'black'
+selection_bg = 'bright-cyan'
 match_fg  = "#00af30"     # Matched text in the input (if highlighted)
 # preview
 preview_title_fg = '#000000'
