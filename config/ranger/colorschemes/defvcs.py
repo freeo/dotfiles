@@ -54,18 +54,39 @@ class Default(ColorScheme):
     lightmode: bool
 
     def __init__(self):
-        result = subprocess.run(
-            ["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"],
-            capture_output=True,
-            text=True,
-        )
-
-        gnome_mode = result.stdout.strip().strip("'")
-        if gnome_mode in ("default", "prefer-light"):
+        import os
+        import shutil
+        
+        # Check if gsettings is available
+        if shutil.which("gsettings"):
+            try:
+                result = subprocess.run(
+                    ["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"],
+                    capture_output=True,
+                    text=True,
+                )
+                gnome_mode = result.stdout.strip().strip("'")
+                if gnome_mode in ("default", "prefer-light"):
+                    self.colors = self.palette_light
+                    self.darkmode = False
+                    self.lightmode = True
+                    return
+                if gnome_mode == "prefer-dark":
+                    self.colors = self.palette_dark
+                    self.darkmode = True
+                    self.lightmode = False
+                    return
+            except:
+                pass
+        
+        # Fallback to environment variable or default dark theme
+        kt_darkmode = os.environ.get("KT_DARKMODE", "darkmode")
+        if kt_darkmode == "lightmode":
             self.colors = self.palette_light
             self.darkmode = False
             self.lightmode = True
-        if gnome_mode == "prefer-dark":
+        else:
+            # Default to dark theme
             self.colors = self.palette_dark
             self.darkmode = True
             self.lightmode = False
@@ -137,7 +158,7 @@ class Default(ColorScheme):
                 else:
                     fg = red
                 fg += BRIGHT
-            if context.line_number and not context.selected:
+            if hasattr(context, 'line_number') and context.line_number and not context.selected:
                 fg = default
                 attr &= ~bold
             if not context.selected and (context.cut or context.copied):
