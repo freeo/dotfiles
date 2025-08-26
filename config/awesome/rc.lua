@@ -1432,7 +1432,7 @@ awful.keyboard.append_global_keybindings({
 	end, { description = "open Chrysalis", group = "Applications" }),
 
 	awful.key({ modkey, "Shift" }, "4", function()
-		awful.spawn.with_shell("flameshot gui")
+		awful.spawn.with_shell("QT_SCREEN_SCALE_FACTORS=1 flameshot gui")
 	end, { description = "Screenshot flameshot", group = "Applications" }),
 
 	awful.key({ modkey, "Shift", "Control" }, "4", function()
@@ -2306,14 +2306,13 @@ awful.keyboard.append_global_keybindings({
 	end, { description = "launch Bitwarden-Rofi", group = "launcher" }),
 
 	awful.key({ modkey, "Control" }, "7", function()
-			television_widget.toggle()
-	end, {description = "toggle television popup", group = "launcher"}),
+		television_widget.toggle()
+	end, { description = "toggle television popup", group = "launcher" }),
 
-		-- Television popup keybinding
+	-- Television popup keybinding
 	awful.key({ modkey, "Mod1" }, "p", function()
-			television_widget.toggle()
-	end, {description = "toggle television popup", group = "launcher"})
-
+		television_widget.toggle()
+	end, { description = "toggle television popup", group = "launcher" }),
 })
 
 -- In your awful.rules.rules table

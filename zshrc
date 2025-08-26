@@ -52,14 +52,16 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 # zstyle :compinstall filename '/home/freeo/.zshrc'
 
 
+if [[ $TERM = (xterm-kitty|xterm-256color) ]]; then
+  # autocompletion: required for compdef, required for fd, nebius-cli
+  autoload -Uz compinit
+  compinit
+fi
 
 if [[ $TERM = "xterm-kitty" ]]; then
   # BLOCK & LINE tested in Linux and macOS
   BLOCK="\033[1 q"
   LINE="\033[5 q"
-  # Completion for kitty
-  autoload -Uz compinit
-  compinit
   # kitty + complete setup zsh | source /dev/stdin
   # awesome, fixes multiple ssh problems using kitty
   alias ssh="kitty +kitten ssh"
@@ -236,7 +238,10 @@ function linuxSettings () {
 
   # since I started with tiling window managers (currently awesome)
   export GTK2_RC_FILES=/usr/share/themes/Adwaita-dark/gtk-2.0/gtkrc
-# GTK2_RC_FILES=/usr/share/themes/Raleigh/gtk-2.0/gtkrc
+  # GTK2_RC_FILES=/usr/share/themes/Raleigh/gtk-2.0/gtkrc
+
+  # for flameshot gui, deactivate scaling. Temp fix for super-ultra-wide screens
+  export QT_SCREEN_SCALE_FACTORS=1
 }
 
 # Linux Environment Variables, not conflicting with Darwin
@@ -957,13 +962,19 @@ alias zz=__zoxide_zi
 # alias vim="nvim"
 alias v='nvim'
 alias vk="$(where kitten) edit-in-kitty"
+
+# export JUST_CHOOSER='tv --source-entry-delimiter " " --source-command "just --summary" --preview-command "just --dry-run --color always --show {}" --ansi'
+export JUST_CHOOSER='tv --expect="ctrl-c;ctrl-d" --source-entry-delimiter " " --source-command "just --summary" --preview-command "just --dry-run --color always --show {}" --ansi'
 alias j=just
 alias jc="just --choose"
 alias kd="kitty +kitten diff"
 alias argopass="kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d"
 alias pkg-config="/usr/bin/pkg-config"
 alias emx="emacsclient -c -a 'emacs'"
-alias rg="rg -i -uu -L"
+# this ignores .rgignore
+# alias rg="rg -i -uu -L"
+# this just ignores .gitgnore
+alias rg="rg -i --no-ignore-vcs -L"
 alias warp=warp-terminal
 
 if hash cargo 2>/dev/null ; then
@@ -1765,3 +1776,6 @@ nvim_tail_simple() {
 export PATH="$PATH:/home/freeo/.lmstudio/bin"
 # End of LM Studio CLI section
 
+
+# opencode
+export PATH=/home/freeo/.opencode/bin:$PATH
