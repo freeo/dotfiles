@@ -1,1 +1,21 @@
-/home/freeo/.local/share/nvim/lazy/bluloco.nvim/extra/lazygit/.config/lazygit/config-light.yml
+git:
+  paging:
+    colorArg: always
+    pager: delta --features light-mode --paging=never
+gui:
+  theme:
+    defaultFgColor:
+      - black
+    activeBorderColor:
+      - magenta
+      - bold
+    inactiveBorderColor:
+      - default
+    selectedLineBgColor:
+      - reverse 
+    selectedRangeBgColor:
+      - reverse
+    cherryPickedCommitBgColor:
+      - white
+    cherryPickedCommitFgColor:
+      - magenta
