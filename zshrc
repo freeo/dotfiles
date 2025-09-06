@@ -974,7 +974,7 @@ alias emx="emacsclient -c -a 'emacs'"
 # this ignores .rgignore
 # alias rg="rg -i -uu -L"
 # this just ignores .gitgnore
-alias rg="rg -i --no-ignore-vcs -L"
+alias rg="rg -i --no-ignore-vcs -L --hidden"
 alias warp=warp-terminal
 
 if hash cargo 2>/dev/null ; then

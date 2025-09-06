@@ -82,6 +82,32 @@ return {
             },
           },
         },
+        sources = {
+          files = {
+            hidden = true,
+            ignored = false, -- we'll handle ignores ourselves
+            args = {
+              -- "--hidden",
+              "--no-ignore-vcs", -- ignore .gitignore
+              "--ignore-file",
+              ".rgignore", -- respect this file
+              "--ignore-file",
+              ".fdignore", -- respect this one too
+            },
+          },
+          grep = {
+            hidden = true,
+            ignored = false,
+            args = {
+              -- "--hidden",
+              "--no-ignore-vcs",
+              "--ignore-file",
+              ".rgignore",
+              "--ignore-file",
+              ".fdignore",
+            },
+          },
+        },
         -- preview = {
         -- number = false,
         -- relativenumber = false,

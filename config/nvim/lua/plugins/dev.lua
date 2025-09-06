@@ -1,5 +1,16 @@
 return {
   {
+    "mfussenegger/nvim-lint",
+    optional = true,
+    opts = {
+      linters = {
+        markdown = nil,
+        markdownlint = nil,
+        ["markdownlint-cli2"] = nil,
+      },
+    },
+  },
+  {
     "freeo/vim-kalisi",
     dev = true,
     lazy = false,
