@@ -1064,16 +1064,16 @@ local tagskeycodes = {
 local tagskeys = { "a", "s", "d", "f", "g", "z", "x", "c", "v", "b" }
 
 local tags = sharedtags({
-	{ name = "aaa", layout = awful.layout.suit.tile },
-	{ name = "sss", layout = awful.layout.suit.tile },
-	{ name = "ddd", layout = awful.layout.suit.tile },
-	{ name = "fff", layout = awful.layout.suit.tile },
-	{ name = "ggg", layout = awful.layout.suit.tile },
-	{ name = "zzz", layout = awful.layout.suit.tile },
-	{ name = "xxx", layout = awful.layout.suit.tile },
-	{ name = "ccc", layout = awful.layout.suit.tile },
-	{ name = "vvv", layout = awful.layout.suit.tile },
-	{ name = "bbb", layout = awful.layout.suit.tile },
+	{ name = "A", layout = awful.layout.suit.tile },
+	{ name = "S", layout = awful.layout.suit.tile },
+	{ name = "D", layout = awful.layout.suit.tile },
+	{ name = "F", layout = awful.layout.suit.tile },
+	{ name = "G", layout = awful.layout.suit.tile },
+	{ name = "Z", layout = awful.layout.suit.tile },
+	{ name = "X", layout = awful.layout.suit.tile },
+	{ name = "C", layout = awful.layout.suit.tile },
+	{ name = "V", layout = awful.layout.suit.tile },
+	{ name = "B", layout = awful.layout.suit.tile },
 	-- { layout = awful.layout.layouts[2] },
 	-- { screen = 2, layout = awful.layout.layouts[1] },
 })
@@ -2340,3 +2340,29 @@ awful.keyboard.append_global_keybindings({
 --     end
 -- }
 -- }
+
+-- rc.lua snippet: map CC#16 (ch 1) value 1/127 to volume up/down
+-- Replace these with your real functions
+local function DO_VOLUME_UP() -- e.g., awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
+	awful.spawn.with_shell(
+		"JACKOUT=$(pactl list short sinks | rg Focusrite | cut -f 1 | xargs) && pactl set-sink-volume $JACKOUT +1%"
+	)
+	awesome.emit_signal("volume_change")
+end
+
+local function DO_VOLUME_DOWN() -- e.g., awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+	awful.spawn.with_shell(
+		"JACKOUT=$(pactl list short sinks | rg Focusrite | cut -f 1 | xargs) && pactl set-sink-volume $JACKOUT -1%"
+	)
+	awesome.emit_signal("volume_change")
+end
+
+awesome.connect_signal("midi::event", function(ev)
+	if ev.type == "control_change" and ev.channel == 1 and ev.control == 16 then
+		if ev.value == 1 then
+			DO_VOLUME_UP()
+		elseif ev.value == 127 then
+			DO_VOLUME_DOWN()
+		end
+	end
+end)
