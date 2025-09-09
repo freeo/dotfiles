@@ -77,6 +77,9 @@ beautiful.init(gears.filesystem.get_configuration_dir() .. "kalisi/theme.lua")
 beautiful.column_count = 3
 beautiful.xresources.set_dpi(144)
 
+-- Initialize theme switcher - must be after beautiful.init()
+local theme_switcher = require("theme-switcher")
+
 -- must be after beautiful.init()
 local revelation = require("awesome-revelation")
 revelation.init()
@@ -1817,8 +1820,8 @@ end)
 
 beautiful.border_width = "10"
 beautiful.useless_gap = "0"
-beautiful.border_focus = "#7e5edc"
-beautiful.border_normal = "#303030"
+-- beautiful.border_focus = "#7e5edc"
+-- beautiful.border_normal = "#303030"
 
 screen.connect_signal("arrange", function(s)
 	-- local max = s.selected_tag.layout.name == "max"
