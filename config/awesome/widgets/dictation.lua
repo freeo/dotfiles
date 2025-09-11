@@ -84,7 +84,8 @@ function DictationController.new()
 	self.callbacks = {
 		on_starting = function() end, -- Called immediately when process starts
 		on_start = function() end, -- Called when server is ready
-		on_stop = function() end,
+		on_stopping = function() end, -- Called when stopping is initiated
+		on_stop = function() end, -- Called when completely stopped
 		on_error = function(msg) end,
 	}
 	return self
@@ -139,6 +140,9 @@ function DictationController:start()
 		return
 	end
 
+	-- Show orange "starting" status immediately when user presses key
+	self.callbacks.on_starting()
+
 	local cmd
 	if config.use_container then
 		-- Use pure Lua + podman commands instead of wrapper script
@@ -154,95 +158,153 @@ end
 
 function DictationController:_start_container_and_client()
 	self:_log("Starting container with pure Lua + podman approach")
-	
+
 	-- Check if container exists (including stopped ones) - use shell to handle piping
-	awful.spawn.easy_async_with_shell("podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'", function(stdout, stderr, reason, exit_code)
-		-- Debug output to understand what we're getting
-		self:_log(string.format("Container check - stdout: '%s', stderr: '%s', exit_code: %s", 
-			stdout or "nil", stderr or "nil", tostring(exit_code)))
-		
-		local container_state = "missing"
-		-- Check stdout regardless of exit code since podman may emit warnings to stderr
-		if stdout and stdout ~= "" then
-			self:_log("Found stdout content: " .. stdout)
-			if stdout:match("moshi%-stt") then
-				local state_match = stdout:match("moshi%-stt%s+(%S+)")
-				if state_match then
-					container_state = state_match:lower()
+	awful.spawn.easy_async_with_shell(
+		"podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'",
+		function(stdout, stderr, reason, exit_code)
+			-- Debug output to understand what we're getting
+			self:_log(
+				string.format(
+					"Container check - stdout: '%s', stderr: '%s', exit_code: %s",
+					stdout or "nil",
+					stderr or "nil",
+					tostring(exit_code)
+				)
+			)
+
+			local container_state = "missing"
+			-- Check stdout regardless of exit code since podman may emit warnings to stderr
+			if stdout and stdout ~= "" then
+				self:_log("Found stdout content: " .. stdout)
+				if stdout:match("moshi%-stt") then
+					local state_match = stdout:match("moshi%-stt%s+(%S+)")
+					if state_match then
+						container_state = state_match:lower()
+					else
+						self:_log("Pattern match failed for state extraction")
+					end
 				else
-					self:_log("Pattern match failed for state extraction")
+					self:_log("No moshi-stt found in stdout")
 				end
 			else
-				self:_log("No moshi-stt found in stdout")
+				self:_log("No stdout content received")
 			end
-		else
-			self:_log("No stdout content received")
+
+			self:_log("Container state determined: " .. container_state)
+
+			if container_state == "running" then
+				self:_log("Container already running, starting client directly")
+				self:_start_container_client()
+			elseif container_state == "exited" or container_state == "created" or container_state == "stopping" then
+				self:_log("Starting stopped/stopping container")
+				awful.spawn.easy_async(
+					"podman start moshi-stt",
+					function(start_stdout, start_stderr, start_reason, start_exit_code)
+						if start_exit_code == 0 then
+							self:_log("Container started, waiting for readiness")
+							self:_wait_for_container_ready()
+						else
+							self:_log("Failed to start container: " .. (start_stderr or "unknown"))
+							self.callbacks.on_error("Failed to start container: " .. (start_stderr or "unknown"))
+						end
+					end
+				)
+			else
+				self:_log("Container not found or in invalid state: " .. container_state)
+				self.callbacks.on_error("Container 'moshi-stt' not found. Please create it first.")
+			end
 		end
-		
-		self:_log("Container state determined: " .. container_state)
-		
-		if container_state == "running" then
-			self:_log("Container already running, starting client directly")
-			self:_start_container_client()
-		elseif container_state == "exited" or container_state == "created" then
-			self:_log("Starting stopped container")
-			awful.spawn.easy_async("podman start moshi-stt", function(start_stdout, start_stderr, start_reason, start_exit_code)
-				if start_exit_code == 0 then
-					self:_log("Container started, waiting for readiness")
-					self:_wait_for_container_ready()
-				else
-					self:_log("Failed to start container: " .. (start_stderr or "unknown"))
-					self.callbacks.on_error("Failed to start container: " .. (start_stderr or "unknown"))
-				end
-			end)
-		else
-			self:_log("Container not found or in invalid state: " .. container_state)
-			self.callbacks.on_error("Container 'moshi-stt' not found. Please create it first.")
-		end
-	end)
+	)
 end
 
 function DictationController:_wait_for_container_ready()
 	self:_log("Waiting for container to be ready...")
 	local check_count = 0
 	local max_checks = 30 -- 30 seconds maximum wait
-	
+
 	local function check_ready()
 		check_count = check_count + 1
-		awful.spawn.easy_async("podman logs --tail 5 moshi-stt", function(log_stdout, log_stderr, log_reason, log_exit_code)
-			if log_exit_code == 0 and log_stdout then
-				-- Check for readiness signal in logs
-				if log_stdout:match("starting asr loop") then
-					self:_log("Container is ready (ASR loop started)")
+		awful.spawn.easy_async(
+			"podman logs --tail 5 moshi-stt",
+			function(log_stdout, log_stderr, log_reason, log_exit_code)
+				if log_exit_code == 0 and log_stdout then
+					-- Check for readiness signal in logs
+					if log_stdout:match("starting asr loop") then
+						self:_log("Container is ready (ASR loop started)")
+						self:_start_container_client()
+						return
+					end
+				end
+
+				-- Check if we should keep waiting
+				if check_count < max_checks then
+					-- Check again in 1 second
+					gears.timer.start_new(1, function()
+						check_ready()
+						return false -- Don't repeat timer
+					end)
+				else
+					self:_log("Timeout waiting for container readiness, attempting connection anyway")
 					self:_start_container_client()
-					return
 				end
 			end
-			
-			-- Check if we should keep waiting
-			if check_count < max_checks then
-				-- Check again in 1 second
-				gears.timer.start_new(1, function()
-					check_ready()
-					return false -- Don't repeat timer
-				end)
-			else
-				self:_log("Timeout waiting for container readiness, attempting connection anyway")
-				self:_start_container_client()
-			end
-		end)
+		)
 	end
-	
+
 	-- Start checking
 	check_ready()
 end
 
+function DictationController:_wait_for_container_stopped()
+	self:_log("Waiting for container to fully stop...")
+	local check_count = 0
+	local max_checks = 20 -- 20 seconds maximum wait
+
+	local function check_stopped()
+		check_count = check_count + 1
+		awful.spawn.easy_async_with_shell(
+			"podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'",
+			function(stdout, stderr, reason, exit_code)
+				if stdout and stdout ~= "" then
+					local state_match = stdout:match("moshi%-stt%s+(%S+)")
+					if state_match then
+						local container_state = state_match:lower()
+						self:_log("Container state check: " .. container_state)
+
+						if container_state == "exited" then
+							self:_log("Container fully stopped - calling on_stop")
+							self.callbacks.on_stop()
+							return
+						end
+					end
+				end
+
+				-- Check if we should keep waiting
+				if check_count < max_checks then
+					-- Check again in 1 second
+					gears.timer.start_new(1, function()
+						check_stopped()
+						return false -- Don't repeat timer
+					end)
+				else
+					self:_log("Timeout waiting for container to stop, calling on_stop anyway")
+					self.callbacks.on_stop()
+				end
+			end
+		)
+	end
+
+	-- Start checking
+	check_stopped()
+end
+
 function DictationController:_start_container_client()
 	self:_log("Starting dictation client for container")
-	
+
 	-- Use the new container-specific client script
 	local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
-	
+
 	self:_log("Container client command: " .. cmd)
 	self:_start_dictation_process(cmd)
 end
@@ -291,13 +353,24 @@ function DictationController:_start_dictation_process(cmd)
 			end
 
 			-- Check for server ready signals (turn green immediately when connected)
-			if line:match("✅ Connected to") or line:match("Connected to Kyutai server") or 
-			   line:match("✅ STT server ready") or line:match("ASR warmed up and ready") or
-			   line:match("🟢 Server ready") or line:match("Connected to container server") then
+			if
+				line:match("✅ Connected to")
+				or line:match("Connected to Kyutai server")
+				or line:match("✅ STT server ready")
+				or line:match("ASR warmed up and ready")
+				or line:match("🟢 Server ready")
+				or line:match("Connected to container server")
+			then
 				self:_log("DETECTED SERVER CONNECTED: " .. line)
-				self.is_running = true
-				self.callbacks.on_start()
-				self:_log("Dictation started successfully")
+
+				-- Only call on_start once (prevent duplicate notifications)
+				if not self.is_running then
+					self.is_running = true
+					self.callbacks.on_start()
+					self:_log("Dictation started successfully")
+				else
+					self:_log("Server ready signal received but already running - ignoring duplicate")
+				end
 
 			-- Check for specific error conditions (but ignore normal shutdown messages)
 			elseif line:match("❌ moshi%-server not found") then
@@ -322,8 +395,14 @@ function DictationController:_start_dictation_process(cmd)
 			self:_log("STDERR: " .. line)
 
 			-- Handle errors - be more aggressive about catching client issues
-			if line:match("Error") or line:match("Failed") or line:match("can't open file") or 
-			   line:match("ImportError") or line:match("ModuleNotFoundError") or line:match("❌") then
+			if
+				line:match("Error")
+				or line:match("Failed")
+				or line:match("can't open file")
+				or line:match("ImportError")
+				or line:match("ModuleNotFoundError")
+				or line:match("❌")
+			then
 				self.callbacks.on_error("Client error: " .. line)
 			end
 		end,
@@ -340,8 +419,14 @@ function DictationController:_start_dictation_process(cmd)
 
 			self.process_pid = nil
 			self.is_running = false
+
+			-- Only call on_stop if we haven't already (prevents duplicate notifications)
+			-- For containers, we wait for container to fully stop before calling on_stop
+			if not self.stopping and not config.use_container then
+				self.callbacks.on_stop()
+			end
+
 			self.stopping = false -- Clear stopping flag on process exit
-			self.callbacks.on_stop()
 		end,
 	})
 
@@ -350,7 +435,7 @@ function DictationController:_start_dictation_process(cmd)
 		if type(spawn_result) == "number" then
 			self.process_pid = spawn_result
 			self:_log("Process started with PID: " .. spawn_result)
-			self.callbacks.on_starting() -- Signal orange state immediately
+			-- on_starting already called in start() method - client is now starting
 		else
 			self:_log("Spawn returned: " .. tostring(spawn_result))
 		end
@@ -387,19 +472,26 @@ function DictationController:stop()
 					self:_log("Force killing PID: " .. self.process_pid)
 					awful.spawn(force_cmd)
 				end
-				
+
 				-- Also stop the container if we're using containers
 				if config.use_container then
 					self:_log("Stopping container with pure podman command")
-					awful.spawn.easy_async("podman stop moshi-stt", function(container_stdout, container_stderr, container_reason, container_exit_code)
-						if container_exit_code == 0 then
-							self:_log("Container stopped successfully")
-						else
-							self:_log("Failed to stop container: " .. (container_stderr or "unknown error"))
+					awful.spawn.easy_async(
+						"podman stop moshi-stt",
+						function(container_stdout, container_stderr, container_reason, container_exit_code)
+							if container_exit_code == 0 then
+								self:_log("Container stopped successfully")
+								-- Wait for container to fully exit, then call on_stop
+								self:_wait_for_container_stopped()
+							else
+								self:_log("Failed to stop container: " .. (container_stderr or "unknown error"))
+								-- Still try to wait for container state change
+								self:_wait_for_container_stopped()
+							end
 						end
-					end)
+					)
 				end
-				
+
 				-- Clear stopping flag after cleanup
 				self.stopping = false
 				return false -- Don't repeat timer
@@ -407,9 +499,11 @@ function DictationController:stop()
 		end)
 	end
 
-	-- Update state immediately for UI responsiveness
+	-- Update state immediately for UI responsiveness - show stopping state
 	self.is_running = false
-	self.callbacks.on_stop()
+	self:_log("About to call on_stopping callback")
+	self.callbacks.on_stopping()
+	self:_log("on_stopping callback completed")
 end
 
 function DictationController:toggle()
@@ -514,40 +608,57 @@ function UIManager:hide()
 end
 
 function UIManager:update_status(state, mic_state)
+	-- Debug logging to track UI updates
+	if config.debug then
+		print(
+			string.format(
+				"DEBUG: UIManager:update_status called with state='%s', mic_state='%s'",
+				tostring(state),
+				tostring(mic_state)
+			)
+		)
+	end
+
 	-- Define coordinated color schemes for each state
 	local color_schemes = {
 		listening = {
-			background = "#4CAF50",    -- Green
-			margin = "#2E7D32",        -- Darker green
-			text = "#1B5E20",          -- Dark green for contrast
-			label = "dictate"
+			background = "#4CAF50", -- Green
+			margin = "#2E7D32", -- Darker green
+			text = "#1B5E20", -- Dark green for contrast
+			label = "dictate",
 		},
 		ready_muted = {
-			background = "#7e5edc",    -- Purple  
-			margin = "#5E35B1",        -- Darker purple
-			text = "#311B92",          -- Dark purple for contrast
-			label = "muted"
+			background = "#7e5edc", -- Purple
+			margin = "#5E35B1", -- Darker purple
+			text = "#311B92", -- Dark purple for contrast
+			label = "muted",
 		},
 		starting = {
-			background = "#FF9800",    -- Orange
-			margin = "#F57C00",        -- Darker orange
-			text = "#E65100",          -- Dark orange for contrast
-			label = "starting..."
+			background = "#FF9800", -- Orange
+			margin = "#F57C00", -- Darker orange
+			text = "#E65100", -- Dark orange for contrast
+			label = "starting...",
+		},
+		stopping = {
+			background = "#FF5722", -- Deep Orange/Red
+			margin = "#D84315", -- Darker deep orange
+			text = "#BF360C", -- Dark deep orange for contrast
+			label = "stopping...",
 		},
 		inactive = {
-			background = "#9D6DCA",    -- Light purple
-			margin = "#7B1FA2",        -- Darker purple
-			text = "#4A148C",          -- Dark purple for contrast
-			label = "inactive"
+			background = "#9D6DCA", -- Light purple
+			margin = "#7B1FA2", -- Darker purple
+			text = "#4A148C", -- Dark purple for contrast
+			label = "inactive",
 		},
 		error = {
-			background = "#F44336",    -- Red
-			margin = "#C62828",        -- Darker red
-			text = "#B71C1C",          -- Dark red for contrast
-			label = "error"
-		}
+			background = "#F44336", -- Red
+			margin = "#C62828", -- Darker red
+			text = "#B71C1C", -- Dark red for contrast
+			label = "error",
+		},
 	}
-	
+
 	local scheme
 	if state == "ready" or state == true then
 		-- When server is ready, color depends on microphone state
@@ -563,21 +674,29 @@ function UIManager:update_status(state, mic_state)
 		end
 	elseif state == "starting" then
 		scheme = color_schemes.starting
+	elseif state == "stopping" then
+		scheme = color_schemes.stopping
 	else -- stopped/false/inactive
 		scheme = color_schemes.inactive
 	end
-	
+
+	if config.debug and scheme then
+		print(string.format("DEBUG: UIManager applying scheme: %s", scheme.label or "unknown"))
+	end
+
 	self:_apply_color_scheme(scheme)
 end
 
 function UIManager:_apply_color_scheme(scheme)
-	if not scheme then return end
-	
+	if not scheme then
+		return
+	end
+
 	-- Apply colors
 	self.status_indicator.bg = scheme.background
 	self.margin_container.color = scheme.margin
 	self.text_widget.markup = string.format("<span foreground='%s'><b>%s</b></span>", scheme.text, scheme.label)
-	
+
 	-- Force widget refresh
 	self.text_widget:emit_signal("widget::redraw_needed")
 	self.status_indicator:emit_signal("widget::redraw_needed")
@@ -587,12 +706,12 @@ end
 function UIManager:show_error(message)
 	-- Use the coordinated error color scheme
 	local error_scheme = {
-		background = "#F44336",    -- Red
-		margin = "#C62828",        -- Darker red
-		text = "#B71C1C",          -- Dark red for contrast
-		label = "error"
+		background = "#F44336", -- Red
+		margin = "#C62828", -- Darker red
+		text = "#B71C1C", -- Dark red for contrast
+		label = "error",
 	}
-	
+
 	self:_apply_color_scheme(error_scheme)
 
 	-- Show error notification
@@ -766,11 +885,23 @@ controller:set_callbacks({
 		end
 	end,
 
+	on_stopping = function()
+		ui:show()
+		ui:update_status("stopping")
+		-- Turn off microphone when stopping dictation
+		microphone.Off()
+		if config.debug then
+			naughty.notify({
+				title = "Dictation",
+				text = "Stopping...",
+				preset = naughty.config.presets.normal,
+			})
+		end
+	end,
+
 	on_stop = function()
 		ui:hide()
 		ui:update_status(false)
-		-- Turn off microphone when stopping dictation
-		microphone.Off()
 		if config.debug then
 			naughty.notify({
 				title = "Dictation",

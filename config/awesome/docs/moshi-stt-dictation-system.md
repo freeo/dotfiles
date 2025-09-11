@@ -4,6 +4,12 @@
 
 The Moshi-STT Dictation System is a containerized speech-to-text solution integrated with AwesomeWM. It provides real-time voice dictation that directly types text at your cursor position, completely independent of the original nerd-dictation project.
 
+**Latest Updates:**
+- Enhanced state management with proper "stopping" visual feedback
+- Container lifecycle monitoring ensures widget only disappears when container fully stops
+- Fixed duplicate notification issues
+- Improved timing for immediate visual feedback on start/stop actions
+
 ## Architecture Components
 
 ### 1. Container: `moshi-stt`
@@ -11,23 +17,25 @@ The Moshi-STT Dictation System is a containerized speech-to-text solution integr
 - **Port Mapping**: Container port 8080 → Host port 5455
 - **Service**: Runs the Kyutai Moshi server for speech recognition
 - **Management**: Controlled via podman commands
-- **State Management**: Can be in states: created, running, exited
+- **State Management**: Can be in states: created, running, stopping, exited
 
 ### 2. AwesomeWM Widget: `dictation.lua`
 Located at: `/home/freeo/dotfiles/config/awesome/widgets/dictation.lua`
 
 **Key Features:**
 - Pure Lua + podman integration (no shell wrapper scripts)
-- Container lifecycle management
-- Visual HUD display showing dictation status
-- Microphone integration
-- State-aware error handling
+- Container lifecycle management with state monitoring
+- Visual HUD display with immediate state feedback
+- Microphone integration with signal coordination
+- State-aware error handling with duplicate prevention
+- Proper start/stop timing with container readiness detection
 
 **Core Components:**
-- `DictationController`: Manages container and client process lifecycle
-- `UIManager`: Handles the visual widget display
-- Container detection and startup logic
-- Client process management
+- `DictationController`: Manages container and client process lifecycle with state monitoring
+- `UIManager`: Handles the visual widget display with 5 distinct states
+- Container detection and startup logic with proper state handling
+- Client process management with duplicate prevention
+- Container lifecycle monitoring for accurate widget state
 
 ### 3. Container Client: `dictate_container_client.py`
 Located at: `/home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py`
@@ -52,22 +60,44 @@ dictation.Toggle() called
     ↓
 DictationController:start()
     ↓
+🟠 Orange "starting..." widget appears IMMEDIATELY
+    ↓
 Container detection via podman ps -a
     ↓
 Container state check
-    ├─ If "exited": Start container
+    ├─ If "exited/created/stopping": Start container
     ├─ If "running": Use existing
     └─ If "missing": Show error
     ↓
-Wait for container readiness (ASR loop)
+Wait for container readiness (ASR loop detection)
     ↓
 Launch Python client script
     ↓
 Client connects to WebSocket
     ↓
-Audio streaming begins
+🟢 Green "dictate" widget when "Server ready" detected
     ↓
 Speech → Text → Cursor
+```
+
+### 1b. Deactivation Flow
+
+```
+User presses keybinding (Prior/PageUp) again
+    ↓
+dictation.Toggle() called
+    ↓
+DictationController:stop()
+    ↓
+🟠 Deep orange "stopping..." widget appears IMMEDIATELY
+    ↓
+Client process terminated
+    ↓
+Container stop command issued
+    ↓
+Monitor container state until "exited"
+    ↓
+Widget disappears when container fully stopped
 ```
 
 ### 2. Container Detection
@@ -109,11 +139,18 @@ The widget displays different colors based on state:
 
 | State | Color | Description |
 |-------|-------|-------------|
-| Starting | Orange | Container is starting up |
-| Ready (Muted) | Purple | Container ready, microphone muted |
-| Listening | Green | Actively transcribing speech |
-| Inactive | Light Purple | System not running |
-| Error | Red | Error occurred |
+| Starting | Orange (#FF9800) | Container is starting up |
+| Stopping | Deep Orange (#FF5722) | Container is stopping |
+| Ready (Muted) | Purple (#7e5edc) | Container ready, microphone muted |
+| Listening | Green (#4CAF50) | Actively transcribing speech |
+| Inactive | Light Purple (#9D6DCA) | System not running |
+| Error | Red (#F44336) | Error occurred |
+
+**State Timing:**
+- Orange appears **immediately** when PageUp is pressed (start)
+- Deep orange appears **immediately** when PageUp is pressed (stop)  
+- Green appears when client connects and receives "Server ready"
+- Widget disappears only when container reaches "exited" state
 
 ## Configuration
 
