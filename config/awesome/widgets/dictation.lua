@@ -810,6 +810,45 @@ function UIManager:_apply_color_scheme(scheme)
 	self.margin_container:emit_signal("widget::redraw_needed")
 end
 
+function UIManager:flash_stop_complete()
+	-- Flash sequence: red → offline → red → hide (200ms per state)
+	-- This gives visual feedback when server stops completely
+	
+	-- Step 1: Show red/stopping color
+	local stopping_scheme = {
+		background = "#FF5722", -- Deep Orange/Red (stopping color)
+		margin = "#D84315", 
+		text = "#BF360C", 
+		label = "stopped"
+	}
+	self:_apply_color_scheme(stopping_scheme)
+	self.container.visible = true
+	
+	-- Step 2: Flash to offline color after 200ms
+	gears.timer.start_new(0.2, function()
+		local inactive_scheme = {
+			background = "#9D6DCA", -- Light purple (inactive color)
+			margin = "#7B1FA2", 
+			text = "#4A148C", 
+			label = "offline"
+		}
+		self:_apply_color_scheme(inactive_scheme)
+		
+		-- Step 3: Flash back to red after another 200ms
+		gears.timer.start_new(0.2, function()
+			self:_apply_color_scheme(stopping_scheme) -- Use same red scheme as step 1
+			
+			-- Step 4: Hide widget after final 200ms
+			gears.timer.start_new(0.2, function()
+				self.container.visible = false
+				return false
+			end)
+			return false
+		end)
+		return false
+	end)
+end
+
 function UIManager:show_error(message)
 	-- Use the coordinated error color scheme
 	local error_scheme = {
@@ -983,8 +1022,9 @@ controller:set_callbacks({
 	end,
 
 	on_stop = function()
-		ui:hide()
-		ui:update_status(false)
+		-- Flash visual feedback when server stops completely (always, not just debug)
+		ui:flash_stop_complete()
+		
 		if config.debug then
 			naughty.notify({
 				title = "Dictation",
