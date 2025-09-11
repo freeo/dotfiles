@@ -31,29 +31,6 @@ local dpi = beautiful.xresources.apply_dpi
 -- External modules
 local microphone = require("widgets.microphone")
 
--- Microphone state tracking
-local microphone_state = {
-	is_on = false,
-	last_checked = 0,
-}
-
--- Function to check actual microphone state
-local function check_microphone_state(callback)
-	awful.spawn.easy_async(
-		"bash -c 'MICSRC=$(pactl list short sources | rg alsa_input.usb-Focusrite_Scarlett_8i6_USB_F8V7G1C090917A-00.multichannel-input | cut -f 1 | xargs) && pactl get-source-mute $MICSRC'",
-		function(stdout, stderr, reason, exit_code)
-			if exit_code == 0 then
-				local is_on = not stdout:match("Mute: yes")
-				microphone_state.is_on = is_on
-				microphone_state.last_checked = os.time()
-				if callback then
-					callback(is_on)
-				end
-			end
-		end
-	)
-end
-
 -- Configuration
 local config = {
 	dictate_script = "/home/freeo/tools/nerd-dict-fork/tools/just_dictate.py", -- Original script for direct moshi-server
@@ -65,11 +42,7 @@ local config = {
 	log_file = "/home/freeo/wb/awm_dict.log",
 	debug = true, -- System debug messages and notifications (temporary: on for debugging)
 	log_dictation_content = false, -- Log actual dictated text (default: off to prevent huge logs)
-	auto_client_on_mic = false, -- Auto-start client when mic activates (DISABLED for stability)
-	client_only_mode_enabled = true, -- Enable client-only features
-	debug_client_mgmt = false, -- Debug client management specifically
-	hide_widget_on_client_stop = false, -- Hide widget when client stops (false = show as muted)
-	client_start_delay = 1.5, -- Seconds to wait before starting client after container starts
+	client_start_delay = 0.2, -- Minimal delay to ensure container is ready
 }
 
 -- ============================================================================
@@ -81,15 +54,9 @@ DictationController.__index = DictationController
 
 function DictationController.new()
 	local self = setmetatable({}, DictationController)
-	self.process_pid = nil -- Full dictation mode process
-	self.client_process_pid = nil -- Client-only mode process
-	self.is_running = false -- Full dictation active
-	self.client_only_mode = false -- Client-only active
-	self.starting_client = false -- MUTEX: Prevent double client starts
+	self.process_pid = nil -- Dictation client process
+	self.is_running = false -- Dictation server/container active
 	self.stopping = false -- Track graceful shutdown state
-	self.mic_killed_client = false -- Track if mic OFF killed the client
-	self.mic_activation_time = nil -- Track when microphone was last activated
-	self.mic_successfully_activated = false -- Track if microphone has been successfully activated
 	self.callbacks = {
 		on_starting = function() end, -- Called immediately when process starts
 		on_start = function() end, -- Called when server is ready
@@ -149,11 +116,6 @@ function DictationController:start()
 		return
 	end
 	
-	-- Prevent starting if client-only mode is active
-	if self.client_process_pid then
-		self:_log("Client-only mode is active, stopping it first")
-		self:stop_client_only()
-	end
 
 	-- Show orange "starting" status immediately when user presses key
 	self.callbacks.on_starting()
@@ -173,11 +135,6 @@ end
 
 function DictationController:_start_container_and_client()
 	self:_log("Starting container with pure Lua + podman approach")
-	
-	-- First, kill any existing clients to prevent duplicates
-	awful.spawn.easy_async("pkill -f dictate_container_client.py", function()
-		self:_log("Cleaned up any existing clients before starting")
-	end)
 
 	-- Check if container exists (including stopped ones) - use shell to handle piping
 	awful.spawn.easy_async_with_shell(
@@ -215,22 +172,25 @@ function DictationController:_start_container_and_client()
 
 			if container_state == "running" then
 				self:_log("Container already running, starting client immediately")
-				-- Start client with minimal delay
+				self.is_running = true
+				-- Start client immediately since container is ready
 				gears.timer.start_new(0.2, function()
 					self:_start_container_client()
 					return false
 				end)
+				self.callbacks.on_start()
 			elseif container_state == "exited" or container_state == "created" or container_state == "stopping" then
 				self:_log("Starting stopped/stopping container")
 				awful.spawn.easy_async(
 					"podman start moshi-stt",
 					function(start_stdout, start_stderr, start_reason, start_exit_code)
 						if start_exit_code == 0 then
-							self:_log(string.format("Container started, starting client after %s seconds", config.client_start_delay))
-							-- Start client after configurable delay - let it handle retries
+							self:_log("Container started successfully")
+							self.is_running = true
+							-- Start client after delay since we just started the container
 							gears.timer.start_new(config.client_start_delay, function()
-								self:_log("Starting client (async approach - client will retry connections)")
 								self:_start_container_client()
+								self.callbacks.on_start()
 								return false
 							end)
 						else
@@ -336,7 +296,6 @@ function DictationController:_start_container_client()
 	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
 		if exit_code == 0 then
 			self:_log("WARNING: Client already exists, not starting another")
-			self.starting_client = false  -- Clear mutex
 			return
 		end
 		
@@ -346,11 +305,6 @@ function DictationController:_start_container_client()
 		self:_log("Container client command: " .. cmd)
 		self:_start_dictation_process(cmd)
 		
-		-- Clear mutex after starting
-		gears.timer.start_new(1, function()
-			self.starting_client = false
-			return false
-		end)
 	end)
 end
 
@@ -409,13 +363,10 @@ function DictationController:_start_dictation_process(cmd)
 				self:_log("DETECTED SERVER CONNECTED: " .. line)
 
 				-- Only call on_start once (prevent duplicate notifications)
-				-- Also check we're not in client-only mode
-				if not self.is_running and not self.client_only_mode then
+				if not self.is_running then
 					self.is_running = true
 					self.callbacks.on_start()
 					self:_log("Dictation started successfully")
-				elseif self.client_only_mode then
-					self:_log("Server ready in client-only mode - no UI update")
 				else
 					self:_log("Server ready signal received but already running - ignoring duplicate")
 				end
@@ -493,22 +444,14 @@ function DictationController:_start_dictation_process(cmd)
 	if spawn_result then
 		if type(spawn_result) == "number" then
 			-- Set the appropriate PID based on mode
-			if self.client_only_mode then
-				self.client_process_pid = spawn_result
-				self:_log("Client-only process started with PID: " .. spawn_result)
-			else
-				self.process_pid = spawn_result
-				self:_log("Process started with PID: " .. spawn_result)
-				-- on_starting already called in start() method - client is now starting
-			end
+			self.process_pid = spawn_result
+			self:_log("Process started with PID: " .. spawn_result)
 		else
 			self:_log("Spawn returned: " .. tostring(spawn_result))
 		end
 	else
 		self:_log("ERROR: awful.spawn.with_line_callback returned nil/false")
-		if not self.client_only_mode then
-			self.callbacks.on_error("Failed to start dictation process - spawn failed")
-		end
+		self.callbacks.on_error("Failed to start dictation process - spawn failed")
 	end
 end
 
@@ -636,8 +579,6 @@ function DictationController:get_status()
 	return {
 		is_running = self.is_running,
 		process_pid = self.process_pid,
-		client_process_pid = self.client_process_pid,
-		client_only_mode = self.client_only_mode,
 		process_alive = self:_check_process_running(),
 	}
 end
@@ -661,217 +602,47 @@ function DictationController:get_container_state(callback)
 	)
 end
 
--- Client-only start function
-function DictationController:start_client_only()
-	-- MUTEX CHECK: Prevent multiple simultaneous starts
-	if self.starting_client then
-		self:_log("Client start already in progress - ignoring duplicate request")
-		return
-	end
-	
-	-- Only start client, don't manage container
-	if self.client_process_pid then
-		self:_log("Client already running in client-only mode")
-		return
-	end
-	
-	-- Prevent starting if full dictation is running
-	if self.is_running or self.process_pid then
-		self:_log("Cannot start client-only mode - full dictation is active")
-		return
-	end
-	
-	-- Set mutex
-	self.starting_client = true
-	
-	-- Check if container is running first
-	self:get_container_state(function(state)
-		if state == "running" then
-			-- Double-check we still don't have a client
-			if not self.client_process_pid then
-				self:_log("Starting client-only mode")
-				self.client_only_mode = true
-				self:_start_container_client_only()
-			else
-				self:_log("Client started while checking container - aborting")
-			end
-		else
-			-- Container not running, can't start client
-			if config.debug then
-				self:_log("Cannot start client - container not running (state: " .. state .. ")")
-				naughty.notify({
-					title = "Dictation Client",
-					text = "Container not running. Start container first.",
-					preset = naughty.config.presets.critical,
-				})
-			end
-		end
-		-- Clear mutex
-		self.starting_client = false
-	end)
-end
 
--- Modified client start for client-only mode
-function DictationController:_start_container_client_only()
-	self:_log("Starting dictation client in client-only mode")
-	
-	local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
-	
-	self:_log("Client-only command: " .. cmd)
-	-- Use the shared function which will handle PID assignment based on client_only_mode flag
-	self:_start_dictation_process(cmd)
-end
-
--- Client-only stop function
-function DictationController:stop_client_only()
-	-- Only stop client, leave container running
-	if not self.client_process_pid then
-		self:_log("No client-only process to stop")
-		return
-	end
-	
-	-- Terminate client process
-	local cmd = string.format("kill -TERM %d", self.client_process_pid)
-	self:_log("Stopping client-only process with PID: " .. self.client_process_pid)
-	
-	awful.spawn.easy_async(cmd, function(stdout, stderr, reason, exit_code)
-		self:_log(string.format("Client-only kill result: code=%s", exit_code or "unknown"))
-		
-		-- Give process time to cleanup
-		gears.timer.start_new(1, function()
-			if self.client_process_pid then
-				-- Check if process still exists
-				local check_cmd = string.format("kill -0 %d 2>/dev/null", self.client_process_pid)
-				local result = os.execute(check_cmd)
-				if result == 0 then
-					-- Force kill if still running
-					local force_cmd = string.format("kill -KILL %d", self.client_process_pid)
-					self:_log("Force killing client-only PID: " .. self.client_process_pid)
-					awful.spawn(force_cmd)
-				end
-			end
-			
-			-- Update state
-			self.client_only_mode = false
-			self.client_process_pid = nil
-			self:_log("Client-only mode stopped")
-			
-			return false -- Don't repeat timer
-		end)
-	end)
-end
-
--- Check if client is running (client-only mode)
-function DictationController:is_client_running()
-	return self.client_process_pid ~= nil and self.client_only_mode
-end
-
--- CLEAN CLIENT MANAGEMENT FUNCTIONS
+-- Simplified client management
 function DictationController:client_start()
-	self:_log("ClientStart called")
+	self:_log("Starting client due to microphone activation")
 	
-	-- Prevent double starts with mutex
-	if self.starting_client then
-		self:_log("Client start already in progress - ignoring")
-		return false
+	-- Only start if dictation is running and container is ready
+	if not self.is_running then
+		self:_log("Dictation not running - not starting client")
+		return
 	end
 	
-	-- Check if already running
-	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
-		if exit_code == 0 then
-			self:_log("Client already running - not starting another")
-			-- Update widget to green if dictation is running
-			if self.is_running then
-				self.ui:update_status("ready", true)
-				microphone_state.is_on = true
-			end
-			return
-		end
-		
-		-- Set mutex
-		self.starting_client = true
-		
-		-- Check container state first
-		self:get_container_state(function(state)
-			if state == "running" then
-				self:_log("Container running - starting client")
-				self:_start_container_client()
-				-- Update widget to green after a moment
-				if self.is_running then
-					gears.timer.start_new(2, function()
-						self.ui:update_status("ready", true)
-						microphone_state.is_on = true
-						return false
-					end)
-				end
-			else
-				self:_log("Container not running (state: " .. state .. ") - cannot start client")
-				naughty.notify({
-					title = "Client Start Failed",
-					text = "Container not running. Start dictation first.",
-					preset = naughty.config.presets.normal,
-				})
-			end
-			-- Clear mutex
-			self.starting_client = false
-		end)
-	end)
+	self:_start_container_client()
 end
 
 function DictationController:client_stop()
-	self:_log("ClientStop called")
+	self:_log("Stopping client due to microphone deactivation")
 	
 	-- Set flag to prevent error notification
 	self.stopping = true
-	self.mic_killed_client = true
 	
 	-- Kill all clients
-	awful.spawn.easy_async("pkill -9 -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
+	awful.spawn.easy_async("pkill -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
 		if exit_code == 0 then
 			self:_log("Killed dictation client(s)")
 		else
 			self:_log("No clients to kill")
 		end
-		-- Clear PIDs
+		-- Clear PID
 		self.process_pid = nil
-		self.client_process_pid = nil
 		
-		-- Clear flags after a moment
-		gears.timer.start_new(1, function()
+		-- Clear flag after a moment
+		gears.timer.start_new(0.5, function()
 			self.stopping = false
-			self.mic_killed_client = false
 			return false
 		end)
 	end)
 	
-	-- ALWAYS update widget when client stops (moved outside async callback for immediate effect)
-	if self.is_running then
-		if config.hide_widget_on_client_stop then
-			self.ui:hide()
-		else
-			-- Show as muted (purple) - force update immediately
-			self.ui:update_status("ready", false)
-			-- Also update the actual microphone state to ensure purple
-			microphone_state.is_on = false
-		end
+	-- Update widget immediately to show muted state
+	if self.is_running and self.ui then
+		self.ui:update_status("ready", false)
 	end
-end
-
-function DictationController:client_toggle()
-	self:_log("ClientToggle called")
-	
-	-- Check if any client is running
-	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
-		if exit_code == 0 then
-			-- Client running - stop it
-			self:_log("Client found - stopping")
-			self:client_stop()
-		else
-			-- No client - start one
-			self:_log("No client found - starting")
-			self:client_start()
-		end
-	end)
 end
 
 -- ============================================================================
@@ -1002,18 +773,9 @@ function UIManager:update_status(state, mic_state)
 	}
 
 	local scheme
-	if state == "ready" or state == true then
+	if state == "ready" then
 		-- When server is ready, color depends on microphone state
-		if mic_state ~= nil then
-			scheme = mic_state and color_schemes.listening or color_schemes.ready_muted
-		else
-			-- Check microphone state if not provided
-			check_microphone_state(function(is_mic_on)
-				local async_scheme = is_mic_on and color_schemes.listening or color_schemes.ready_muted
-				self:_apply_color_scheme(async_scheme)
-			end)
-			return -- Exit early, let callback handle the update
-		end
+		scheme = mic_state and color_schemes.listening or color_schemes.ready_muted
 	elseif state == "starting" then
 		scheme = color_schemes.starting
 	elseif state == "stopping" then
@@ -1120,68 +882,61 @@ controller.ui = ui
 
 -- Connect to microphone state signals from microphone_toggle.sh
 client.connect_signal("jack_source_on", function()
-	microphone_state.is_on = true
-	microphone_state.last_checked = os.time()
-
-	-- Mark that we've successfully activated the microphone
-	controller.mic_successfully_activated = true
-
 	if config.debug then
-		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
-			or 999
-		print("DEBUG: jack_source_on signal - " .. time_since_activation .. "s after activation")
+		print("DEBUG: jack_source_on signal received")
+		print("DEBUG: controller.is_running = " .. tostring(controller.is_running))
 	end
 
-	-- Update widget if dictation is running
-	if controller.is_running then
-		ui:update_status("ready", true)
-	end
+	-- Check both controller state AND actual container state
+	controller:get_container_state(function(container_state)
+		if config.debug then
+			print("DEBUG: Container state = " .. container_state)
+		end
+		
+		-- If container is running, we should be able to start client
+		if container_state == "running" then
+			-- Check if client is already running
+			awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
+				if exit_code == 0 and stdout and stdout ~= "" then
+					if config.debug then
+						print("DEBUG: Client already running")
+					end
+					-- Just update UI to show listening state
+					if ui then
+						ui:update_status("ready", true)
+					end
+				else
+					-- Container is running but no client - start client
+					if config.debug then
+						print("DEBUG: Starting client - container is running")
+					end
+					-- Update controller state if it was wrong
+					if not controller.is_running then
+						controller.is_running = true
+					end
+					controller:_start_container_client()
+					if ui then
+						ui:update_status("ready", true)
+					end
+				end
+			end)
+		else
+			-- Container not running - don't start anything
+			if config.debug then
+				print("DEBUG: Microphone on but container not running (state: " .. container_state .. ") - ignoring")
+			end
+		end
+	end)
 end)
 
 client.connect_signal("jack_source_off", function()
-	microphone_state.is_on = false
-	microphone_state.last_checked = os.time()
-
 	if config.debug then
-		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
-			or 999
-		print("DEBUG: jack_source_off signal - " .. time_since_activation .. "s after activation")
+		print("DEBUG: jack_source_off signal received")
 	end
-
-	-- Update widget if dictation is running
+	
+	-- Stop client when mic turns off (if dictation is running)
 	if controller.is_running then
-		-- Check if this is happening very shortly after microphone activation (likely race condition)
-		local time_since_activation = controller.mic_activation_time and (os.time() - controller.mic_activation_time)
-			or 999
-
-		-- Only treat as spurious if it happens within 1 second AND we haven't had a successful on signal yet
-		if time_since_activation < 1 and not controller.mic_successfully_activated then
-			-- This might be a spurious signal during startup - try to recover
-			if config.debug then
-				print("DEBUG: Spurious microphone off detected during startup - attempting recovery")
-			end
-
-			gears.timer.start_new(0.2, function()
-				microphone.On()
-				-- Double-check state after recovery attempt
-				gears.timer.start_new(0.3, function()
-					check_microphone_state(function(recovered_state)
-						ui:update_status("ready", recovered_state)
-						if config.debug then
-							print("DEBUG: Recovery attempt result: " .. tostring(recovered_state))
-						end
-					end)
-					return false
-				end)
-				return false
-			end)
-		else
-			-- Normal microphone off signal (user action or intentional) - update widget immediately
-			ui:update_status("ready", false)
-			if config.debug then
-				print("DEBUG: Microphone off - updating widget to purple")
-			end
-		end
+		controller:client_stop()
 	end
 end)
 
@@ -1192,44 +947,19 @@ controller:set_callbacks({
 		ui:update_status("starting")
 		-- Turn on microphone when starting dictation
 		microphone.On()
-
-		-- Set flags to track microphone activation
-		controller.mic_activation_time = os.time()
-		controller.mic_successfully_activated = false -- Reset for new session
 	end,
 
 	on_start = function()
 		if config.debug then
-			print("DEBUG: on_start callback called - setting to ready")
+			print("DEBUG: on_start callback - container/server ready")
 		end
-
-		-- Give microphone.On() time to take effect before checking state
-		gears.timer.start_new(0.5, function()
-			check_microphone_state(function(mic_is_on)
-				ui:update_status("ready", mic_is_on)
-
-				-- If microphone is unexpectedly off, try turning it on again
-				if not mic_is_on and controller.is_running then
-					if config.debug then
-						print("DEBUG: Microphone unexpectedly off, turning on again")
-					end
-					microphone.On()
-					-- Check again after a brief delay
-					gears.timer.start_new(0.3, function()
-						check_microphone_state(function(retry_mic_is_on)
-							ui:update_status("ready", retry_mic_is_on)
-						end)
-						return false
-					end)
-				end
-			end)
-			return false
-		end)
-
+		-- Server is ready, show UI with current mic state
+		-- The microphone should already be on from on_starting
+		ui:update_status("ready", microphone.state.is_on)
 		if config.debug then
 			naughty.notify({
 				title = "Dictation",
-				text = "Started successfully - checking microphone state",
+				text = "Server ready - dictation active",
 				preset = naughty.config.presets.normal,
 			})
 		end
@@ -1264,11 +994,11 @@ controller:set_callbacks({
 	on_error = function(message)
 		ui:show_error(message)
 
-		-- Auto-hide error after 5 seconds without affecting microphone
+		-- Auto-hide error after 5 seconds
 		gears.timer.start_new(5, function()
 			ui.container.visible = false
 			ui:update_status(false)
-			return false -- Don't repeat
+			return false
 		end)
 	end,
 })
@@ -1298,17 +1028,26 @@ function dictation.SetConfig(new_config)
 	end
 end
 
--- Clean Client Management APIs (NEW)
+-- Client Management APIs (for manual control)
 function dictation.ClientStart()
-	controller:client_start()
+	-- Use the same robust client starting logic as Toggle() does
+	-- Check if there are any running clients first
+	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
+		if exit_code == 0 and stdout and stdout ~= "" then
+			print("Client already running")
+		elseif controller.is_running then
+			-- Dictation is running but no client - start client like Toggle() does  
+			controller:_start_container_client()
+		else
+			-- Need to start the whole dictation system
+			print("Dictation not running - starting full system")
+			controller:start()
+		end
+	end)
 end
 
 function dictation.ClientStop()
 	controller:client_stop()
-end
-
-function dictation.ToggleClient()
-	controller:client_toggle()
 end
 
 -- Container state check

@@ -1838,12 +1838,20 @@ screen.connect_signal("arrange", function(s)
 	end
 end)
 
+-- Load microphone module for state checking
+local microphone = require("widgets.microphone")
+
 client.connect_signal("focus", function(c)
 	-- c.opacity = 1
-	c.border_color = beautiful.border_focus
+	if microphone and microphone.state and microphone.state.is_on then
+		c.border_color = beautiful.color_highlight_mic_on
+	else
+		c.border_color = beautiful.border_focus
+	end
 end)
 
 client.connect_signal("unfocus", function(c)
+	-- Unfocused windows always get normal border
 	c.border_color = beautiful.border_normal
 	-- transparency
 	-- c.opacity = 0.95
