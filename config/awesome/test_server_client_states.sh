@@ -1,7 +1,12 @@
 #!/bin/bash
 
-echo "=== SERVER/CLIENT STATE TEST ==="
-echo "Testing widget, server, and client coordination"
+echo "=== REFACTORED DICTATION SYSTEM TEST ==="
+echo "Testing the simplified microphone signal-driven client management"
+echo ""
+echo "System behavior:"
+echo "  - Toggle() manages server (container) lifecycle"
+echo "  - Microphone signals manage client lifecycle" 
+echo "  - ClientStart/Stop() for manual control"
 echo ""
 
 # Helper to check processes
@@ -35,14 +40,16 @@ sleep 3
 check_state
 echo "  Expected: 1 client, container running, widget green"
 
-echo -e "\n4. CLIENT TOGGLE (stop)"
-awesome-client 'require("widgets.dictation").ToggleClient()'
+echo -e "\n4. MICROPHONE TOGGLE (stop via signal)"
+# Simulate microphone off signal
+awesome-client 'client.emit_signal("jack_source_off")'
 sleep 2
 check_state
 echo "  Expected: 0 clients, container running"
 
-echo -e "\n5. CLIENT TOGGLE (start)"
-awesome-client 'require("widgets.dictation").ToggleClient()'
+echo -e "\n5. MICROPHONE TOGGLE (start via signal)"
+# Simulate microphone on signal  
+awesome-client 'client.emit_signal("jack_source_on")'
 sleep 3
 check_state
 echo "  Expected: 1 client, container running"
@@ -79,10 +86,52 @@ awesome-client 'require("widgets.dictation").ClientStart()'
 sleep 3
 check_state
 
-echo -e "\n9. FINAL CLEANUP"
+echo -e "\n9. REAL WORKFLOW TEST (microphone shortcut simulation)"
+echo "  Testing the actual workflow: start server, then use mic signals"
+# First stop everything and wait for container to fully stop
+echo "  Ensuring clean state..."
+awesome-client 'require("widgets.dictation").Toggle()' > /dev/null 2>&1
+# Wait for container to fully stop (not just "stopping")
+while [[ $(podman ps -a --format '{{.State}}' --filter name=moshi-stt 2>/dev/null) == "stopping" ]]; do
+    echo "  Container still stopping, waiting..."
+    sleep 2
+done
+sleep 2
+# Now start server 
+echo "  Starting server..."
 awesome-client 'require("widgets.dictation").Toggle()'
-echo "  Waiting for shutdown..."
-sleep 15
+sleep 4
+echo "  Server started:"
+check_state
+echo "  Expected: 1 client, container running (client auto-started)"
+
+echo -e "\n  Mic OFF (user presses Mod+Alt+6 to mute):"
+awesome-client 'client.emit_signal("jack_source_off")'
+sleep 2
+check_state
+echo "  Expected: 0 clients, container still running"
+
+echo -e "\n  Mic ON (user presses Mod+Alt+6 to unmute):" 
+awesome-client 'client.emit_signal("jack_source_on")'
+sleep 3
+check_state
+echo "  Expected: 1 client, container running (this is what was broken before!)"
+
+echo -e "\n10. FINAL CLEANUP"
+echo "  Initiating shutdown..."
+awesome-client 'require("widgets.dictation").Toggle()'
+echo "  Waiting for container to fully stop..."
+# Wait for container to fully stop (not just "stopping")
+CONTAINER_STATE=$(podman ps -a --format '{{.State}}' --filter name=moshi-stt 2>/dev/null)
+while [[ "$CONTAINER_STATE" == "stopping" ]]; do
+    echo "  Container state: $CONTAINER_STATE, waiting..."
+    sleep 2
+    CONTAINER_STATE=$(podman ps -a --format '{{.State}}' --filter name=moshi-stt 2>/dev/null)
+done
+echo "  Container state: $CONTAINER_STATE"
 check_state
 
 echo -e "\n=== TEST COMPLETE ==="
+echo "✓ The system should now handle microphone toggle properly"
+echo "✓ Microphone signals control client start/stop when server running"
+echo "✓ Toggle() controls server lifecycle"

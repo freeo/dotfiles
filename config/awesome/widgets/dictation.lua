@@ -179,8 +179,11 @@ function DictationController:_start_container_and_client()
 					return false
 				end)
 				self.callbacks.on_start()
-			elseif container_state == "exited" or container_state == "created" or container_state == "stopping" then
-				self:_log("Starting stopped/stopping container")
+			elseif container_state == "stopping" then
+				self:_log("Container is stopping - waiting before starting")
+				self.callbacks.on_error("Container is stopping - please wait a moment and try again")
+			elseif container_state == "exited" or container_state == "created" then
+				self:_log("Starting stopped container")
 				awful.spawn.easy_async(
 					"podman start moshi-stt",
 					function(start_stdout, start_stderr, start_reason, start_exit_code)
@@ -410,29 +413,29 @@ function DictationController:_start_dictation_process(cmd)
 
 			-- Provide more detailed exit information for debugging
 			if code and code ~= 0 then
-				self:_log(string.format("Client process failed with exit code: %s", code))
-				-- Don't show error if mic turned off or we're stopping
-				if not self.stopping and not self.mic_killed_client then
+				self:_log(string.format("Client process exited with code: %s", code))
+				-- Don't show error if we're stopping or if it was killed intentionally
+				-- Exit code 9 = SIGKILL (which we use to stop clients)
+				-- Exit code 15 = SIGTERM (graceful shutdown)
+				if not self.stopping and code ~= 9 and code ~= 15 then
 					self.callbacks.on_error(string.format("Client process exited unexpectedly (code: %s)", code))
+				elseif self.stopping then
+					self:_log("Client process stopped as requested")
 				end
-				-- Clear the flag
-				self.mic_killed_client = false
 			end
 
-			-- Clear the appropriate PID based on mode
-			if self.client_only_mode then
-				self.client_process_pid = nil
-				self.client_only_mode = false
-				self.starting_client = false -- Clear mutex on exit
-			else
-				self.process_pid = nil
-				self.is_running = false
+			-- Clear the PID
+			self.process_pid = nil
+			
+			-- Don't change is_running state here - the container is still running
+			-- Just update UI to show muted state
+			if self.is_running and self.ui and not self.stopping then
+				self.ui:update_status("ready", false)
 			end
 
 			-- Only call on_stop if we haven't already (prevents duplicate notifications)
 			-- For containers, we wait for container to fully stop before calling on_stop
-			-- Don't call on_stop for client-only mode
-			if not self.stopping and not config.use_container and not self.client_only_mode then
+			if not self.stopping and not config.use_container then
 				self.callbacks.on_stop()
 			end
 
