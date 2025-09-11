@@ -661,13 +661,15 @@ function UIManager.new()
 	-- Screen reference
 	local focused = awful.screen.focused()
 
-	-- Create main container
+	-- Create main container (iPhone notch style - bottom center)
+	local width = 120 -- 120px wide
+	local height = 40 -- 40px tall
 	self.container = wibox({
 		screen = focused,
-		x = (focused.geometry.width / 2) - 80,
-		y = focused.geometry.height - 128,
-		width = 160,
-		height = 64,
+		x = (focused.geometry.width / 2) - (width / 2), -- Centered horizontally
+		y = focused.geometry.height - height, -- Bottom edge, no offset
+		width = width,
+		height = height,
 		bg = beautiful.hud_panel_bg or "#1e1e1e",
 		shape = gears.shape.rounded_rect,
 		visible = false,
@@ -675,25 +677,25 @@ function UIManager.new()
 		opacity = 0.9,
 	})
 
-	-- Create text widget
+	-- Create text widget (readable size for notch style)
 	self.text_widget = wibox.widget({
 		widget = wibox.widget.textbox,
 		valign = "center",
 		halign = "center",
-		markup = "<span foreground='#42239F'><b>dictation</b></span>",
-		font = "sans 12",
+		markup = "<span foreground='#42239F'><b>dictation</b></span>", -- Full text fits now
+		font = "sans 10", -- Medium font for 120px width
 	})
 
-	-- Create status indicator
+	-- Create status indicator (proportional to new size)
 	self.status_indicator = wibox.widget({
 		bg = "#9D6DCA",
 		widget = wibox.widget.background,
 		shape = gears.shape.rectangle,
-		forced_height = 50,
-		forced_width = 50,
+		forced_height = height - 8, -- ~32px tall
+		forced_width = height - 8, -- Square indicator ~32px
 	})
 
-	-- Create margin container (we'll update its color dynamically)
+	-- Create margin container (proportional margins)
 	self.margin_container = wibox.container.margin(self.status_indicator, dpi(4), dpi(4), dpi(4), dpi(4), "#42239F")
 
 	-- Setup layout
