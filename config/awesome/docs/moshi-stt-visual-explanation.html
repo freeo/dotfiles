@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moshi-STT Dictation System - Visual Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #5E35B1;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7E57C2;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .architecture-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .component {
+            background: white;
+            border: 2px solid #5E35B1;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        .component h3 {
+            color: #5E35B1;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .flow-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            margin: 10px;
+            flex: 1;
+            text-align: center;
+            min-width: 150px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .arrow {
+            font-size: 2em;
+            color: #5E35B1;
+            margin: 0 10px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .status-green { background: #4CAF50; }
+        .status-orange { background: #FF9800; }
+        .status-purple { background: #7e5edc; }
+        .status-red { background: #F44336; }
+        .code-block {
+            background: #1e1e1e;
+            color: #4EC9B0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .highlight {
+            background: #FFF3E0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #F57C00;
+        }
+        .connection-diagram {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .connection-box {
+            display: inline-block;
+            background: white;
+            border: 3px solid #5E35B1;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 200px;
+        }
+        .connection-line {
+            width: 100px;
+            height: 3px;
+            background: #5E35B1;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+        }
+        .connection-line::after {
+            content: '▶';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            color: #5E35B1;
+            font-size: 20px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .emoji-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 5px solid #FF9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success-box {
+            background: #E8F5E9;
+            border-left: 5px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ Moshi-STT Dictation System</h1>
+        <p class="subtitle">A containerized, GPU-accelerated speech-to-text solution for Linux</p>
+
+        <div class="success-box">
+            <strong>✨ Current Status:</strong> Fully operational! The system successfully bridges AwesomeWM, Docker containers, WebSocket streaming, and real-time text insertion.
+        </div>
+
+        <div class="architecture-diagram">
+            <h2>🏗️ System Architecture</h2>
+            
+            <div class="connection-diagram">
+                <div class="connection-box">
+                    <div class="emoji-icon">⌨️</div>
+                    <strong>User Input</strong><br>
+                    <small>PageUp Key</small>
+                </div>
+                <span class="connection-line"></span>
+                <div class="connection-box">
+                    <div class="emoji-icon">🖥️</div>
+                    <strong>AwesomeWM</strong><br>
+                    <small>dictation.lua</small>
+                </div>
+                <span class="connection-line"></span>
+                <div class="connection-box">
+                    <div class="emoji-icon">🐳</div>
+                    <strong>Podman Container</strong><br>
+                    <small>moshi-stt:cuda</small>
+                </div>
+                <span class="connection-line"></span>
+                <div class="connection-box">
+                    <div class="emoji-icon">🐍</div>
+                    <strong>Python Client</strong><br>
+                    <small>dictate_container_client.py</small>
+                </div>
+                <span class="connection-line"></span>
+                <div class="connection-box">
+                    <div class="emoji-icon">📝</div>
+                    <strong>Text Output</strong><br>
+                    <small>At Cursor</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="component">
+            <h3><span class="status-indicator status-purple"></span>1. Container Layer (moshi-stt)</h3>
+            <p>The heart of the system - a GPU-accelerated container running the Kyutai Moshi server:</p>
+            <div class="code-block">
+Container: localhost/moshi-stt:cuda
+Port: 8080 (container) → 5455 (host)
+GPU: NVIDIA CUDA acceleration
+Protocol: WebSocket
+Endpoint: ws://localhost:5455/api/asr-streaming
+            </div>
+            <p><strong>Key Features:</strong></p>
+            <ul>
+                <li>Isolated environment - no system dependencies</li>
+                <li>GPU acceleration for fast transcription</li>
+                <li>Persistent container - starts/stops as needed</li>
+                <li>Real-time streaming ASR (Automatic Speech Recognition)</li>
+            </ul>
+        </div>
+
+        <div class="component">
+            <h3><span class="status-indicator status-green"></span>2. AwesomeWM Integration Layer</h3>
+            <p>The Lua widget that orchestrates everything:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="emoji-icon">🔍</div>
+                    <strong>Container Detection</strong>
+                    <p>Checks if moshi-stt exists and its state</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">🚀</div>
+                    <strong>Lifecycle Management</strong>
+                    <p>Starts/stops container automatically</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">👁️</div>
+                    <strong>Visual Feedback</strong>
+                    <p>HUD widget with color-coded status</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">🎤</div>
+                    <strong>Microphone Control</strong>
+                    <p>Automatic mic on/off management</p>
+                </div>
+            </div>
+
+            <p><strong>State Flow:</strong></p>
+            <div class="flow-diagram">
+                <div class="flow-step" style="background: #FF9800;">Starting</div>
+                <span class="arrow">→</span>
+                <div class="flow-step" style="background: #7e5edc;">Ready (Muted)</div>
+                <span class="arrow">→</span>
+                <div class="flow-step" style="background: #4CAF50;">Listening</div>
+                <span class="arrow">→</span>
+                <div class="flow-step" style="background: #9D6DCA;">Inactive</div>
+            </div>
+        </div>
+
+        <div class="component">
+            <h3><span class="status-indicator status-orange"></span>3. Python Client Layer</h3>
+            <p><span class="highlight">COMPLETELY STANDALONE</span> - Not part of nerd-dictation!</p>
+            
+            <p><strong>dictate_container_client.py</strong> - A purpose-built client that:</p>
+            <ul>
+                <li>✅ Connects directly to the container's WebSocket endpoint</li>
+                <li>✅ Captures audio from your microphone (24kHz, mono)</li>
+                <li>✅ Streams audio chunks in real-time (80ms blocks)</li>
+                <li>✅ Receives transcribed words immediately</li>
+                <li>✅ Inserts text at cursor position using xdotool/ydotool/wtype</li>
+                <li>❌ Does NOT manage any servers (container handles that)</li>
+                <li>❌ Does NOT use nerd-dictation code</li>
+            </ul>
+
+            <div class="code-block">
+# Message flow:
+Client → Server: {"type": "Audio", "pcm": [float32 samples]}
+Server → Client: {"type": "Ready"}
+Server → Client: {"type": "Word", "text": "hello"}
+Server → Client: {"type": "Step", "prs": [pause predictions]}
+            </div>
+        </div>
+
+        <div class="component">
+            <h3><span class="status-indicator status-green"></span>4. Data Flow Visualization</h3>
+            <div class="connection-diagram">
+                <div style="text-align: left; display: inline-block;">
+                    <h4>Audio Pipeline:</h4>
+                    <p>🎤 Microphone → sounddevice → numpy array → msgpack → WebSocket → Container</p>
+                    
+                    <h4>Text Pipeline:</h4>
+                    <p>Container → WebSocket → msgpack → Python → xdotool → 📝 Cursor</p>
+                    
+                    <h4>Control Pipeline:</h4>
+                    <p>⌨️ Keybinding → Lua → podman commands → Container state changes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Important Notes:</strong>
+            <ul>
+                <li>The container must be created first: <code>podman run -d --name moshi-stt ...</code></li>
+                <li>Python dependencies required: websockets, msgpack, numpy, sounddevice</li>
+                <li>Uses mise-managed Python at: /home/freeo/.local/share/mise/installs/python/3.11.6/</li>
+                <li>Container detection uses: <code>podman ps -a --format '{{.Names}} {{.State}}'</code></li>
+            </ul>
+        </div>
+
+        <div class="component">
+            <h3>🎯 Why This Architecture?</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="emoji-icon">🔒</div>
+                    <strong>Isolation</strong>
+                    <p>Container isolates complex dependencies</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">⚡</div>
+                    <strong>Performance</strong>
+                    <p>GPU acceleration for real-time transcription</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">🔧</div>
+                    <strong>Simplicity</strong>
+                    <p>Clean separation of concerns</p>
+                </div>
+                <div class="feature-card">
+                    <div class="emoji-icon">🔄</div>
+                    <strong>Reliability</strong>
+                    <p>Container persists between sessions</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-box">
+            <h3>✅ Success Checklist</h3>
+            <ul>
+                <li>Container starts when you press PageUp</li>
+                <li>Widget shows orange (starting) → green/purple (ready)</li>
+                <li>Speech is transcribed in real-time</li>
+                <li>Text appears immediately at cursor position</li>
+                <li>Widget disappears when toggled off</li>
+                <li>Container stops gracefully</li>
+            </ul>
+        </div>
+
+        <div class="component" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="color: white;">🚀 The Magic Moment</h3>
+            <p>When you press PageUp, a cascade of events unfolds:</p>
+            <ol>
+                <li>Lua widget wakes up and checks for the container</li>
+                <li>Container starts if needed (2-3 seconds)</li>
+                <li>Python client launches and connects via WebSocket</li>
+                <li>Your microphone activates automatically</li>
+                <li>You speak, and words appear at your cursor!</li>
+                <li>Press PageUp again to stop everything cleanly</li>
+            </ol>
+            <p style="text-align: center; font-size: 1.2em; margin-top: 20px;">
+                <strong>It's not nerd-dictation anymore - it's a containerized, GPU-accelerated, WebSocket-streaming marvel!</strong>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

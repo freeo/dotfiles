@@ -15,6 +15,9 @@
 -- Testing:
 --   dictation._test.run_all()  -- Run all tests
 
+-- Force module reload on awesome restart
+package.loaded["widgets.dictation"] = nil
+
 local dictation = {}
 
 -- Dependencies
@@ -53,12 +56,14 @@ end
 
 -- Configuration
 local config = {
-	dictate_script = "/home/freeo/tools/nerd-dict-fork/tools/just_dictate.py",
-	python_cmd = "mise exec python@3.11 -- python",
+	dictate_script = "/home/freeo/tools/nerd-dict-fork/tools/just_dictate.py", -- Original script for direct moshi-server
+	container_dictate_script = "/home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py", -- New container-specific client
+	python_cmd = "/home/freeo/.local/share/mise/installs/python/3.11.6/bin/python", -- Full path to mise Python
 	moshi_server_path = "/home/freeo/.cargo/bin/moshi-server",
+	use_container = true, -- Toggle between container and direct moshi-server
 	timeout = 10, -- seconds to wait for server operations
 	log_file = "/home/freeo/wb/awm_dict.log",
-	debug = false, -- System debug messages and notifications (default: off)
+	debug = true, -- System debug messages and notifications (temporary: on for debugging)
 	log_dictation_content = false, -- Log actual dictated text (default: off to prevent huge logs)
 }
 
@@ -134,9 +139,115 @@ function DictationController:start()
 		return
 	end
 
-	-- Build command with absolute moshi-server path and unbuffered output
-	local inner_cmd = string.format("%s %s --output auto", config.python_cmd, config.dictate_script)
-	local cmd = string.format("env MOSHI_SERVER_PATH=%s PYTHONUNBUFFERED=1 %s", config.moshi_server_path, inner_cmd)
+	local cmd
+	if config.use_container then
+		-- Use pure Lua + podman commands instead of wrapper script
+		self:_start_container_and_client()
+		return
+	else
+		-- Original direct moshi-server command
+		local inner_cmd = string.format("%s %s --output auto", config.python_cmd, config.dictate_script)
+		cmd = string.format("env MOSHI_SERVER_PATH=%s PYTHONUNBUFFERED=1 %s", config.moshi_server_path, inner_cmd)
+		self:_start_dictation_process(cmd)
+	end
+end
+
+function DictationController:_start_container_and_client()
+	self:_log("Starting container with pure Lua + podman approach")
+	
+	-- Check if container exists (including stopped ones) - use shell to handle piping
+	awful.spawn.easy_async_with_shell("podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'", function(stdout, stderr, reason, exit_code)
+		-- Debug output to understand what we're getting
+		self:_log(string.format("Container check - stdout: '%s', stderr: '%s', exit_code: %s", 
+			stdout or "nil", stderr or "nil", tostring(exit_code)))
+		
+		local container_state = "missing"
+		-- Check stdout regardless of exit code since podman may emit warnings to stderr
+		if stdout and stdout ~= "" then
+			self:_log("Found stdout content: " .. stdout)
+			if stdout:match("moshi%-stt") then
+				local state_match = stdout:match("moshi%-stt%s+(%S+)")
+				if state_match then
+					container_state = state_match:lower()
+				else
+					self:_log("Pattern match failed for state extraction")
+				end
+			else
+				self:_log("No moshi-stt found in stdout")
+			end
+		else
+			self:_log("No stdout content received")
+		end
+		
+		self:_log("Container state determined: " .. container_state)
+		
+		if container_state == "running" then
+			self:_log("Container already running, starting client directly")
+			self:_start_container_client()
+		elseif container_state == "exited" or container_state == "created" then
+			self:_log("Starting stopped container")
+			awful.spawn.easy_async("podman start moshi-stt", function(start_stdout, start_stderr, start_reason, start_exit_code)
+				if start_exit_code == 0 then
+					self:_log("Container started, waiting for readiness")
+					self:_wait_for_container_ready()
+				else
+					self:_log("Failed to start container: " .. (start_stderr or "unknown"))
+					self.callbacks.on_error("Failed to start container: " .. (start_stderr or "unknown"))
+				end
+			end)
+		else
+			self:_log("Container not found or in invalid state: " .. container_state)
+			self.callbacks.on_error("Container 'moshi-stt' not found. Please create it first.")
+		end
+	end)
+end
+
+function DictationController:_wait_for_container_ready()
+	self:_log("Waiting for container to be ready...")
+	local check_count = 0
+	local max_checks = 30 -- 30 seconds maximum wait
+	
+	local function check_ready()
+		check_count = check_count + 1
+		awful.spawn.easy_async("podman logs --tail 5 moshi-stt", function(log_stdout, log_stderr, log_reason, log_exit_code)
+			if log_exit_code == 0 and log_stdout then
+				-- Check for readiness signal in logs
+				if log_stdout:match("starting asr loop") then
+					self:_log("Container is ready (ASR loop started)")
+					self:_start_container_client()
+					return
+				end
+			end
+			
+			-- Check if we should keep waiting
+			if check_count < max_checks then
+				-- Check again in 1 second
+				gears.timer.start_new(1, function()
+					check_ready()
+					return false -- Don't repeat timer
+				end)
+			else
+				self:_log("Timeout waiting for container readiness, attempting connection anyway")
+				self:_start_container_client()
+			end
+		end)
+	end
+	
+	-- Start checking
+	check_ready()
+end
+
+function DictationController:_start_container_client()
+	self:_log("Starting dictation client for container")
+	
+	-- Use the new container-specific client script
+	local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
+	
+	self:_log("Container client command: " .. cmd)
+	self:_start_dictation_process(cmd)
+end
+
+function DictationController:_start_dictation_process(cmd)
 	self:_log("Executing command: " .. cmd)
 
 	-- Start process with line callback to capture output
@@ -180,7 +291,9 @@ function DictationController:start()
 			end
 
 			-- Check for server ready signals (turn green immediately when connected)
-			if line:match("✅ Connected to Kyutai") or line:match("Connected to Kyutai server") then
+			if line:match("✅ Connected to") or line:match("Connected to Kyutai server") or 
+			   line:match("✅ STT server ready") or line:match("ASR warmed up and ready") or
+			   line:match("🟢 Server ready") or line:match("Connected to container server") then
 				self:_log("DETECTED SERVER CONNECTED: " .. line)
 				self.is_running = true
 				self.callbacks.on_start()
@@ -189,8 +302,12 @@ function DictationController:start()
 			-- Check for specific error conditions (but ignore normal shutdown messages)
 			elseif line:match("❌ moshi%-server not found") then
 				self.callbacks.on_error("moshi-server not found in PATH. Please install or check PATH configuration.")
+			elseif line:match("❌ Container not found") then
+				self.callbacks.on_error("STT container not found. Please create it first.")
+			elseif line:match("❌ Failed to start container") then
+				self.callbacks.on_error("Failed to start STT container. Check container configuration.")
 			elseif line:match("❌ Connection error") or line:match("Connection call failed") then
-				self.callbacks.on_error("Cannot connect to moshi-server. Server may not be running.")
+				self.callbacks.on_error("Cannot connect to STT server. Server may not be ready yet.")
 			elseif line:match("⚠️  WebSocket connection closed") and not self:_is_graceful_shutdown() then
 				-- Only treat as error if it's not during graceful shutdown
 				self.callbacks.on_error("WebSocket connection dropped unexpectedly")
@@ -204,13 +321,22 @@ function DictationController:start()
 		stderr = function(line)
 			self:_log("STDERR: " .. line)
 
-			-- Handle errors
-			if line:match("Error") or line:match("Failed") then
-				self.callbacks.on_error("Dictation error: " .. line)
+			-- Handle errors - be more aggressive about catching client issues
+			if line:match("Error") or line:match("Failed") or line:match("can't open file") or 
+			   line:match("ImportError") or line:match("ModuleNotFoundError") or line:match("❌") then
+				self.callbacks.on_error("Client error: " .. line)
 			end
 		end,
 		exit = function(reason, code)
 			self:_log(string.format("Process exited: reason=%s, code=%s", reason or "unknown", code or "unknown"))
+
+			-- Provide more detailed exit information for debugging
+			if code and code ~= 0 then
+				self:_log(string.format("Client process failed with exit code: %s", code))
+				if not self.stopping then
+					self.callbacks.on_error(string.format("Client process exited unexpectedly (code: %s)", code))
+				end
+			end
 
 			self.process_pid = nil
 			self.is_running = false
@@ -246,7 +372,7 @@ function DictationController:stop()
 	self.stopping = true
 
 	if self.process_pid then
-		-- Send SIGTERM to gracefully shutdown
+		-- Send SIGTERM to gracefully shutdown the dictation client
 		local cmd = string.format("kill -TERM %d", self.process_pid)
 		self:_log("Sending SIGTERM to PID: " .. self.process_pid)
 
@@ -261,6 +387,19 @@ function DictationController:stop()
 					self:_log("Force killing PID: " .. self.process_pid)
 					awful.spawn(force_cmd)
 				end
+				
+				-- Also stop the container if we're using containers
+				if config.use_container then
+					self:_log("Stopping container with pure podman command")
+					awful.spawn.easy_async("podman stop moshi-stt", function(container_stdout, container_stderr, container_reason, container_exit_code)
+						if container_exit_code == 0 then
+							self:_log("Container stopped successfully")
+						else
+							self:_log("Failed to stop container: " .. (container_stderr or "unknown error"))
+						end
+					end)
+				end
+				
 				-- Clear stopping flag after cleanup
 				self.stopping = false
 				return false -- Don't repeat timer
@@ -474,14 +613,28 @@ local function cleanup_leftover_processes()
 		print("DEBUG: Cleaning up leftover dictation processes on module load")
 	end
 
-	-- Kill any existing moshi-server processes
-	awful.spawn.easy_async("pkill -f moshi-server", function(stdout, stderr, reason, exit_code)
-		if config.debug and exit_code == 0 then
-			print("DEBUG: Killed leftover moshi-server processes")
-		end
-	end)
+	if config.use_container then
+		-- Clean up containers with pure podman commands
+		awful.spawn.easy_async("podman stop moshi-stt", function(stop_stdout, stop_stderr, stop_reason, stop_exit_code)
+			if config.debug then
+				if stop_exit_code == 0 then
+					print("DEBUG: Stopped leftover container")
+				else
+					print("DEBUG: Container stop failed (may not be running): " .. (stop_stderr or "unknown"))
+				end
+			end
+			-- Don't remove the container, just stop it for reuse
+		end)
+	else
+		-- Kill any existing moshi-server processes (original behavior)
+		awful.spawn.easy_async("pkill -f moshi-server", function(stdout, stderr, reason, exit_code)
+			if config.debug and exit_code == 0 then
+				print("DEBUG: Killed leftover moshi-server processes")
+			end
+		end)
+	end
 
-	-- Kill any existing just_dictate.py processes
+	-- Always kill any existing just_dictate.py processes
 	awful.spawn.easy_async("pkill -f just_dictate.py", function(stdout, stderr, reason, exit_code)
 		if config.debug and exit_code == 0 then
 			print("DEBUG: Killed leftover just_dictate.py processes")
