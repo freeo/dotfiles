@@ -115,7 +115,6 @@ function DictationController:start()
 		self:_log("Dictation already running, ignoring start request")
 		return
 	end
-	
 
 	-- Show orange "starting" status immediately when user presses key
 	self.callbacks.on_starting()
@@ -294,20 +293,24 @@ end
 
 function DictationController:_start_container_client()
 	self:_log("Starting dictation client for container")
-	
+
 	-- Double-check no client is already running to prevent duplicates
 	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
 		if exit_code == 0 then
 			self:_log("WARNING: Client already exists, not starting another")
 			return
 		end
-		
-		-- Use the new container-specific client script
-		local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
-		
-		self:_log("Container client command: " .. cmd)
-		self:_start_dictation_process(cmd)
-		
+
+		-- Add small delay to let container fully initialize (prevents WebSocket connection spam)
+		self:_log("Waiting brief moment for container readiness...")
+		gears.timer.start_new(0.8, function()
+			-- Use the new container-specific client script
+			local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
+
+			self:_log("Container client command: " .. cmd)
+			self:_start_dictation_process(cmd)
+			return false
+		end)
 	end)
 end
 
@@ -426,7 +429,7 @@ function DictationController:_start_dictation_process(cmd)
 
 			-- Clear the PID
 			self.process_pid = nil
-			
+
 			-- Don't change is_running state here - the container is still running
 			-- Just update UI to show muted state
 			if self.is_running and self.ui and not self.stopping then
@@ -518,7 +521,7 @@ function DictationController:stop()
 					-- First ensure ALL clients are dead
 					awful.spawn.easy_async("pkill -9 -f dictate_container_client.py", function()
 						self:_log("Ensured all clients are killed before stopping container")
-						
+
 						self:_log("Stopping container with pure podman command")
 						awful.spawn.easy_async(
 							"podman stop moshi-stt",
@@ -565,7 +568,7 @@ function DictationController:toggle()
 		if exit_code == 0 and stdout and stdout ~= "" then
 			-- Found running client processes
 			self:_log("Found running client processes (possibly from before AWM restart)")
-			self.is_running = true  -- Set state to running
+			self.is_running = true -- Set state to running
 			-- Now stop them
 			self:stop()
 		elseif self.is_running then
@@ -605,43 +608,59 @@ function DictationController:get_container_state(callback)
 	)
 end
 
-
 -- Simplified client management
 function DictationController:client_start()
 	self:_log("Starting client due to microphone activation")
-	
+
 	-- Only start if dictation is running and container is ready
 	if not self.is_running then
 		self:_log("Dictation not running - not starting client")
 		return
 	end
-	
+
 	self:_start_container_client()
 end
 
 function DictationController:client_stop()
 	self:_log("Stopping client due to microphone deactivation")
-	
+
 	-- Set flag to prevent error notification
 	self.stopping = true
-	
-	-- Kill all clients
-	awful.spawn.easy_async("pkill -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
-		if exit_code == 0 then
-			self:_log("Killed dictation client(s)")
-		else
-			self:_log("No clients to kill")
-		end
-		-- Clear PID
-		self.process_pid = nil
-		
-		-- Clear flag after a moment
+
+	-- Kill all clients with graceful then force approach
+	awful.spawn.easy_async("pkill -TERM -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
+		-- Give clients time to disconnect gracefully
 		gears.timer.start_new(0.5, function()
-			self.stopping = false
+			-- Force kill any remaining clients
+			awful.spawn.easy_async(
+				"pkill -KILL -f dictate_container_client.py",
+				function(kill_stdout, kill_stderr, kill_reason, kill_exit_code)
+					if kill_exit_code == 0 then
+						self:_log("Force killed remaining dictation clients")
+					else
+						self:_log("No clients remaining to force kill")
+					end
+
+					-- Clear PID
+					self.process_pid = nil
+
+					-- Clear flag after ensuring cleanup
+					gears.timer.start_new(0.3, function()
+						self.stopping = false
+						return false
+					end)
+				end
+			)
 			return false
 		end)
+
+		if exit_code == 0 then
+			self:_log("Sent SIGTERM to dictation client(s)")
+		else
+			self:_log("No clients to terminate gracefully")
+		end
 	end)
-	
+
 	-- Update widget immediately to show muted state
 	if self.is_running and self.ui then
 		self.ui:update_status("ready", false)
@@ -662,7 +681,7 @@ function UIManager.new()
 	local focused = awful.screen.focused()
 
 	-- Create main container (iPhone notch style - bottom center)
-	local width = 120 -- 120px wide
+	local width = 130 -- 120px wide
 	local height = 40 -- 40px tall
 	self.container = wibox({
 		screen = focused,
@@ -815,33 +834,33 @@ end
 function UIManager:flash_stop_complete()
 	-- Flash sequence: red → offline → red → hide (200ms per state)
 	-- This gives visual feedback when server stops completely
-	
+
 	-- Step 1: Show red/stopping color
 	local stopping_scheme = {
 		background = "#FF5722", -- Deep Orange/Red (stopping color)
-		margin = "#D84315", 
-		text = "#BF360C", 
-		label = "stopped"
+		margin = "#D84315",
+		text = "#BF360C",
+		label = "stopped",
 	}
 	self:_apply_color_scheme(stopping_scheme)
 	self.container.visible = true
-	
-	-- Step 2: Flash to offline color after 200ms
-	gears.timer.start_new(0.2, function()
+
+	-- Step 2: Flash to offline color after 100ms
+	gears.timer.start_new(0.1, function()
 		local inactive_scheme = {
 			background = "#9D6DCA", -- Light purple (inactive color)
-			margin = "#7B1FA2", 
-			text = "#4A148C", 
-			label = "offline"
+			margin = "#7B1FA2",
+			text = "#4A148C",
+			label = "offline",
 		}
 		self:_apply_color_scheme(inactive_scheme)
-		
-		-- Step 3: Flash back to red after another 200ms
-		gears.timer.start_new(0.2, function()
+
+		-- Step 3: Flash back to red after another 100ms
+		gears.timer.start_new(0.1, function()
 			self:_apply_color_scheme(stopping_scheme) -- Use same red scheme as step 1
-			
-			-- Step 4: Hide widget after final 200ms
-			gears.timer.start_new(0.2, function()
+
+			-- Step 4: Hide widget after final 100ms
+			gears.timer.start_new(0.1, function()
 				self.container.visible = false
 				return false
 			end)
@@ -936,7 +955,7 @@ client.connect_signal("jack_source_on", function()
 		if config.debug then
 			print("DEBUG: Container state = " .. container_state)
 		end
-		
+
 		-- If container is running, we should be able to start client
 		if container_state == "running" then
 			-- Check if client is already running
@@ -945,8 +964,9 @@ client.connect_signal("jack_source_on", function()
 					if config.debug then
 						print("DEBUG: Client already running")
 					end
-					-- Just update UI to show listening state
+					-- Just update UI to show listening state - ensure widget is visible
 					if ui then
+						ui:show() -- Ensure widget is visible even if client was already running
 						ui:update_status("ready", true)
 					end
 				else
@@ -960,6 +980,7 @@ client.connect_signal("jack_source_on", function()
 					end
 					controller:_start_container_client()
 					if ui then
+						ui:show() -- Ensure widget is visible
 						ui:update_status("ready", true)
 					end
 				end
@@ -977,7 +998,7 @@ client.connect_signal("jack_source_off", function()
 	if config.debug then
 		print("DEBUG: jack_source_off signal received")
 	end
-	
+
 	-- Stop client when mic turns off (if dictation is running)
 	if controller.is_running then
 		controller:client_stop()
@@ -1026,7 +1047,7 @@ controller:set_callbacks({
 	on_stop = function()
 		-- Flash visual feedback when server stops completely (always, not just debug)
 		ui:flash_stop_complete()
-		
+
 		if config.debug then
 			naughty.notify({
 				title = "Dictation",
@@ -1081,7 +1102,7 @@ function dictation.ClientStart()
 		if exit_code == 0 and stdout and stdout ~= "" then
 			print("Client already running")
 		elseif controller.is_running then
-			-- Dictation is running but no client - start client like Toggle() does  
+			-- Dictation is running but no client - start client like Toggle() does
 			controller:_start_container_client()
 		else
 			-- Need to start the whole dictation system

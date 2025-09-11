@@ -119,6 +119,8 @@ echo "  Expected: 1 client, container running (this is what was broken before!)"
 
 echo -e "\n10. FINAL CLEANUP"
 echo "  Initiating shutdown..."
+echo "  NOTE: May show red error notification 'Container is stopping - please wait a moment and try again'"
+echo "        This is expected behavior when rapidly toggling - system handles it gracefully."
 awesome-client 'require("widgets.dictation").Toggle()'
 echo "  Waiting for container to fully stop..."
 # Wait for container to fully stop (not just "stopping")
