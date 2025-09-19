@@ -5,10 +5,11 @@
 The Moshi-STT Dictation System is a containerized speech-to-text solution integrated with AwesomeWM. It provides real-time voice dictation that directly types text at your cursor position, completely independent of the original nerd-dictation project.
 
 **Latest Updates:**
+- Dynamic display handling - widget automatically repositions when monitors change via xrandr
+- Screen signal integration - responds to resolution changes, monitor additions/removals
+- State persistence - maintains correct colors and position across screen configuration changes
 - Enhanced state management with proper "stopping" visual feedback
 - Container lifecycle monitoring ensures widget only disappears when container fully stops
-- Fixed duplicate notification issues
-- Improved timing for immediate visual feedback on start/stop actions
 
 ## Architecture Components
 
@@ -26,13 +27,17 @@ Located at: `/home/freeo/dotfiles/config/awesome/widgets/dictation.lua`
 - Pure Lua + podman integration (no shell wrapper scripts)
 - Container lifecycle management with state monitoring
 - Visual HUD display with immediate state feedback
+- **Dynamic display adaptation** - widget repositions automatically on screen changes
 - Microphone integration with signal coordination
 - State-aware error handling with duplicate prevention
 - Proper start/stop timing with container readiness detection
 
 **Core Components:**
 - `DictationController`: Manages container and client process lifecycle with state monitoring
-- `UIManager`: Handles the visual widget display with 5 distinct states
+- `UIManager`: Handles the visual widget display with 6 distinct states, includes:
+  - Screen signal handlers for `property::geometry`, `list`, and `primary_changed`
+  - Automatic position recalculation on display configuration changes
+  - State persistence across screen transitions
 - Container detection and startup logic with proper state handling
 - Client process management with duplicate prevention
 - Container lifecycle monitoring for accurate widget state
@@ -236,6 +241,27 @@ python /home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py -
 4. **Container-based**: Isolated, GPU-accelerated environment
 5. **Pure Lua Control**: No bash wrapper scripts needed
 
+## Display Change Handling
+
+The widget now includes robust handling for display configuration changes:
+
+**Automatic Repositioning:**
+- Widget stays centered at bottom of current focused screen
+- Updates position when resolution changes (e.g., 5120x1440 → 1920x1080)
+- Handles monitor additions/removals gracefully
+- No manual intervention required after xrandr commands
+
+**State Preservation:**
+- Color scheme persists correctly across display changes
+- Widget visibility maintained during transitions
+- Microphone state preserved
+- Container connection remains stable
+
+**Screen Signals Monitored:**
+- `screen::property::geometry` - Resolution changes
+- `screen::list` - Monitor additions/removals
+- `screen::primary_changed` - Primary display changes
+
 ## Success Indicators
 
 When working correctly, you'll see:
@@ -244,6 +270,8 @@ When working correctly, you'll see:
 3. Widget turns green (listening) or purple (muted)
 4. Speech is transcribed in real-time
 5. Text appears at cursor position immediately
-6. Widget disappears when toggled off
+6. **Widget repositions automatically when displays change**
+7. **Colors remain correct after screen configuration changes**
+8. Widget disappears when toggled off
 
-This is a clean, container-based STT solution that leverages the power of the Moshi server in an isolated environment while providing seamless integration with your desktop environment.
+This is a clean, container-based STT solution that leverages the power of the Moshi server in an isolated environment while providing seamless integration with your desktop environment, now with full support for dynamic display configurations.

@@ -8,12 +8,12 @@
 
 **Solution Implemented**:
 - Added global microphone state tracking in `/widgets/microphone.lua`
-- Modified focus/unfocus handlers in `/freeo-rc.lua` to respect microphone state
+- Modified focus/unfocus handlers in `/rc.lua` to respect microphone state
 - Border now correctly persists green when microphone is active, regardless of focus changes
 
 **Files Modified**:
 - `/home/freeo/dotfiles/config/awesome/widgets/microphone.lua` - Added state tracking
-- `/home/freeo/dotfiles/config/awesome/freeo-rc.lua` - Fixed focus handlers (lines 1781-1803)
+- `/home/freeo/dotfiles/config/awesome/rc.lua` - Fixed focus handlers (lines 1781-1803)
 
 ### 2. Implemented Client-Only Connection Management
 

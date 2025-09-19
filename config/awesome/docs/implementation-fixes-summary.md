@@ -4,7 +4,7 @@
 
 ### 1. Border Color Persistence ✅
 **Fix Applied**: 
-- Moved `microphone` module loading to top-level in `freeo-rc.lua` (line 1782)
+- Moved `microphone` module loading to top-level in `rc.lua` (line 1782)
 - Focus/unfocus handlers now properly check `microphone.state.is_on`
 - State is maintained across focus changes
 
@@ -68,7 +68,7 @@ awesome-client 'local dictation = require("widgets.dictation");
    - Added `microphone.state` tracking (lines 6-10)
    - Signal handlers update state (lines 67-68, 73-74)
 
-2. `/freeo-rc.lua`:
+2. `/rc.lua`:
    - Top-level microphone loading (line 1782)
    - Focus handlers check mic state (lines 1784-1804)
 

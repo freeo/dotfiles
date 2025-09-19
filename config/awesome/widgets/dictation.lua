@@ -40,7 +40,7 @@ local config = {
 	use_container = true, -- Toggle between container and direct moshi-server
 	timeout = 10, -- seconds to wait for server operations
 	log_file = "/home/freeo/wb/awm_dict.log",
-	debug = true, -- System debug messages and notifications (temporary: on for debugging)
+	debug = false, -- System debug messages and notifications (temporary: on for debugging)
 	log_dictation_content = false, -- Log actual dictated text (default: off to prevent huge logs)
 	client_start_delay = 0.2, -- Minimal delay to ensure container is ready
 }
@@ -677,23 +677,27 @@ UIManager.__index = UIManager
 function UIManager.new()
 	local self = setmetatable({}, UIManager)
 
+	-- Store dimensions for reuse
+	self.width = 130 -- 120px wide
+	self.height = 40 -- 40px tall
+	self.current_state = "inactive" -- Track current state for reapplying colors
+	self.current_mic_state = false -- Track mic state
+
 	-- Screen reference
 	local focused = awful.screen.focused()
 
 	-- Create main container (iPhone notch style - bottom center)
-	local width = 130 -- 120px wide
-	local height = 40 -- 40px tall
 	self.container = wibox({
 		screen = focused,
-		x = (focused.geometry.width / 2) - (width / 2), -- Centered horizontally
-		y = focused.geometry.height - height, -- Bottom edge, no offset
-		width = width,
-		height = height,
-		bg = beautiful.hud_panel_bg or "#1e1e1e",
+		x = (focused.geometry.width / 2) - (self.width / 2), -- Centered horizontally
+		y = focused.geometry.height - self.height, -- Bottom edge, no offset
+		width = self.width,
+		height = self.height,
+		bg = "#1e1e1e", -- Solid dark background (more predictable than transparency)
 		shape = gears.shape.rounded_rect,
 		visible = false,
 		ontop = true,
-		opacity = 0.9,
+		opacity = 0.85, -- Subtle overall transparency
 	})
 
 	-- Create text widget (readable size for notch style)
@@ -710,8 +714,8 @@ function UIManager.new()
 		bg = "#9D6DCA",
 		widget = wibox.widget.background,
 		shape = gears.shape.rectangle,
-		forced_height = height - 8, -- ~32px tall
-		forced_width = height - 8, -- Square indicator ~32px
+		forced_height = self.height - 8, -- ~32px tall
+		forced_width = self.height - 8, -- Square indicator ~32px
 	})
 
 	-- Create margin container (proportional margins)
@@ -731,7 +735,64 @@ function UIManager.new()
 		layout = wibox.layout.stack,
 	})
 
+	-- Setup screen change handlers
+	self:_setup_screen_signals()
+
 	return self
+end
+
+function UIManager:_setup_screen_signals()
+	-- Connect to screen geometry changes
+	screen.connect_signal("property::geometry", function(s)
+		if self.container and self.container.visible then
+			self:_update_position()
+		end
+	end)
+
+	-- Connect to screen list changes (screens added/removed)
+	screen.connect_signal("list", function()
+		if self.container and self.container.visible then
+			-- Delay slightly to let screen settle
+			gears.timer.start_new(0.1, function()
+				self:_update_position()
+				return false
+			end)
+		end
+	end)
+
+	-- Connect to primary screen changes
+	screen.connect_signal("primary_changed", function()
+		if self.container and self.container.visible then
+			self:_update_position()
+		end
+	end)
+end
+
+function UIManager:_update_position()
+	local focused = awful.screen.focused()
+	if not focused then
+		return
+	end
+
+	-- Update screen association
+	self.container.screen = focused
+
+	-- Recalculate position for current screen
+	local new_x = (focused.geometry.width / 2) - (self.width / 2)
+	local new_y = focused.geometry.height - self.height
+
+	self.container.x = new_x
+	self.container.y = new_y
+
+	-- Reapply the current color scheme to fix color issues
+	if self.current_state and self.current_state ~= "inactive" then
+		self:update_status(self.current_state, self.current_mic_state)
+	end
+
+	if config.debug then
+		print(string.format("DEBUG: UIManager position updated to x=%d, y=%d on screen %d (%dx%d)",
+			new_x, new_y, focused.index, focused.geometry.width, focused.geometry.height))
+	end
 end
 
 function UIManager:show()
@@ -745,6 +806,10 @@ function UIManager:hide()
 end
 
 function UIManager:update_status(state, mic_state)
+	-- Store current state for reapplying after screen changes
+	self.current_state = state
+	self.current_mic_state = mic_state
+
 	-- Debug logging to track UI updates
 	if config.debug then
 		print(
@@ -756,7 +821,7 @@ function UIManager:update_status(state, mic_state)
 		)
 	end
 
-	-- Define coordinated color schemes for each state
+	-- Define coordinated color schemes for each state (solid colors with subtle container transparency)
 	local color_schemes = {
 		listening = {
 			background = "#4CAF50", -- Green
@@ -838,8 +903,8 @@ function UIManager:flash_stop_complete()
 	-- Step 1: Show red/stopping color
 	local stopping_scheme = {
 		background = "#FF5722", -- Deep Orange/Red (stopping color)
-		margin = "#D84315",
-		text = "#BF360C",
+		margin = "#D84315", -- Darker deep orange
+		text = "#BF360C", -- Dark orange for contrast
 		label = "stopped",
 	}
 	self:_apply_color_scheme(stopping_scheme)
@@ -849,8 +914,8 @@ function UIManager:flash_stop_complete()
 	gears.timer.start_new(0.1, function()
 		local inactive_scheme = {
 			background = "#9D6DCA", -- Light purple (inactive color)
-			margin = "#7B1FA2",
-			text = "#4A148C",
+			margin = "#7B1FA2", -- Darker purple
+			text = "#4A148C", -- Dark purple for contrast
 			label = "offline",
 		}
 		self:_apply_color_scheme(inactive_scheme)
@@ -1119,6 +1184,15 @@ end
 -- Container state check
 function dictation.GetContainerState(callback)
 	controller:get_container_state(callback)
+end
+
+-- Debug hook for testing (NOT for production use)
+function dictation._GetInternals()
+	return {
+		controller = controller,
+		ui = ui,
+		config = config
+	}
 end
 
 -- ============================================================================
