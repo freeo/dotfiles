@@ -31,6 +31,34 @@ local dpi = beautiful.xresources.apply_dpi
 -- External modules
 local microphone = require("widgets.microphone")
 
+-- ============================================================================
+-- PARALLEL CHANGE IMPLEMENTATION
+-- Single-line switch between old (hardcoded) and new (engine-based) implementations
+-- ============================================================================
+
+-- THE SWITCH: Change this single line to switch implementations
+local USE_ENGINE_MANAGER = true -- false = old implementation, true = new implementation
+
+-- Load engine manager if enabled (Parallel Change: new code alongside old)
+local EngineManager = nil
+local engine_manager = nil
+
+if USE_ENGINE_MANAGER then
+	local ok, em_module = pcall(require, "widgets.dictation_engine_manager")
+	if ok then
+		EngineManager = em_module
+		engine_manager = EngineManager.new()
+		-- Initialize with moshi engine (matches current hardcoded behavior)
+		engine_manager:set_engine("moshi")
+		print("[DICTATION] Using NEW engine manager implementation")
+	else
+		print("[DICTATION] WARNING: Engine manager not found, falling back to old implementation")
+		USE_ENGINE_MANAGER = false
+	end
+else
+	print("[DICTATION] Using OLD hardcoded implementation")
+end
+
 -- Configuration
 local config = {
 	dictate_script = "/home/freeo/tools/nerd-dict-fork/tools/just_dictate.py", -- Original script for direct moshi-server
@@ -135,78 +163,99 @@ end
 function DictationController:_start_container_and_client()
 	self:_log("Starting container with pure Lua + podman approach")
 
-	-- Check if container exists (including stopped ones) - use shell to handle piping
-	awful.spawn.easy_async_with_shell(
-		"podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'",
-		function(stdout, stderr, reason, exit_code)
-			-- Debug output to understand what we're getting
-			self:_log(
-				string.format(
-					"Container check - stdout: '%s', stderr: '%s', exit_code: %s",
-					stdout or "nil",
-					stderr or "nil",
-					tostring(exit_code)
-				)
-			)
+	-- PARALLEL CHANGE: Route to appropriate implementation
+	local check_cmd
+	if USE_ENGINE_MANAGER then
+		check_cmd = engine_manager:get_container_check_cmd()
+		self:_log("[ENGINE MANAGER] Using generated check command")
+	else
+		check_cmd = "podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'"
+		self:_log("[HARDCODED] Using hardcoded check command")
+	end
 
-			local container_state = "missing"
-			-- Check stdout regardless of exit code since podman may emit warnings to stderr
-			if stdout and stdout ~= "" then
-				self:_log("Found stdout content: " .. stdout)
-				if stdout:match("moshi%-stt") then
-					local state_match = stdout:match("moshi%-stt%s+(%S+)")
-					if state_match then
-						container_state = state_match:lower()
-					else
-						self:_log("Pattern match failed for state extraction")
-					end
+	-- Check if container exists (including stopped ones) - use shell to handle piping
+	awful.spawn.easy_async_with_shell(check_cmd, function(stdout, stderr, reason, exit_code)
+		-- Debug output to understand what we're getting
+		self:_log(
+			string.format(
+				"Container check - stdout: '%s', stderr: '%s', exit_code: %s",
+				stdout or "nil",
+				stderr or "nil",
+				tostring(exit_code)
+			)
+		)
+
+		local container_state = "missing"
+		-- PARALLEL CHANGE: Route container name parsing
+		local container_name
+		if USE_ENGINE_MANAGER then
+			container_name = engine_manager:get_container_name()
+		else
+			container_name = "moshi-stt"
+		end
+
+		-- Check stdout regardless of exit code since podman may emit warnings to stderr
+		if stdout and stdout ~= "" then
+			self:_log("Found stdout content: " .. stdout)
+			-- Use dynamic container name
+			local pattern = container_name:gsub("%-", "%%-") -- Escape hyphens for pattern matching
+			if stdout:match(pattern) then
+				local state_match = stdout:match(pattern .. "%s+(%S+)")
+				if state_match then
+					container_state = state_match:lower()
 				else
-					self:_log("No moshi-stt found in stdout")
+					self:_log("Pattern match failed for state extraction")
 				end
 			else
-				self:_log("No stdout content received")
+				self:_log("No " .. container_name .. " found in stdout")
 			end
-
-			self:_log("Container state determined: " .. container_state)
-
-			if container_state == "running" then
-				self:_log("Container already running, starting client immediately")
-				self.is_running = true
-				-- Start client immediately since container is ready
-				gears.timer.start_new(0.2, function()
-					self:_start_container_client()
-					return false
-				end)
-				self.callbacks.on_start()
-			elseif container_state == "stopping" then
-				self:_log("Container is stopping - waiting before starting")
-				self.callbacks.on_error("Container is stopping - please wait a moment and try again")
-			elseif container_state == "exited" or container_state == "created" then
-				self:_log("Starting stopped container")
-				awful.spawn.easy_async(
-					"podman start moshi-stt",
-					function(start_stdout, start_stderr, start_reason, start_exit_code)
-						if start_exit_code == 0 then
-							self:_log("Container started successfully")
-							self.is_running = true
-							-- Start client after delay since we just started the container
-							gears.timer.start_new(config.client_start_delay, function()
-								self:_start_container_client()
-								self.callbacks.on_start()
-								return false
-							end)
-						else
-							self:_log("Failed to start container: " .. (start_stderr or "unknown"))
-							self.callbacks.on_error("Failed to start container: " .. (start_stderr or "unknown"))
-						end
-					end
-				)
-			else
-				self:_log("Container not found or in invalid state: " .. container_state)
-				self.callbacks.on_error("Container 'moshi-stt' not found. Please create it first.")
-			end
+		else
+			self:_log("No stdout content received")
 		end
-	)
+
+		self:_log("Container state determined: " .. container_state)
+
+		if container_state == "running" then
+			self:_log("Container already running, starting client immediately")
+			self.is_running = true
+			-- Start client immediately since container is ready
+			gears.timer.start_new(0.2, function()
+				self:_start_container_client()
+				return false
+			end)
+			self.callbacks.on_start()
+		elseif container_state == "stopping" then
+			self:_log("Container is stopping - waiting before starting")
+			self.callbacks.on_error("Container is stopping - please wait a moment and try again")
+		elseif container_state == "exited" or container_state == "created" then
+			self:_log("Starting stopped container")
+			-- PARALLEL CHANGE: Route container start command
+			local start_cmd
+			if USE_ENGINE_MANAGER then
+				start_cmd = engine_manager:get_container_start_cmd()
+			else
+				start_cmd = "podman start moshi-stt"
+			end
+			awful.spawn.easy_async(start_cmd, function(start_stdout, start_stderr, start_reason, start_exit_code)
+				if start_exit_code == 0 then
+					self:_log("Container started successfully")
+					self.is_running = true
+					-- Start client after delay since we just started the container
+					gears.timer.start_new(config.client_start_delay, function()
+						self:_start_container_client()
+						self.callbacks.on_start()
+						return false
+					end)
+				else
+					self:_log("Failed to start container: " .. (start_stderr or "unknown"))
+					self.callbacks.on_error("Failed to start container: " .. (start_stderr or "unknown"))
+				end
+			end)
+		else
+			self:_log("Container not found or in invalid state: " .. container_state)
+			self.callbacks.on_error("Container 'moshi-stt' not found. Please create it first.")
+		end
+	end)
 end
 
 function DictationController:_wait_for_container_ready()
@@ -294,8 +343,20 @@ end
 function DictationController:_start_container_client()
 	self:_log("Starting dictation client for container")
 
+	-- PARALLEL CHANGE: Get client script from appropriate source
+	local client_script_pattern
+	if USE_ENGINE_MANAGER then
+		-- Engine manager returns the full path, extract just the script name for pgrep
+		local client_cmd = engine_manager:get_client_cmd()
+		client_script_pattern = client_cmd:match("([^/]+%.py)") -- Extract script name
+		self:_log("[ENGINE MANAGER] Client pattern: " .. (client_script_pattern or "unknown"))
+	else
+		client_script_pattern = "dictate_container_client.py"
+		self:_log("[HARDCODED] Client pattern: " .. client_script_pattern)
+	end
+
 	-- Double-check no client is already running to prevent duplicates
-	awful.spawn.easy_async("pgrep -f dictate_container_client.py", function(stdout, stderr, reason, exit_code)
+	awful.spawn.easy_async("pgrep -f " .. client_script_pattern, function(stdout, stderr, reason, exit_code)
 		if exit_code == 0 then
 			self:_log("WARNING: Client already exists, not starting another")
 			return
@@ -303,9 +364,25 @@ function DictationController:_start_container_client()
 
 		-- Add small delay to let container fully initialize (prevents WebSocket connection spam)
 		self:_log("Waiting brief moment for container readiness...")
-		gears.timer.start_new(0.8, function()
-			-- Use the new container-specific client script
-			local cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
+
+		-- PARALLEL CHANGE: Get startup delay from appropriate source
+		local startup_delay
+		if USE_ENGINE_MANAGER then
+			startup_delay = engine_manager:get_client_startup_delay()
+		else
+			startup_delay = 0.8
+		end
+
+		gears.timer.start_new(startup_delay, function()
+			-- PARALLEL CHANGE: Get client command from appropriate source
+			local cmd
+			if USE_ENGINE_MANAGER then
+				cmd = engine_manager:get_client_cmd()
+				self:_log("[ENGINE MANAGER] Client command: " .. cmd)
+			else
+				cmd = string.format("%s %s --output auto", config.python_cmd, config.container_dictate_script)
+				self:_log("[HARDCODED] Client command: " .. cmd)
+			end
 
 			self:_log("Container client command: " .. cmd)
 			self:_start_dictation_process(cmd)
@@ -487,7 +564,15 @@ function DictationController:stop()
 				-- Add delay before stopping container to ensure client is dead
 				gears.timer.start_new(1, function()
 					self:_log("Stopping container")
-					awful.spawn.easy_async("podman stop moshi-stt", function()
+					-- PARALLEL CHANGE: Route container stop command
+					local stop_cmd
+					if USE_ENGINE_MANAGER then
+						stop_cmd = engine_manager:get_container_stop_cmd()
+					else
+						-- default time: 10, so 0 forces a fast stop
+						stop_cmd = "podman stop --time 0 moshi-stt"
+					end
+					awful.spawn.easy_async(stop_cmd, function()
 						self:_wait_for_container_stopped()
 					end)
 					return false
@@ -523,8 +608,15 @@ function DictationController:stop()
 						self:_log("Ensured all clients are killed before stopping container")
 
 						self:_log("Stopping container with pure podman command")
+						-- PARALLEL CHANGE: Route container stop command
+						local stop_cmd
+						if USE_ENGINE_MANAGER then
+							stop_cmd = engine_manager:get_container_stop_cmd()
+						else
+							stop_cmd = "podman stop --time 0 moshi-stt"
+						end
 						awful.spawn.easy_async(
-							"podman stop moshi-stt",
+							stop_cmd,
 							function(container_stdout, container_stderr, container_reason, container_exit_code)
 								if container_exit_code == 0 then
 									self:_log("Container stopped successfully")
@@ -790,8 +882,16 @@ function UIManager:_update_position()
 	end
 
 	if config.debug then
-		print(string.format("DEBUG: UIManager position updated to x=%d, y=%d on screen %d (%dx%d)",
-			new_x, new_y, focused.index, focused.geometry.width, focused.geometry.height))
+		print(
+			string.format(
+				"DEBUG: UIManager position updated to x=%d, y=%d on screen %d (%dx%d)",
+				new_x,
+				new_y,
+				focused.index,
+				focused.geometry.width,
+				focused.geometry.height
+			)
+		)
 	end
 end
 
@@ -1191,7 +1291,7 @@ function dictation._GetInternals()
 	return {
 		controller = controller,
 		ui = ui,
-		config = config
+		config = config,
 	}
 end
 

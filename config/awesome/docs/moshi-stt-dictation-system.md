@@ -5,6 +5,7 @@
 The Moshi-STT Dictation System is a containerized speech-to-text solution integrated with AwesomeWM. It provides real-time voice dictation that directly types text at your cursor position, completely independent of the original nerd-dictation project.
 
 **Latest Updates:**
+
 - Dynamic display handling - widget automatically repositions when monitors change via xrandr
 - Screen signal integration - responds to resolution changes, monitor additions/removals
 - State persistence - maintains correct colors and position across screen configuration changes
@@ -14,6 +15,7 @@ The Moshi-STT Dictation System is a containerized speech-to-text solution integr
 ## Architecture Components
 
 ### 1. Container: `moshi-stt`
+
 - **Image**: `localhost/moshi-stt:cuda`
 - **Port Mapping**: Container port 8080 → Host port 5455
 - **Service**: Runs the Kyutai Moshi server for speech recognition
@@ -21,9 +23,11 @@ The Moshi-STT Dictation System is a containerized speech-to-text solution integr
 - **State Management**: Can be in states: created, running, stopping, exited
 
 ### 2. AwesomeWM Widget: `dictation.lua`
+
 Located at: `/home/freeo/dotfiles/config/awesome/widgets/dictation.lua`
 
 **Key Features:**
+
 - Pure Lua + podman integration (no shell wrapper scripts)
 - Container lifecycle management with state monitoring
 - Visual HUD display with immediate state feedback
@@ -33,6 +37,7 @@ Located at: `/home/freeo/dotfiles/config/awesome/widgets/dictation.lua`
 - Proper start/stop timing with container readiness detection
 
 **Core Components:**
+
 - `DictationController`: Manages container and client process lifecycle with state monitoring
 - `UIManager`: Handles the visual widget display with 6 distinct states, includes:
   - Screen signal handlers for `property::geometry`, `list`, and `primary_changed`
@@ -43,11 +48,13 @@ Located at: `/home/freeo/dotfiles/config/awesome/widgets/dictation.lua`
 - Container lifecycle monitoring for accurate widget state
 
 ### 3. Container Client: `dictate_container_client.py`
+
 Located at: `/home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py`
 
 **This is a completely new, standalone script** - NOT part of nerd-dictation!
 
 **Key Features:**
+
 - WebSocket connection to container at `ws://localhost:5455/api/asr-streaming`
 - Audio capture using sounddevice library
 - Real-time text output to cursor using xdotool/ydotool/wtype/dotool
@@ -108,6 +115,7 @@ Widget disappears when container fully stopped
 ### 2. Container Detection
 
 The system uses `awful.spawn.easy_async_with_shell()` to run:
+
 ```bash
 podman ps -a --format '{{.Names}} {{.State}}' 2>/dev/null | grep '^moshi-stt'
 ```
@@ -117,14 +125,16 @@ This detects if the container exists and its current state.
 ### 3. Client-Server Communication
 
 **WebSocket Protocol:**
+
 - Client sends: Audio chunks as msgpack-encoded messages
-- Server sends: 
+- Server sends:
   - `Ready` messages (server ready)
   - `Word` messages (transcribed words)
   - `Step` messages (VAD/pause detection)
   - `EndWord` messages (word boundaries)
 
 **Audio Format:**
+
 - Sample rate: 24000 Hz
 - Channels: 1 (mono)
 - Block size: 1920 samples (80ms)
@@ -133,6 +143,7 @@ This detects if the container exists and its current state.
 ### 4. Text Output
 
 The client immediately inserts transcribed words at the cursor position using:
+
 - **xdotool** (X11 - most common)
 - **ydotool** (Wayland)
 - **wtype** (Wayland alternative)
@@ -142,24 +153,26 @@ The client immediately inserts transcribed words at the cursor position using:
 
 The widget displays different colors based on state:
 
-| State | Color | Description |
-|-------|-------|-------------|
-| Starting | Orange (#FF9800) | Container is starting up |
-| Stopping | Deep Orange (#FF5722) | Container is stopping |
-| Ready (Muted) | Purple (#7e5edc) | Container ready, microphone muted |
-| Listening | Green (#4CAF50) | Actively transcribing speech |
-| Inactive | Light Purple (#9D6DCA) | System not running |
-| Error | Red (#F44336) | Error occurred |
+| State         | Color                  | Description                       |
+| ------------- | ---------------------- | --------------------------------- |
+| Starting      | Orange (#FF9800)       | Container is starting up          |
+| Stopping      | Deep Orange (#FF5722)  | Container is stopping             |
+| Ready (Muted) | Purple (#7e5edc)       | Container ready, microphone muted |
+| Listening     | Green (#4CAF50)        | Actively transcribing speech      |
+| Inactive      | Light Purple (#9D6DCA) | System not running                |
+| Error         | Red (#F44336)          | Error occurred                    |
 
 **State Timing:**
+
 - Orange appears **immediately** when PageUp is pressed (start)
-- Deep orange appears **immediately** when PageUp is pressed (stop)  
+- Deep orange appears **immediately** when PageUp is pressed (stop)
 - Green appears when client connects and receives "Server ready"
 - Widget disappears only when container reaches "exited" state
 
 ## Configuration
 
 In `dictation.lua`:
+
 ```lua
 local config = {
     container_dictate_script = "/home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py",
@@ -187,8 +200,8 @@ The original `just_dictate.py` script from nerd-dict-fork is NOT USED when `use_
 # Start container
 podman start moshi-stt
 
-# Stop container  
-podman stop moshi-stt
+# Stop container
+podman stop --time 0 moshi-stt
 
 # Check status
 podman ps -a | grep moshi-stt
@@ -206,12 +219,14 @@ podman run -d --name moshi-stt \
 ## Python Dependencies
 
 Required for the client script:
+
 - websockets
-- msgpack  
+- msgpack
 - numpy
 - sounddevice
 
 Install via:
+
 ```bash
 pip install websockets msgpack numpy sounddevice
 ```
@@ -219,16 +234,19 @@ pip install websockets msgpack numpy sounddevice
 ## Debugging
 
 Enable debug mode in `dictation.lua`:
+
 ```lua
 debug = true
 ```
 
 Check logs:
+
 ```bash
 tail -f /home/freeo/wb/awm_dict.log
 ```
 
 Test client directly:
+
 ```bash
 python /home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py --output console
 ```
@@ -246,18 +264,21 @@ python /home/freeo/dotfiles/config/awesome/scripts/dictate_container_client.py -
 The widget now includes robust handling for display configuration changes:
 
 **Automatic Repositioning:**
+
 - Widget stays centered at bottom of current focused screen
 - Updates position when resolution changes (e.g., 5120x1440 → 1920x1080)
 - Handles monitor additions/removals gracefully
 - No manual intervention required after xrandr commands
 
 **State Preservation:**
+
 - Color scheme persists correctly across display changes
 - Widget visibility maintained during transitions
 - Microphone state preserved
 - Container connection remains stable
 
 **Screen Signals Monitored:**
+
 - `screen::property::geometry` - Resolution changes
 - `screen::list` - Monitor additions/removals
 - `screen::primary_changed` - Primary display changes
@@ -265,6 +286,7 @@ The widget now includes robust handling for display configuration changes:
 ## Success Indicators
 
 When working correctly, you'll see:
+
 1. Orange widget appears (starting)
 2. Container starts within 2-3 seconds
 3. Widget turns green (listening) or purple (muted)
@@ -275,3 +297,4 @@ When working correctly, you'll see:
 8. Widget disappears when toggled off
 
 This is a clean, container-based STT solution that leverages the power of the Moshi server in an isolated environment while providing seamless integration with your desktop environment, now with full support for dynamic display configurations.
+
