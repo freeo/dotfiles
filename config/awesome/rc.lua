@@ -719,7 +719,7 @@ end
 local gpuicon = require("widgets.gpuicon.gpuicon-amd-nvidia")
 gpuicon.init()
 
-local claude_monitor = require("widgets.claude-monitor.claude-monitor")
+-- local claude_monitor = require("widgets.claude-monitor.claude-monitor")
 
 -- local test_widget = require("widgets.test-widget.test-widget")
 
@@ -890,7 +890,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
 				-- test_widget(), -- WIP
 				-- apt_widget(), -- bugged
 				-- mykeyboardlayout,
-				claude_monitor(),
+				-- claude_monitor(),
 				net_wired,
 				net_internet,
 				mytextclock,

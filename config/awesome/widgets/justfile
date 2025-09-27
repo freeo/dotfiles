@@ -1,0 +1,30 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+model := '$HOME/.cache/whisper/ggml-large-v3.bin'
+
+# Run transcription 
+transcribe-translate file:
+    podman run -it -v .:/data -v {{model}}:{{model}} ghcr.io/ggml-org/whisper.cpp:main-cuda "whisper-cli -m {{model}} --max-len 60 --beam-size 5 -l de -tr --output-srt -f /data/{{file}}"
+
+transcribe-gpt file:
+    podman run -it --device nvidia.com/gpu=all -e LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/nvidia/lib:/usr/local/cuda/lib64 \
+        -v .:/data -v {{model}}:{{model}} \
+        ghcr.io/ggml-org/whisper.cpp:main-cuda \
+        "whisper-cli -m {{model}} -f /data/{{file}} --output-srt --language de --beam-size 5 --best-of 5 --split-on-word --max-len 60"
+
+stt:
+    podman run -it --device nvidia.com/gpu=all -e LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/nvidia/lib:/usr/local/cuda/lib64 \
+        -v .:/data -v {{model}}:{{model}} \
+        ghcr.io/ggml-org/whisper.cpp:main-cuda \
+        "whisper-cli -m {{model}} --help"
+
+check-nvidia:
+    podman run -it --device nvidia.com/gpu=all -v .:/data -v {{model}}:{{model}} ghcr.io/ggml-org/whisper.cpp:main-cuda \
+      "nvidia-smi"
+
+translist:
+    podman run -it -v .:/data ghcr.io/ggml-org/whisper.cpp:main-cuda "ls -la /data"
+
+transmodels:
+    podman run -it -v .:/data -v {{model}}:{{model}} ghcr.io/ggml-org/whisper.cpp:main-cuda "ls -la {{model}}"
+
