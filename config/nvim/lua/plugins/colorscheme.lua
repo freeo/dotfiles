@@ -24,7 +24,7 @@ return {
       update_interval = 3000,
       set_dark_mode = function()
         vim.api.nvim_set_option_value("background", "dark", {})
-        -- vim.cmd("colorscheme bluloco")
+        vim.cmd("colorscheme bluloco")
       end,
       set_light_mode = function()
         vim.api.nvim_set_option_value("background", "light", {})
@@ -37,8 +37,9 @@ return {
     opts = {
       colorscheme = function()
         -- vim.cmd("colorscheme bluloco")
-        vim.cmd("colorscheme kalisi")
-        require("auto-dark-mode").init()
+        -- vim.cmd("colorscheme kalisi")
+        require("kalisi-modern").setup()
+        -- require("auto-dark-mode").init()
       end,
     },
   },
