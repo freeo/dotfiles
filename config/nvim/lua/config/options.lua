@@ -5,9 +5,12 @@
 vim.opt.number, vim.opt.relativenumber = false, false
 vim.g.lazygit_config = false
 
--- Mason installs fail with shims currently:
--- https://github.com/williamboman/mason.nvim/issues/1657
--- Workaround: comment shim path until the binaries are installed
+-- CAREFUL: GO PLS error?
+-- REASON: go-pls shim not working? NEW: upgraded to mason v2, maybe this is fixed now!
+-- GH ISSUE it still open!
+--   Mason installs fail with shims currently:
+--   https://github.com/mason-org/mason.nvim/issues/1657
+--   Workaround: comment shim path until the binaries are installed
 vim.env.PATH = vim.env.HOME .. "/.local/share/mise/shims:" .. vim.env.PATH
 
 vim.g.lazyvim_python_lsp = "basedpyright"

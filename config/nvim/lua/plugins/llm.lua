@@ -58,13 +58,13 @@ return {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
       --- The below dependencies are optional,
-      -- "echasnovski/mini.pick", -- for file_selector provider mini.pick
+      -- "nvim-mini/mini.pick", -- for file_selector provider mini.pick
       -- "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
       "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
       -- "ibhagwan/fzf-lua", -- for file_selector provider fzf
       "stevearc/dressing.nvim", -- for input provider dressing
       "folke/snacks.nvim", -- for input provider snacks
-      "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+      "nvim-tree/nvim-web-devicons", -- or nvim-mini/mini.icons
       "zbirenbaum/copilot.lua", -- for providers='copilot'
       {
         -- support for image pasting
@@ -88,6 +88,34 @@ return {
         "MeanderingProgrammer/render-markdown.nvim",
         opts = {
           file_types = { "markdown", "Avante" },
+
+          -- just a reminder that this exists:
+          -- anti_conceal = {
+          -- enabled = true,
+          -- ignore = {
+          --   "...",
+          -- },
+
+          html = {
+            -- Turn on / off all HTML rendering.
+            enabled = true,
+            -- Additional modes to render HTML.
+            render_modes = false,
+            comment = {
+              -- Turn on / off HTML comment concealing.
+              conceal = false,
+              -- Optional text to inline before the concealed comment.
+              text = nil,
+              -- Highlight for the inlined text.
+              highlight = "RenderMarkdownHtmlComment",
+            },
+            -- HTML tags whose start and end will be hidden and icon shown.
+            -- The key is matched against the tag name, value type below.
+            -- | icon            | optional icon inlined at start of tag           |
+            -- | highlight       | optional highlight for the icon                 |
+            -- | scope_highlight | optional highlight for item associated with tag |
+            tag = {},
+          },
         },
         ft = { "markdown", "Avante" },
       },

@@ -28,7 +28,7 @@ return {
     end,
     dependencies = {
       {
-        "williamboman/mason.nvim",
+        "mason-org/mason.nvim",
         opts = { ensure_installed = { "delve" } },
       },
       {
@@ -171,7 +171,7 @@ return {
   --     --       separator = "", -- e.g. shows   3 lines 
   --     --     },
   --     --   },
-  --     --   mason = false, -- set to true if you would like use the lsp installed by williamboman/mason
+  --     --   mason = false, -- set to true if you would like use the lsp installed by mason-org/mason
   --     --   lsp = {
   --     --     enable = true, -- skip lsp setup, and only use treesitter in navigator.
   --     --     -- Use this if you are not using LSP servers, and only want to enable treesitter support.

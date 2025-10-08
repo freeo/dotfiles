@@ -125,7 +125,11 @@ return function(c)
     ["@tag.attribute"] = { fg = c.purple },
     ["@tag.delimiter"] = { fg = c.magenta },
 
-    ["@module"] = { fg = vim.o.background == "light" and "#202090" or c.blueLight },
-    ["@label"] = { link = "Label" },
+["@module"] = { fg = vim.o.background == "light" and "#202090" or c.blueLight },
+  ["@label"] = { link = "Label" },
+
+  -- Markdown-specific comment highlights
+  ["@markup.comment.markdown"] = { fg = c.purpleComment, bold = vim.o.background == "light" },
+  ["@markup.comment.documentation.markdown"] = { fg = c.blueLight, bold = true },
   }
 end

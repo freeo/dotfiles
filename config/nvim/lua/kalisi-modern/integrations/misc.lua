@@ -103,7 +103,7 @@ return function(c)
     -- Markdown rendering
     RenderMarkdownCode = { bg = c.grayBgLight },
     RenderMarkdownCodeBorder = { bg = c.grayBgLighter },
-    RenderMarkdownCodeInline = { fg = vim.o.background == "light" and "#00a900" or c.green, bg = c.grayBgLight },
+    RenderMarkdownCodeInline = { fg = vim.o.background == "light" and c.fg or c.green, bg = c.grayBgLight },
     RenderMarkdownCodeInlineHighlight = { bg = vim.o.background == "light" and "#ffe0ff" or c.bgHintLight },
 
     -- Log highlighting

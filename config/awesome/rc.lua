@@ -1462,8 +1462,11 @@ awful.keyboard.append_global_keybindings({
 	}),
 
 	awful.key({ modkey }, "F11", function(c)
-		c.fullscreen = not c.fullscreen
-		c:raise()
+		local c = client.focus
+		if c then
+			c.fullscreen = not c.fullscreen
+			c:raise()
+		end
 	end, { description = "toggle fullscreen", group = "client" }),
 
 	-- always last entry, no comma
@@ -1664,47 +1667,48 @@ ruled.client.connect_signal("request::rules", function()
 
 	ruled.client.append_rule({
 		rule = { class = "thunderbird" },
-		properties = { tag = "ggg" },
+		properties = { tag = "G" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "Signal" },
-		properties = { tag = "ggg" },
+		properties = { tag = "G" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "QjackCtl" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "pcloud" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "autokey-qt" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "Solaar" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "Proton Mail Bridge" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
 		rule = { class = "pavucontrol" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({
-		rule = { class = "strawberry" },
-		properties = { tag = "music" },
+		-- rule = { name = "Strawberry Music Player" },
+		rule = { class = "Strawberry" },
+		properties = { tag = "Z" },
 	})
 
 	-- Doesn't work, because the name is slightly different directly after startup, read here inn the examples
@@ -1712,7 +1716,7 @@ ruled.client.connect_signal("request::rules", function()
 	ruled.client.append_rule({
 		-- rule       = { class = "pcmanfm", name ="pCloudDrive", instance ="pCloudDrive" },
 		rule = { name = "pCloudDrive", instance = "pCloudDrive" },
-		properties = { tag = "bbb" },
+		properties = { tag = "B" },
 	})
 
 	ruled.client.append_rule({

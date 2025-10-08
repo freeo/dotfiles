@@ -52,7 +52,7 @@ zinit ice depth=1; zinit light romkatv/powerlevel10k
 # zstyle :compinstall filename '/home/freeo/.zshrc'
 
 
-if [[ $TERM = (xterm-kitty|xterm-256color) ]]; then
+if [[ $TERM = (xterm-kitty|xterm-256color|alacritty) ]]; then
   # autocompletion: required for compdef, required for fd, nebius-cli
   autoload -Uz compinit
   compinit
@@ -297,7 +297,9 @@ zinit light mellbourn/zabb
 # zinit load wfxr/forgit # XXX checkout "grc"
 zinit light zsh-users/zsh-completions # XXX
 # zinit light zimfw/completion
-zinit light MichaelAquilina/zsh-you-should-use
+# alias-finder, annoying!
+# Found existing alias for "kubectl". You should use: "k"
+# zinit light MichaelAquilina/zsh-you-should-use
 
 
 # zi light zimfw/exa # creates bad aliases
@@ -662,7 +664,11 @@ zstyle ':notify:*' success-sound "/home/freeo/.local/share/sounds/Enchanted/ster
 zstyle ':notify:*' expire-time 3000
 zstyle ':notify:*' command-complete-timeout 4
 zstyle ':notify:*' enable-on-ssh yes
-zstyle ':notify:*' blacklist-regex 'find|git|ranger|sk'
+zstyle ':notify:*' blacklist-regex 'find|git|ranger|sk|fd|tv'
+
+# NOTE: in case the notifications act up again
+# zstyle ':notify:*' activate-terminal no
+# zstyle ':notify:*' always-notify-on-failure no
 
 case "$OSTYPE" in
   darwin*)
@@ -963,8 +969,6 @@ alias zz=__zoxide_zi
 alias v='nvim'
 alias vk="$(where kitten) edit-in-kitty"
 
-# export JUST_CHOOSER='tv --source-entry-delimiter " " --source-command "just --summary" --preview-command "just --dry-run --color always --show {}" --ansi'
-export JUST_CHOOSER='tv --expect="ctrl-c;ctrl-d" --source-entry-delimiter " " --source-command "just --summary" --preview-command "just --dry-run --color always --show {}" --ansi'
 alias j=just
 alias jc="just --choose"
 alias kd="kitty +kitten diff"
@@ -1275,6 +1279,7 @@ HOST=$(hostname)
 case "$HOST" in
   "cloudkoloss")
     # default kubeconfig/context
+    # export KUBECONFIG="/home/$USER/.kube/tdws-proto.mk8s.yaml"
     export KUBECONFIG="/home/$USER/.kube/nztint1.mk8s.yaml"
     # export KUBECONFIG="/home/$USER/.kube/lackit.k3s.yaml"
     # export KUBECONFIG="/home/$USER/.kube/lvidia.k3s.yaml"
@@ -1779,3 +1784,66 @@ export PATH="$PATH:/home/freeo/.lmstudio/bin"
 
 # opencode
 export PATH=/home/freeo/.opencode/bin:$PATH
+
+# ast-grep shortcut
+alias ag="ast-grep"
+
+# tree-sitter query wrapper
+alias tsq="tree-sitter query"
+
+# common shortcuts
+alias agf="ag run -p 'function $NAME(...) { ... }'"
+alias agi="ag run -p 'if ($COND) { ... }'"
+alias aga="sg run -p 'await new Promise($FN)'"
+
+if command -v brew >/dev/null 2>&1; then
+  LINUXBREW_PATH="/home/linuxbrew/.linuxbrew/bin"
+  if [ -d "$LINUXBREW_PATH" ]; then
+    case ":$PATH:" in
+      *":$LINUXBREW_PATH:"*) : ;;  # already in PATH, do nothing
+      *) export PATH="$LINUXBREW_PATH:$PATH" ;;
+    esac
+  fi
+fi
+
+if command -v microk8s >/dev/null 2>&1; then
+  alias kubectl='microk8s kubectl'
+  alias k='microk8s kubectl'
+fi
+
+
+export JUST_CHOOSER='tv --expect="ctrl-c;ctrl-d" --source-entry-delimiter " " --source-command "just --summary" --preview-command "just --dry-run --color always --show {}" --ansi'
+
+justtv () {
+    local JFILE=${1:-"justfile"}
+    # NOTE on the '"..."' pattern: Required!
+    #To expand a variable inside a mostly single-quoted string, you need to end the single quote, insert the variable, then restart single quotes — but you cannot insert this inside a double-quoted string without escaping correctly.
+    # When you have nested double quotes, you also need to escape the inner quotes.
+    export JUST_CHOOSER='tv --expect="ctrl-c;ctrl-d" \
+        --source-entry-delimiter " " \
+        --source-command "just --summary --justfile '"$JFILE"'" \
+        --preview-command "just --justfile '"$JFILE"' --dry-run --color always --show {}" \
+        --ansi'
+    just --choose --justfile="$JFILE"
+}
+# alias jtv=$HOME/dotfiles/just-tv.sh
+alias jts=$HOME/dotfiles/just-tv-0.1.1.sh  #stable
+alias jtv=$HOME/dotfiles/just-tv-0.3.0.sh
+alias ji=jtv   # basically just --choose upgrade: just --interactive. Close, but a big difference! 
+alias jis=jts   
+# alias j=jtv # I don't want to break regular "j command"
+# alias jd=$HOME/wb/tedi_platform_cli/just-tv-fixed.sh
+# alias jdev=jd
+
+# ji/jtv last command
+alias jl="cat ./.just-tv-last-command && source ./.just-tv-last-command"
+
+# alias j-kitty-detach="jtv $HOME/dotfiles/config/kitty/kitty-detach.justfile"
+alias j-kitty-detach="j $HOME/dotfiles/config/kitty/kitty-detach.justfile"
+
+alias jv="nvim justfile"
+
+alias t=touch
+
+# kittybg random --silent
+# /home/freeo/.local/share/mise/installs/python/3.12.11/bin/kittybg random

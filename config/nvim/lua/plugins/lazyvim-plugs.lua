@@ -15,7 +15,7 @@ return {
   -- },
 
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         "sqlfluff",
@@ -173,7 +173,7 @@ return {
     },
   },
   {
-    "echasnovski/mini.pairs",
+    "nvim-mini/mini.pairs",
     opts = {
       modes = {
         -- insert = true, -- still too much...

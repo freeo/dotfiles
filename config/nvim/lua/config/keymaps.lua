@@ -18,6 +18,11 @@ end, { desc = "Find files, ivy" })
 --   require("snacks").picker.todo_comments({ keywords = { "TODO", "WARN", "NOTE" } })
 -- end, { desc = "Todo/Warn/Note" })
 
+-- Jump to treesitter context upward
+vim.keymap.set("n", "[c", function()
+  require("treesitter-context").go_to_context(vim.v.count1)
+end, { desc = "Go to context upward", silent = true })
+
 vim.keymap.set("n", "<leader>dn", function()
   require("dap").step_over()
 end, { desc = "next" })
