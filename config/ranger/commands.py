@@ -320,7 +320,7 @@ class tv_text_select(Command):
         )
         stdout, _ = tv.communicate()
         if tv.returncode == 0:
-            selected = os.path.abspath(stdout.strip())
+            selected = os.path.abspath(stdout.strip().split(":")[0])
             if os.path.isdir(selected):
                 self.fm.cd(selected)
             else:
